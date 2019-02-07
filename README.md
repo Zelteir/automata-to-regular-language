@@ -1,0 +1,1 @@
+# TER-automata-to-regular-language
