@@ -43,3 +43,14 @@ bool Automata::fromSupremica(QString fileName)
 
     return true;
 }
+
+QList<Automaton> Automata::get_automatons()
+{
+    return QList<Automaton>(this->automatonList);
+}
+
+Automaton Automata::get_automaton_at(int i)
+{
+    return Automaton(this->automatonList.at(i));
+}
+
