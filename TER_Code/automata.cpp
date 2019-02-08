@@ -34,6 +34,8 @@ bool Automata::fromSupremica(QString fileName)
     QDomDocument doc;
     doc.setContent(encodedFileContent);
 
+
+
     /*
     QDomNodeList list=doc.elementsByTagName("string");
     QString helloWorld=list.at(0).toElement().text();*/

@@ -9,7 +9,6 @@
 #include "automaton.hpp"
 
 class Automata{
-
     private:
         Automaton* AutomatonList;
 
