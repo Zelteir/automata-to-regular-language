@@ -28,15 +28,18 @@ SOURCES += \
         main.cpp \
         mainwindow.cpp \
     automata.cpp \
-    automaton.cpp
+    automaton.cpp \
+    type_choice.cpp
 
 HEADERS += \
         mainwindow.hpp \
     automata.hpp \
-    automaton.hpp
+    automaton.hpp \
+    type_choice.hpp
 
 FORMS += \
-        mainwindow.ui
+        mainwindow.ui \
+    type_choice.ui
 
 # Default rules for deployment.
 qnx: target.path = /tmp/$${TARGET}/bin
