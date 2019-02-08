@@ -1,6 +1,7 @@
 #ifndef AUTOMATA_HPP
 #define AUTOMATA_HPP
 
+#include <QTextCodec>
 #include <QXmlInputSource>
 #include <QXmlSimpleReader>
 #include "automaton.hpp"
@@ -9,7 +10,7 @@ class Automata{
 
     Automaton* AutomatonList;
 
-    void fromXML(QString fileName);
+    void fromSupremica(char* fileName);
 };
 
 #endif // AUTOMATA_HPP
