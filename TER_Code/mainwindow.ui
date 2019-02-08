@@ -28,7 +28,7 @@
        </widget>
       </item>
       <item>
-       <widget class="QListView" name="Automatons_list">
+       <widget class="QListWidget" name="Automatons_list">
         <property name="enabled">
          <bool>false</bool>
         </property>
@@ -62,7 +62,7 @@
            </widget>
           </item>
           <item>
-           <widget class="QListView" name="States_list">
+           <widget class="QListWidget" name="States_list">
             <property name="enabled">
              <bool>false</bool>
             </property>
@@ -83,7 +83,7 @@
            </widget>
           </item>
           <item>
-           <widget class="QListView" name="Events_list">
+           <widget class="QListWidget" name="Events_list">
             <property name="enabled">
              <bool>false</bool>
             </property>
@@ -104,7 +104,7 @@
            </widget>
           </item>
           <item>
-           <widget class="QListView" name="Transitions_list">
+           <widget class="QListWidget" name="Transitions_list">
             <property name="enabled">
              <bool>false</bool>
             </property>

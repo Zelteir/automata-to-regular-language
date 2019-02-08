@@ -37,4 +37,33 @@ void MainWindow::activate_interface()
     ui->Automatons_list->setEnabled(true);
     ui->Transitions_list->setEnabled(true);
     /*Other things to enable*/
+    this->fill_automaton_list();
+    this->fill_interface();
+}
+
+void MainWindow::fill_interface()
+{
+    QString string;
+    int id = ui->Automatons_list->currentRow();
+    for(State s : automata.get_automaton_at(id).getStateList())
+        ui->States_list->addItem(s.getName());
+    for(Event e : automata.get_automaton_at(id).getEventList())
+        ui->Events_list->addItem(e.getLabel());
+    for(Transition t : automata.get_automaton_at(id).getTransitionList())
+    {
+        string = "";
+        string += automata.get_automaton_at(id).getEventList()[t.getEvent()].getLabel();
+        string += ": ";
+        string += automata.get_automaton_at(id).getStateList()[t.getSource()].getName();
+        string += " -> ";
+        string += automata.get_automaton_at(id).getStateList()[t.getDest()].getName();
+        ui->Transitions_list->addItem(string);
+    }
+}
+
+void MainWindow::fill_automaton_list()
+{
+    for(Automaton tmp : this->automata.get_automatons())
+        ui->Automatons_list->addItem(tmp.getName());
+    ui->Automatons_list->setCurrentRow(0);
 }

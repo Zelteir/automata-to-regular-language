@@ -23,6 +23,8 @@ private:
     Ui::MainWindow *ui;
     Automata automata;
     void activate_interface();
+    void fill_interface();
+    void fill_automaton_list();
 };
 
 #endif // MAINWINDOW_HPP
