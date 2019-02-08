@@ -1,12 +1,15 @@
-#include <QXmlSimpleReader>
-#include "automaton.hpp"
 #ifndef AUTOMATA_HPP
 #define AUTOMATA_HPP
 
+#include <QXmlInputSource>
+#include <QXmlSimpleReader>
+#include "automaton.hpp"
+
 class Automata{
 
-    Automaton* listeAutomatons;
-    void fromXML();
+    Automaton* AutomatonList;
+
+    void fromXML(QString fileName);
 };
 
 #endif // AUTOMATA_HPP
