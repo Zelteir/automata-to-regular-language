@@ -1,6 +1,7 @@
 #ifndef AUTOMATA_HPP
 #define AUTOMATA_HPP
 
+#include <QMessageBox>
 #include <QXmlInputSource>
 #include <QTextCodec>
 #include <QXmlSimpleReader>
@@ -13,7 +14,7 @@ class Automata{
         Automaton* AutomatonList;
 
     public:
-        void fromSupremica(char* fileName);
+        bool fromSupremica(QString fileName);
 };
 
 #endif // AUTOMATA_HPP
