@@ -34,11 +34,11 @@ bool Automata::fromSupremica(QString fileName)
     QDomDocument doc;
     doc.setContent(encodedFileContent);
 
+    //Création de la liste d'automaton
+    QDomNodeList list=doc.elementsByTagName("Automaton");
 
 
-    /*
-    QDomNodeList list=doc.elementsByTagName("string");
-    QString helloWorld=list.at(0).toElement().text();*/
+    /*QString helloWorld=list.at(0).toElement().text();*/
 
 
     return true;

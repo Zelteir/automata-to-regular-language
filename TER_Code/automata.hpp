@@ -10,7 +10,7 @@
 
 class Automata{
     private:
-        Automaton* AutomatonList;
+        QList<Automaton> automatonList;
 
     public:
         bool fromSupremica(QString fileName);
