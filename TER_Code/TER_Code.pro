@@ -4,7 +4,7 @@
 #
 #-------------------------------------------------
 
-QT       += core gui
+QT       += core gui xml
 
 greaterThan(QT_MAJOR_VERSION, 4): QT += widgets
 
@@ -26,10 +26,14 @@ CONFIG += c++11
 
 SOURCES += \
         main.cpp \
-        mainwindow.cpp
+        mainwindow.cpp \
+    automata.cpp \
+    automaton.cpp
 
 HEADERS += \
-        mainwindow.hpp
+        mainwindow.hpp \
+    automata.hpp \
+    automaton.hpp
 
 FORMS += \
         mainwindow.ui
