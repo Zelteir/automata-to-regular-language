@@ -21,6 +21,8 @@ private slots:
 
 private:
     Ui::MainWindow *ui;
+    Automata automata;
+    void activate_interface();
 };
 
 #endif // MAINWINDOW_HPP
