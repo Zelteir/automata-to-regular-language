@@ -3,6 +3,7 @@
 
 #include <QList>
 #include <QString>
+#include <QDomNode>
 
 class Event{
     private:
@@ -53,7 +54,12 @@ class Automaton{
         QList<Transition> transitionList;
 
     public:
-
+        Automaton(QDomNode);
+        QString getName() {return name;}
+        QString getType() {return type;}
+        QList<Event> getEventList(){return eventList;}
+        QList<State> getStateList(){return stateList;}
+        QList<Transition> getTransitionList(){return transitionList;}
 };
 
 #endif // AUTOMATON_HPP
