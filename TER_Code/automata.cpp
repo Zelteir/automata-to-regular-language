@@ -1,7 +1,7 @@
 #include "automata.hpp"
 
 
-void fromSupremica(char* fileName)
+void Automata::fromSupremica(char* fileName)
 {
     QFile file(fileName);
     if(!file.open(QIODevice::ReadOnly)){

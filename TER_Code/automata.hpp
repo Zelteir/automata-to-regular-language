@@ -1,16 +1,19 @@
 #ifndef AUTOMATA_HPP
 #define AUTOMATA_HPP
 
-#include <QTextCodec>
 #include <QXmlInputSource>
+#include <QTextCodec>
 #include <QXmlSimpleReader>
+#include <QDomDocument>
 #include "automaton.hpp"
 
 class Automata{
 
-    Automaton* AutomatonList;
+    private:
+        Automaton* AutomatonList;
 
-    void fromSupremica(char* fileName);
+    public:
+        void fromSupremica(char* fileName);
 };
 
 #endif // AUTOMATA_HPP
