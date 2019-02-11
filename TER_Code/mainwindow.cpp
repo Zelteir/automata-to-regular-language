@@ -15,7 +15,9 @@ MainWindow::~MainWindow()
     delete ui;
 }
 
-/*TO DO*/
+/*
+ * Open/import a file containing an automaton
+*/
 void MainWindow::on_actionOpen_Import_triggered()
 {
     /*Type_choice window_choice;
@@ -29,7 +31,9 @@ void MainWindow::on_actionOpen_Import_triggered()
     }
 }
 
-/*TO DO*/
+/*
+ * Enable the interface to user
+*/
 void MainWindow::activate_interface()
 {
     ui->Events_list->setEnabled(true);
@@ -41,6 +45,9 @@ void MainWindow::activate_interface()
     this->fill_interface();
 }
 
+/*
+ * Fill the interface with the information contained in the current automaton
+*/
 void MainWindow::fill_interface()
 {
     QString string;
@@ -61,6 +68,9 @@ void MainWindow::fill_interface()
     }
 }
 
+/*
+ * Fill the list of automaton wontained inside the automata
+*/
 void MainWindow::fill_automaton_list()
 {
     for(Automaton tmp : this->automata.get_automatons())

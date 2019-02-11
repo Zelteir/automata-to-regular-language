@@ -14,6 +14,9 @@ Type_choice::~Type_choice()
     delete ui;
 }
 
+/*
+ * Select the type of file to be imported
+ */
 /*TO DO*/
 void Type_choice::selection(){
     Automata automata;
