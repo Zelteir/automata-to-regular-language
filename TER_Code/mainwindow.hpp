@@ -19,6 +19,8 @@ public:
 private slots:
     void on_actionOpen_Import_triggered();
 
+    void on_Automatons_list_itemSelectionChanged();
+
 private:
     Ui::MainWindow *ui;
     Automata automata;

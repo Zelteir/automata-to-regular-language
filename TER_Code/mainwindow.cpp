@@ -17,6 +17,7 @@ MainWindow::~MainWindow()
 
 /*
  * Open/import a file containing an automaton
+ * TO DO
 */
 void MainWindow::on_actionOpen_Import_triggered()
 {
@@ -40,7 +41,10 @@ void MainWindow::activate_interface()
     ui->States_list->setEnabled(true);
     ui->Automatons_list->setEnabled(true);
     ui->Transitions_list->setEnabled(true);
-    /*Other things to enable*/
+    /*
+     * TO DO
+     * Other things to enable
+    */
     this->fill_automaton_list();
     this->fill_interface();
 }
@@ -54,8 +58,15 @@ void MainWindow::fill_interface()
     int id = ui->Automatons_list->currentRow();
     for(State s : automata.get_automaton_at(id).getStateList())
         ui->States_list->addItem(s.getName());
-    for(Event e : automata.get_automaton_at(id).getEventList())
-        ui->Events_list->addItem(e.getLabel());
+    ui->Events_list->setRowCount(automata.get_automaton_at(id).getEventList().length());
+    for(int i = 0; i< automata.get_automaton_at(id).getEventList().length();i++)
+    {
+        ui->Events_list->setItem(i,0,new QTableWidgetItem(automata.get_automaton_at(id).getEventList()[i].getLabel()));
+        if(!automata.get_automaton_at(id).getEventList()[i].getObservable())
+            ui->Events_list->setItem(i,1,new QTableWidgetItem("X"));
+        if(!automata.get_automaton_at(id).getEventList()[i].getControlable())
+            ui->Events_list->setItem(i,2,new QTableWidgetItem("X"));
+    }
     for(Transition t : automata.get_automaton_at(id).getTransitionList())
     {
         string = "";
@@ -76,4 +87,9 @@ void MainWindow::fill_automaton_list()
     for(Automaton tmp : this->automata.get_automatons())
         ui->Automatons_list->addItem(tmp.getName());
     ui->Automatons_list->setCurrentRow(0);
+}
+
+void MainWindow::on_Automatons_list_itemSelectionChanged()
+{
+    fill_interface();
 }

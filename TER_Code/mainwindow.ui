@@ -83,10 +83,31 @@
            </widget>
           </item>
           <item>
-           <widget class="QListWidget" name="Events_list">
+           <widget class="QTableWidget" name="Events_list">
             <property name="enabled">
              <bool>false</bool>
             </property>
+            <column>
+             <property name="text">
+              <string>Name</string>
+             </property>
+            </column>
+            <column>
+             <property name="text">
+              <string>Unobservable</string>
+             </property>
+             <property name="textAlignment">
+              <set>AlignCenter</set>
+             </property>
+            </column>
+            <column>
+             <property name="text">
+              <string>Uncontrolable</string>
+             </property>
+             <property name="textAlignment">
+              <set>AlignCenter</set>
+             </property>
+            </column>
            </widget>
           </item>
          </layout>

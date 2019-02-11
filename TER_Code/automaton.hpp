@@ -9,8 +9,8 @@ class Event{
     private:
         int id;
         QString label;
-        bool observable;
-        bool controlable;
+        bool observable; //true==observable
+        bool controlable; //true==controlable
    public:
         Event(QDomNode);
 
