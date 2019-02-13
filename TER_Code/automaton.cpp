@@ -2,10 +2,10 @@
 
 Event::Event(QDomElement element)
 {
-    int id;
+    /*int id;
     QString label;
     bool observable;
-    bool controlable;
+    bool controlable;*/
 
     id=element.attribute("id","-1").toInt();
     label=element.attribute("label","");
