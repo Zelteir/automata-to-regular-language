@@ -8,6 +8,7 @@ MainWindow::MainWindow(QWidget *parent) :
     ui(new Ui::MainWindow)
 {
     ui->setupUi(this);
+    ui->Events_list->horizontalHeader()->setSectionResizeMode(0, QHeaderView::Stretch );
 }
 
 MainWindow::~MainWindow()
