@@ -14,24 +14,7 @@ bool Automata::fromSupremica(QString fileName)
     //Le fichier sera lu et son contenu sera dans le QByteArray
     QByteArray encodedFileContent = file.readAll();
     file.close();
-/*
-    //Conversion du QByteArray en QString
-    QString fileContent = QTextCodec::codecForName("UTF-8")->toUnicode(encodedFileContent);
 
-    //Nécessaire pour le parsing d'utiliser un inputSource, nous lui donnons donc le contenu de fileContent
-    QXmlInputSource xml_content;
-    xml_content.setData(fileContent);
-
-    //Parsera les infos afin de vérifier la bonne concordance des infos
-    QXmlSimpleReader reader;
-
-    if(!reader.parse(xml_content))
-    {
-        perror("Erreur lors du parsing du fichier!\n");
-        QMessageBox::information(NULL, "Unable to parse file!",file.errorString());
-        return false;
-    }
-*/
     QString error;
     QString fullError = "";
     int line, column;

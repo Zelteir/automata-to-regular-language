@@ -15,14 +15,15 @@ Event::Event(QDomElement element)
 
 State::State(QDomElement element)
 {
-    id = element.attribute("id","-1").toInt();
-    name = element.attribute("name","");
-    initial = element.attribute("initial","true")==QString("true");
-    accepting = element.attribute("accepting","true")==QString("true");
     /*int id;
     QString name;
     bool initial;
     bool accepting;*/
+
+    id = element.attribute("id","-1").toInt();
+    name = element.attribute("name","");
+    initial = element.attribute("initial","true")==QString("true");
+    accepting = element.attribute("accepting","true")==QString("true");
 }
 
 Transition::Transition(QDomElement element)
@@ -30,6 +31,7 @@ Transition::Transition(QDomElement element)
    /* int source;
     int dest;
     int event;*/
+
     source = element.attribute("source","-1").toInt();
     dest = element.attribute("dest","-1").toInt();
     event = element.attribute("event","-1").toInt();
@@ -40,29 +42,22 @@ Automaton::Automaton(QDomNode node)
     name = node.attributes().namedItem("name").nodeValue();
     type = node.attributes().namedItem("type").nodeValue();
 
+    QDomElement element;
     QDomElement childElement = node.firstChildElement("Events");
-    /*QDomNodeList secondList = childElement.elementsByTagName("Event");
-    for(int i = 0; i< secondList.count(); i++)
-    {
-        eventList.insert(i, Event(secondList.at(i)));
-    }*/
-
-    for(QDomElement element = childElement.firstChildElement("Event");!element.isNull();element = element.nextSiblingElement())
+    for(element = childElement.firstChildElement("Event");!element.isNull();element = element.nextSiblingElement())
     {
         eventList.append(Event(element));
     }
 
     childElement = node.nextSiblingElement("States");
-    /*secondList = childElement.elementsByTagName("State");
-    for(int i = 0; i< secondList.count(); i++)
+    for(element = childElement.firstChildElement("State");!element.isNull();element = element.nextSiblingElement())
     {
-        stateList.insert(i, State(secondList.at(i)));
-    }*/
+        stateList.append(State(element));
+    }
 
     childElement = node.nextSiblingElement("Transitions");
-    /*secondList = childElement.elementsByTagName("Transition");
-    for(int i = 0; i< secondList.count(); i++)
+    for(element = childElement.firstChildElement("Transition");!element.isNull();element = element.nextSiblingElement())
     {
-        transitionList.insert(i, Transition(secondList.at(i)));
-    }*/
+        transitionList.append(Transition(element));
+    }
 }
