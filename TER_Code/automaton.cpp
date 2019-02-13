@@ -7,25 +7,32 @@ Event::Event(QDomElement element)
     bool observable;
     bool controlable;*/
 
-    id=element.attribute("id","-1").toInt();
-    label=element.attribute("label","");
-    observable=element.attribute("observable","true")==QString("true)");
-    controlable=element.attribute("controlable","true")==QString("true)");
+    id = element.attribute("id","-1").toInt();
+    label = element.attribute("label","");
+    observable = element.attribute("observable","true")==QString("true");
+    controlable = element.attribute("controlable","true")==QString("true");
 }
 
-State::State(QDomElement node)
+State::State(QDomElement element)
 {
+    id = element.attribute("id","-1").toInt();
+    name = element.attribute("name","");
+    initial = element.attribute("initial","true")==QString("true");
+    accepting = element.attribute("accepting","true")==QString("true");
     /*int id;
     QString name;
     bool initial;
     bool accepting;*/
 }
 
-Transition::Transition(QDomElement node)
+Transition::Transition(QDomElement element)
 {
    /* int source;
     int dest;
     int event;*/
+    source = element.attribute("source","-1").toInt();
+    dest = element.attribute("dest","-1").toInt();
+    event = element.attribute("event","-1").toInt();
 }
 
 Automaton::Automaton(QDomNode node)
