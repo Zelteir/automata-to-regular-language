@@ -1,6 +1,8 @@
 #include "automata.hpp"
 
-
+/*
+ * Importe une liste d'automaton (automata/module) depuis un fichier XML standard généré par Supremica (version 200909171605)
+*/
 bool Automata::fromSupremica(QString fileName)
 {
     QFile file(fileName);
@@ -9,10 +11,10 @@ bool Automata::fromSupremica(QString fileName)
         return false;
     }
 
-    //Le fichier sera lu et son contenu sera dans le QString
+    //Le fichier sera lu et son contenu sera dans le QByteArray
     QByteArray encodedFileContent = file.readAll();
     file.close();
-
+/*
     //Conversion du QByteArray en QString
     QString fileContent = QTextCodec::codecForName("UTF-8")->toUnicode(encodedFileContent);
 
@@ -26,13 +28,22 @@ bool Automata::fromSupremica(QString fileName)
     if(!reader.parse(xml_content))
     {
         perror("Erreur lors du parsing du fichier!\n");
-        QMessageBox::information(NULL, "Unable to parse the file!",file.errorString());
+        QMessageBox::information(NULL, "Unable to parse file!",file.errorString());
         return false;
     }
+*/
+    QString error;
+    QString fullError = "";
+    int line, column;
 
-    //Convertit le QByteArray en dans le QDomDocument (nous pouvons utiliser un QString au lieu du QByteArray)
+    //Convertit le QByteArray en QDomDocument avec vérification de la validité du document
     QDomDocument doc;
-    doc.setContent(encodedFileContent);
+    if(!doc.setContent(encodedFileContent, &error, &line, &column))
+    {
+        fullError.append("Error: ").append(error).append(" in line " ).append(QString::number(line)).append(" column ").append(QString::number(column));
+        QMessageBox::information(NULL, "Unable to parse file!", fullError);
+        return false;
+    }
 
     //Création de la liste d'automaton
     QDomNodeList list=doc.elementsByTagName("Automaton");
@@ -44,11 +55,17 @@ bool Automata::fromSupremica(QString fileName)
     return true;
 }
 
+/*
+ * Return la liste des automatons contenu dans l'automata
+*/
 QList<Automaton> Automata::get_automatons()
 {
     return QList<Automaton>(this->automatonList);
 }
 
+/*
+ * Return un automaton spécifique de la liste à l'indice i
+*/
 Automaton Automata::get_automaton_at(int i)
 {
     return Automaton(this->automatonList.at(i));

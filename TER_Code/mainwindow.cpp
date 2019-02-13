@@ -18,6 +18,8 @@ MainWindow::~MainWindow()
 /*
  * Open/import a file containing an automaton
  * TO DO
+ * Call Type_choice window to choose what kind of file to import
+ * bypassed for now : only Supremica XML files accepted
 */
 void MainWindow::on_actionOpen_Import_triggered()
 {
@@ -70,11 +72,11 @@ void MainWindow::fill_interface()
     for(Transition t : automata.get_automaton_at(id).getTransitionList())
     {
         string = "";
-        string += automata.get_automaton_at(id).getEventList()[t.getEvent()].getLabel();
-        string += ": ";
-        string += automata.get_automaton_at(id).getStateList()[t.getSource()].getName();
-        string += " -> ";
-        string += automata.get_automaton_at(id).getStateList()[t.getDest()].getName();
+        string.append(automata.get_automaton_at(id).getEventList()[t.getEvent()].getLabel())
+                .append(": ")
+                .append(automata.get_automaton_at(id).getStateList()[t.getSource()].getName())
+                .append(" -> ")
+                .append(automata.get_automaton_at(id).getStateList()[t.getDest()].getName());
         ui->Transitions_list->addItem(string);
     }
 }
