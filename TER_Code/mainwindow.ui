@@ -263,9 +263,6 @@
    <property name="shortcut">
     <string>Ctrl+N</string>
    </property>
-   <property name="shortcutVisibleInContextMenu">
-    <bool>false</bool>
-   </property>
   </action>
   <action name="actionOpen_Import">
    <property name="text">

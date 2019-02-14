@@ -86,9 +86,9 @@ void MainWindow::fill_interface()
     ui->Transitions_list->setRowCount(automata.get_automaton_at(id).getTransitionList().length());
     for(i = 0; i< automata.get_automaton_at(id).getTransitionList().length();i++)
     {
-        ui->Transitions_list->setItem(i,0, ui->States_list->item(automata.get_automaton_at(id).getTransitionList()[i].getSource(),0));
-        ui->Transitions_list->setItem(i,1, ui->States_list->item(automata.get_automaton_at(id).getTransitionList()[i].getDest(),0));
-        ui->Transitions_list->setItem(i,2, ui->Events_list->item(automata.get_automaton_at(id).getTransitionList()[i].getEvent(),0));
+        ui->Transitions_list->setItem(i,0, new QTableWidgetItem(*ui->States_list->item(automata.get_automaton_at(id).getTransitionList()[i].getSource(),0)));
+        ui->Transitions_list->setItem(i,1, new QTableWidgetItem(*ui->States_list->item(automata.get_automaton_at(id).getTransitionList()[i].getDest(),0)));
+        ui->Transitions_list->setItem(i,2, new QTableWidgetItem(*ui->Events_list->item(automata.get_automaton_at(id).getTransitionList()[i].getEvent(),0)));
     }
 }
 

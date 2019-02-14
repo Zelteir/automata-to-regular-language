@@ -33,6 +33,7 @@ bool Automata::fromSupremica(QString fileName)
 
     //Creation of an automaton object for each automaton
     int i;
+    automatonList.clear();
     for(i = 0; i < list.size(); i++)
     {
         automatonList.append(Automaton(list.item(i)));
