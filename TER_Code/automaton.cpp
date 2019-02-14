@@ -49,13 +49,13 @@ Automaton::Automaton(QDomNode node)
         eventList.append(Event(element));
     }
 
-    childElement = node.nextSiblingElement("States");
+    childElement = node.firstChildElement("States");
     for(element = childElement.firstChildElement("State");!element.isNull();element = element.nextSiblingElement())
     {
         stateList.append(State(element));
     }
 
-    childElement = node.nextSiblingElement("Transitions");
+    childElement = node.firstChildElement("Transitions");
     for(element = childElement.firstChildElement("Transition");!element.isNull();element = element.nextSiblingElement())
     {
         transitionList.append(Transition(element));
