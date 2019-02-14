@@ -22,8 +22,8 @@ State::State(QDomElement element)
 
     id = element.attribute("id","-1").toInt();
     name = element.attribute("name","");
-    initial = element.attribute("initial","true")==QString("true");
-    accepting = element.attribute("accepting","true")==QString("true");
+    initial = element.attribute("initial","false")==QString("true");
+    accepting = element.attribute("accepting","false")==QString("true");
 }
 
 Transition::Transition(QDomElement element)

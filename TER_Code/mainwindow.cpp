@@ -2,6 +2,7 @@
 #include "ui_mainwindow.h"
 #include "type_choice.hpp"
 #include <QFileDialog>
+#include <QDebug>
 
 MainWindow::MainWindow(QWidget *parent) :
     QMainWindow(parent),
@@ -9,6 +10,10 @@ MainWindow::MainWindow(QWidget *parent) :
 {
     ui->setupUi(this);
     ui->Events_list->horizontalHeader()->setSectionResizeMode(0, QHeaderView::Stretch );
+    ui->States_list->horizontalHeader()->setSectionResizeMode(0, QHeaderView::Stretch );
+    ui->Transitions_list->horizontalHeader()->setSectionResizeMode(0, QHeaderView::Stretch );
+    ui->Transitions_list->horizontalHeader()->setSectionResizeMode(1, QHeaderView::Stretch );
+    ui->Transitions_list->horizontalHeader()->setSectionResizeMode(2, QHeaderView::Stretch );
 }
 
 MainWindow::~MainWindow()
@@ -49,7 +54,6 @@ void MainWindow::activate_interface()
      * Other things to enable
     */
     this->fill_automaton_list();
-    this->fill_interface();
 }
 
 /*
@@ -57,12 +61,21 @@ void MainWindow::activate_interface()
 */
 void MainWindow::fill_interface()
 {
+    clear_interface();
     QString string;
+    int i;
     int id = ui->Automatons_list->currentRow();
-    for(State s : automata.get_automaton_at(id).getStateList())
-        ui->States_list->addItem(s.getName());
+    ui->States_list->setRowCount(automata.get_automaton_at(id).getStateList().length());
+    for(i = 0; i< automata.get_automaton_at(id).getStateList().length();i++)
+    {
+        ui->States_list->setItem(i,0,new QTableWidgetItem(automata.get_automaton_at(id).getStateList()[i].getName()));
+        if(automata.get_automaton_at(id).getStateList()[i].getInitial())
+            ui->States_list->setItem(i,1,new QTableWidgetItem("X"));
+        if(automata.get_automaton_at(id).getStateList()[i].getAccepting())
+            ui->States_list->setItem(i,2,new QTableWidgetItem("X"));
+    }
     ui->Events_list->setRowCount(automata.get_automaton_at(id).getEventList().length());
-    for(int i = 0; i< automata.get_automaton_at(id).getEventList().length();i++)
+    for(i = 0; i< automata.get_automaton_at(id).getEventList().length();i++)
     {
         ui->Events_list->setItem(i,0,new QTableWidgetItem(automata.get_automaton_at(id).getEventList()[i].getLabel()));
         if(!automata.get_automaton_at(id).getEventList()[i].getObservable())
@@ -70,15 +83,12 @@ void MainWindow::fill_interface()
         if(!automata.get_automaton_at(id).getEventList()[i].getControlable())
             ui->Events_list->setItem(i,2,new QTableWidgetItem("X"));
     }
-    for(Transition t : automata.get_automaton_at(id).getTransitionList())
+    ui->Transitions_list->setRowCount(automata.get_automaton_at(id).getTransitionList().length());
+    for(i = 0; i< automata.get_automaton_at(id).getTransitionList().length();i++)
     {
-        string = "";
-        string.append(automata.get_automaton_at(id).getEventList()[t.getEvent()].getLabel())
-                .append(": ")
-                .append(automata.get_automaton_at(id).getStateList()[t.getSource()].getName())
-                .append(" -> ")
-                .append(automata.get_automaton_at(id).getStateList()[t.getDest()].getName());
-        ui->Transitions_list->addItem(string);
+        ui->Transitions_list->setItem(i,0, ui->States_list->item(automata.get_automaton_at(id).getTransitionList()[i].getSource(),0));
+        ui->Transitions_list->setItem(i,1, ui->States_list->item(automata.get_automaton_at(id).getTransitionList()[i].getDest(),0));
+        ui->Transitions_list->setItem(i,2, ui->Events_list->item(automata.get_automaton_at(id).getTransitionList()[i].getEvent(),0));
     }
 }
 
@@ -87,9 +97,22 @@ void MainWindow::fill_interface()
 */
 void MainWindow::fill_automaton_list()
 {
+    clear_automaton_list();
     for(Automaton tmp : this->automata.get_automatons())
         ui->Automatons_list->addItem(tmp.getName());
     ui->Automatons_list->setCurrentRow(0);
+}
+
+void MainWindow::clear_interface()
+{
+    ui->Events_list->clearContents();
+    ui->States_list->clearContents();
+    ui->Transitions_list->clearContents();
+}
+
+void MainWindow::clear_automaton_list()
+{
+    ui->Automatons_list->clear();
 }
 
 void MainWindow::on_Automatons_list_itemSelectionChanged()

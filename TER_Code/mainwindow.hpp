@@ -27,6 +27,8 @@ private:
     void activate_interface();
     void fill_interface();
     void fill_automaton_list();
+    void clear_interface();
+    void clear_automaton_list();
 };
 
 #endif // MAINWINDOW_HPP

@@ -62,10 +62,28 @@
            </widget>
           </item>
           <item>
-           <widget class="QListWidget" name="States_list">
+           <widget class="QTableWidget" name="States_list">
             <property name="enabled">
              <bool>false</bool>
             </property>
+            <attribute name="verticalHeaderVisible">
+             <bool>false</bool>
+            </attribute>
+            <column>
+             <property name="text">
+              <string>Name</string>
+             </property>
+            </column>
+            <column>
+             <property name="text">
+              <string>Initial</string>
+             </property>
+            </column>
+            <column>
+             <property name="text">
+              <string>Accepting</string>
+             </property>
+            </column>
            </widget>
           </item>
          </layout>
@@ -87,9 +105,12 @@
             <property name="enabled">
              <bool>false</bool>
             </property>
+            <attribute name="verticalHeaderVisible">
+             <bool>false</bool>
+            </attribute>
             <column>
              <property name="text">
-              <string>Name</string>
+              <string>Label</string>
              </property>
             </column>
             <column>
@@ -97,7 +118,7 @@
               <string>Unobservable</string>
              </property>
              <property name="textAlignment">
-              <set>AlignCenter</set>
+              <set>AlignLeading|AlignVCenter</set>
              </property>
             </column>
             <column>
@@ -105,7 +126,7 @@
               <string>Uncontrolable</string>
              </property>
              <property name="textAlignment">
-              <set>AlignCenter</set>
+              <set>AlignLeading|AlignVCenter</set>
              </property>
             </column>
            </widget>
@@ -125,10 +146,28 @@
            </widget>
           </item>
           <item>
-           <widget class="QListWidget" name="Transitions_list">
+           <widget class="QTableWidget" name="Transitions_list">
             <property name="enabled">
              <bool>false</bool>
             </property>
+            <attribute name="verticalHeaderVisible">
+             <bool>false</bool>
+            </attribute>
+            <column>
+             <property name="text">
+              <string>Source</string>
+             </property>
+            </column>
+            <column>
+             <property name="text">
+              <string>Dest</string>
+             </property>
+            </column>
+            <column>
+             <property name="text">
+              <string>Event</string>
+             </property>
+            </column>
            </widget>
           </item>
          </layout>
