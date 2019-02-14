@@ -39,9 +39,6 @@ bool Automata::fromSupremica(QString fileName)
         automatonList.append(Automaton(list.item(i)));
     }
 
-    /*QString helloWorld=list.at(0).toElement().text();*/
-
-
     return true;
 }
 
