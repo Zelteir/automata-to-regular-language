@@ -11,16 +11,54 @@
 	<States>
 		<State id="0" name="S0" initial="true"/>
 		<State id="1" name="S1" accepting="true"/>
-		<State id="2" name="S2"/>
-		<State id="3" name="S4" accepting="true"/>
+		<State id="2" name="S10"/>
+		<State id="3" name="S11"/>
+		<State id="4" name="S12"/>
+		<State id="5" name="S13"/>
+		<State id="6" name="S14"/>
+		<State id="7" name="S15"/>
+		<State id="8" name="S16"/>
+		<State id="9" name="S17"/>
+		<State id="10" name="S18"/>
+		<State id="11" name="S19"/>
+		<State id="12" name="S2"/>
+		<State id="13" name="S20"/>
+		<State id="14" name="S21"/>
+		<State id="15" name="S3"/>
+		<State id="16" name="S4" accepting="true"/>
+		<State id="17" name="S5"/>
+		<State id="18" name="S6"/>
+		<State id="19" name="S7"/>
+		<State id="20" name="S8"/>
+		<State id="21" name="S9"/>
 	</States>
 	<Transitions>
-		<Transition source="0" dest="2" event="4"/>
-		<Transition source="1" dest="3" event="3"/>
-		<Transition source="2" dest="0" event="0"/>
-		<Transition source="2" dest="1" event="1"/>
-		<Transition source="2" dest="3" event="2"/>
-		<Transition source="3" dest="0" event="2"/>
+		<Transition source="0" dest="12" event="4"/>
+		<Transition source="1" dest="16" event="3"/>
+		<Transition source="1" dest="6" event="0"/>
+		<Transition source="2" dest="4" event="0"/>
+		<Transition source="3" dest="2" event="0"/>
+		<Transition source="4" dest="11" event="0"/>
+		<Transition source="4" dest="14" event="1"/>
+		<Transition source="5" dest="17" event="0"/>
+		<Transition source="6" dest="7" event="0"/>
+		<Transition source="7" dest="8" event="0"/>
+		<Transition source="8" dest="9" event="0"/>
+		<Transition source="9" dest="5" event="1"/>
+		<Transition source="9" dest="10" event="0"/>
+		<Transition source="11" dest="13" event="0"/>
+		<Transition source="12" dest="0" event="0"/>
+		<Transition source="12" dest="16" event="2"/>
+		<Transition source="12" dest="1" event="1"/>
+		<Transition source="13" dest="14" event="0"/>
+		<Transition source="15" dest="17" event="0"/>
+		<Transition source="16" dest="0" event="2"/>
+		<Transition source="17" dest="18" event="0"/>
+		<Transition source="18" dest="20" event="0"/>
+		<Transition source="18" dest="15" event="1"/>
+		<Transition source="19" dest="21" event="0"/>
+		<Transition source="20" dest="19" event="0"/>
+		<Transition source="21" dest="3" event="0"/>
 	</Transitions>
 </Automaton>
 <Automaton name="Automate1" type="Specification">
@@ -44,8 +82,8 @@
 		<State id="9" name="S9" accepting="true"/>
 	</States>
 	<Transitions>
-		<Transition source="0" dest="2" event="0"/>
 		<Transition source="0" dest="1" event="3"/>
+		<Transition source="0" dest="2" event="0"/>
 		<Transition source="0" dest="3" event="4"/>
 		<Transition source="1" dest="4" event="0"/>
 		<Transition source="2" dest="6" event="2"/>
