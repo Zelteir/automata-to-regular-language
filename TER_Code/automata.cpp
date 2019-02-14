@@ -28,9 +28,15 @@ bool Automata::fromSupremica(QString fileName)
         return false;
     }
 
-    //Création de la liste d'automaton
+    //Creation of an automaton list
     QDomNodeList list=doc.elementsByTagName("Automaton");
 
+    //Creation of an automaton object for each automaton
+    int i;
+    for(i = 0; i < list.size(); i++)
+    {
+        automatonList.append(Automaton(list.item(i)));
+    }
 
     /*QString helloWorld=list.at(0).toElement().text();*/
 
