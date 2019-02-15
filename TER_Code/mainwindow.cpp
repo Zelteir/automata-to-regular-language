@@ -72,7 +72,7 @@ void MainWindow::fill_interface()
         {
             ui->States_list->setItem(i,1,new QTableWidgetItem(""));
             ui->States_list->item(i,1)->setCheckState(Qt::Checked);
-            //ui->States_list->setItem(i,1,new QTableWidgetItem(new QLayout(new QCheckBox())));
+            //ui->States_list->setItem(i,1,new QTableWidgetItem("X"));
         }
         else {
             ui->States_list->setItem(i,1,new QTableWidgetItem(""));
@@ -80,9 +80,9 @@ void MainWindow::fill_interface()
         }
         if(automata.get_automaton_at(id).getStateList()[i].getAccepting())
         {
-            //ui->States_list->setItem(i,2,new QTableWidgetItem("X"));
             ui->States_list->setItem(i,2,new QTableWidgetItem(""));
             ui->States_list->item(i,2)->setCheckState(Qt::Checked);
+            //ui->States_list->setItem(i,2,new QTableWidgetItem("X"));
         }
         else {
             ui->States_list->setItem(i,2,new QTableWidgetItem(""));
@@ -94,13 +94,29 @@ void MainWindow::fill_interface()
     {
         ui->Events_list->setItem(i,0,new QTableWidgetItem(automata.get_automaton_at(id).getEventList()[i].getLabel()));
         if(!automata.get_automaton_at(id).getEventList()[i].getObservable())
-            ui->Events_list->setItem(i,1,new QTableWidgetItem("X"));
+        {
+            ui->Events_list->setItem(i,1,new QTableWidgetItem(""));
+            ui->Events_list->item(i,1)->setCheckState(Qt::Checked);
+            //ui->Events_list->setItem(i,1,new QTableWidgetItem("X"));
+        }
         else
-            ui->Events_list->setItem(i,1,new QTableWidgetItem(" "));
+        {
+            ui->Events_list->setItem(i,1,new QTableWidgetItem(""));
+            ui->Events_list->item(i,1)->setCheckState(Qt::Unchecked);
+            //ui->Events_list->setItem(i,1,new QTableWidgetItem(" "));
+        }
         if(!automata.get_automaton_at(id).getEventList()[i].getControlable())
-            ui->Events_list->setItem(i,2,new QTableWidgetItem("X"));
+        {
+            ui->Events_list->setItem(i,2,new QTableWidgetItem(""));
+            ui->Events_list->item(i,2)->setCheckState(Qt::Checked);
+            //ui->Events_list->setItem(i,2,new QTableWidgetItem("X"));
+        }
         else
-            ui->Events_list->setItem(i,2,new QTableWidgetItem(" "));
+        {
+            ui->Events_list->setItem(i,2,new QTableWidgetItem(""));
+            ui->Events_list->item(i,2)->setCheckState(Qt::Unchecked);
+            //ui->Events_list->setItem(i,2,new QTableWidgetItem(" "));
+        }
     }
     ui->Transitions_list->setRowCount(automata.get_automaton_at(id).getTransitionList().length());
     for(i = 0; i< automata.get_automaton_at(id).getTransitionList().length();i++)
