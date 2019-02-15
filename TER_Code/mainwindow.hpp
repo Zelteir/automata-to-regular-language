@@ -3,6 +3,7 @@
 
 #include <QMainWindow>
 #include "automata.hpp"
+#include "translator.hpp"
 
 namespace Ui {
 class MainWindow;
@@ -21,9 +22,12 @@ private slots:
 
     void on_Automatons_list_itemSelectionChanged();
 
+    void on_Generate_Button_clicked();
+
 private:
     Ui::MainWindow *ui;
     Automata automata;
+    Translator translator;
     void activate_interface();
     void fill_interface();
     void fill_automaton_list();

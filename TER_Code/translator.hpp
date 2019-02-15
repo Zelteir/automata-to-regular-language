@@ -10,6 +10,7 @@ class Translator
         QString regex;
     public:
         Translator();
+        QString getRegex() {return regex;}
         QString star(QString);
         void brzozowskiMethod(Automaton);
 };

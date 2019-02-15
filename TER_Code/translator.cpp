@@ -48,5 +48,5 @@ void Translator::brzozowskiMethod(Automaton automaton) //Penser aux options desa
     }
 
     regex = b[0];
-
 }
+

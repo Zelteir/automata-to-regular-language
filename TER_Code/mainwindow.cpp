@@ -48,6 +48,7 @@ void MainWindow::activate_interface()
     ui->States_list->setEnabled(true);
     ui->Automatons_list->setEnabled(true);
     ui->Transitions_list->setEnabled(true);
+    ui->Generate_Button->setEnabled(true);
     /*
      * TO DO
      * Other things to enable
@@ -153,4 +154,21 @@ void MainWindow::clear_automaton_list()
 void MainWindow::on_Automatons_list_itemSelectionChanged()
 {
     fill_interface();
+}
+
+void MainWindow::on_Generate_Button_clicked()
+{
+    ui->Events_list->setEnabled(false);
+    ui->States_list->setEnabled(false);
+    ui->Automatons_list->setEnabled(false);
+    ui->Transitions_list->setEnabled(false);
+    ui->Generate_Button->setEnabled(false);
+    translator.brzozowskiMethod(automata.get_automaton_at(ui->Automatons_list->currentRow()));
+    ui->Generated_Regular_Language->setText(translator.getRegex());
+    ui->Events_list->setEnabled(true);
+    ui->States_list->setEnabled(true);
+    ui->Automatons_list->setEnabled(true);
+    ui->Transitions_list->setEnabled(true);
+    ui->Generate_Button->setEnabled(true);
+
 }
