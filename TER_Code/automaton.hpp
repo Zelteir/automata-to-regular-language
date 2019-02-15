@@ -66,6 +66,9 @@ class Automaton{
         QList<Event> getEventList(){return eventList;}
         QList<State> getStateList(){return stateList;}
         QList<Transition> getTransitionList(){return transitionList;}
+        State getState(int i){return stateList[i];}
+        Event getEvent(int i){return eventList[i];}
+        Transition getTransition(int i){return transitionList[i];}
 };
 
 #endif // AUTOMATON_HPP

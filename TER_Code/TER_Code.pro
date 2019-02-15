@@ -29,13 +29,15 @@ SOURCES += \
         mainwindow.cpp \
     automata.cpp \
     automaton.cpp \
-    type_choice.cpp
+    type_choice.cpp \
+    translator.cpp
 
 HEADERS += \
         mainwindow.hpp \
     automata.hpp \
     automaton.hpp \
-    type_choice.hpp
+    type_choice.hpp \
+    translator.hpp
 
 FORMS += \
         mainwindow.ui \
