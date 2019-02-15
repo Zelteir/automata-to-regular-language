@@ -66,6 +66,7 @@ void MainWindow::fill_interface()
     int i;
     int id = ui->Automatons_list->currentRow();
     ui->States_list->setRowCount(automata.get_automaton_at(id).getStateList().length());
+    /*fill states table with name, initial and accepted information*/
     for(i = 0; i< automata.get_automaton_at(id).getStateList().length();i++)
     {
         ui->States_list->setItem(i,0,new QTableWidgetItem(automata.get_automaton_at(id).getStateList()[i].getName()));
@@ -73,7 +74,6 @@ void MainWindow::fill_interface()
         {
             ui->States_list->setItem(i,1,new QTableWidgetItem(""));
             ui->States_list->item(i,1)->setCheckState(Qt::Checked);
-            //ui->States_list->setItem(i,1,new QTableWidgetItem("X"));
         }
         else {
             ui->States_list->setItem(i,1,new QTableWidgetItem(""));
@@ -83,7 +83,6 @@ void MainWindow::fill_interface()
         {
             ui->States_list->setItem(i,2,new QTableWidgetItem(""));
             ui->States_list->item(i,2)->setCheckState(Qt::Checked);
-            //ui->States_list->setItem(i,2,new QTableWidgetItem("X"));
         }
         else {
             ui->States_list->setItem(i,2,new QTableWidgetItem(""));
@@ -91,6 +90,7 @@ void MainWindow::fill_interface()
         }
     }
     ui->Events_list->setRowCount(automata.get_automaton_at(id).getEventList().length());
+    /*fill events table with name, observable and controlable information*/
     for(i = 0; i< automata.get_automaton_at(id).getEventList().length();i++)
     {
         ui->Events_list->setItem(i,0,new QTableWidgetItem(automata.get_automaton_at(id).getEventList()[i].getLabel()));
@@ -98,28 +98,25 @@ void MainWindow::fill_interface()
         {
             ui->Events_list->setItem(i,1,new QTableWidgetItem(""));
             ui->Events_list->item(i,1)->setCheckState(Qt::Checked);
-            //ui->Events_list->setItem(i,1,new QTableWidgetItem("X"));
         }
         else
         {
             ui->Events_list->setItem(i,1,new QTableWidgetItem(""));
             ui->Events_list->item(i,1)->setCheckState(Qt::Unchecked);
-            //ui->Events_list->setItem(i,1,new QTableWidgetItem(" "));
         }
         if(!automata.get_automaton_at(id).getEventList()[i].getControlable())
         {
             ui->Events_list->setItem(i,2,new QTableWidgetItem(""));
             ui->Events_list->item(i,2)->setCheckState(Qt::Checked);
-            //ui->Events_list->setItem(i,2,new QTableWidgetItem("X"));
         }
         else
         {
             ui->Events_list->setItem(i,2,new QTableWidgetItem(""));
             ui->Events_list->item(i,2)->setCheckState(Qt::Unchecked);
-            //ui->Events_list->setItem(i,2,new QTableWidgetItem(" "));
         }
     }
     ui->Transitions_list->setRowCount(automata.get_automaton_at(id).getTransitionList().length());
+    /*fill transition table with origin, destination and event information*/
     for(i = 0; i< automata.get_automaton_at(id).getTransitionList().length();i++)
     {
         ui->Transitions_list->setItem(i,0, new QTableWidgetItem(*ui->States_list->item(automata.get_automaton_at(id).getTransitionList()[i].getSource(),0)));
@@ -139,6 +136,9 @@ void MainWindow::fill_automaton_list()
     ui->Automatons_list->setCurrentRow(0);
 }
 
+/*
+ * Clear interface of information
+*/
 void MainWindow::clear_interface()
 {
     ui->Events_list->clearContents();
@@ -146,29 +146,27 @@ void MainWindow::clear_interface()
     ui->Transitions_list->clearContents();
 }
 
+/*
+ * Clear the automaton list
+*/
 void MainWindow::clear_automaton_list()
 {
     ui->Automatons_list->clear();
 }
 
+/*
+ * Refresh display when user select another automaton
+*/
 void MainWindow::on_Automatons_list_itemSelectionChanged()
 {
     fill_interface();
 }
 
+/*
+ * Send the current automaton's information to the translator and generate the regular language assossiated
+*/
 void MainWindow::on_Generate_Button_clicked()
 {
-    ui->Events_list->setEnabled(false);
-    ui->States_list->setEnabled(false);
-    ui->Automatons_list->setEnabled(false);
-    ui->Transitions_list->setEnabled(false);
-    ui->Generate_Button->setEnabled(false);
     translator.brzozowskiMethod(automata.get_automaton_at(ui->Automatons_list->currentRow()));
     ui->Generated_Regular_Language->setText(translator.getRegex());
-    ui->Events_list->setEnabled(true);
-    ui->States_list->setEnabled(true);
-    ui->Automatons_list->setEnabled(true);
-    ui->Transitions_list->setEnabled(true);
-    ui->Generate_Button->setEnabled(true);
-
 }

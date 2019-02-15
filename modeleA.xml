@@ -6,7 +6,7 @@
 		<Event id="1" label="b"/>
 		<Event id="2" label="c"/>
 		<Event id="3" label="f" observable="false"/>
-		<Event id="4" label="u0" observable="false"/>
+		<Event id="4" label="u" observable="false"/>
 	</Events>
 	<States>
 		<State id="0" name="S0" initial="true" accepting="true"/>
