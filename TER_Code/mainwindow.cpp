@@ -2,6 +2,7 @@
 #include "ui_mainwindow.h"
 #include "type_choice.hpp"
 #include <QFileDialog>
+#include <QDebug>
 
 MainWindow::MainWindow(QWidget *parent) :
     QMainWindow(parent),
@@ -168,5 +169,7 @@ void MainWindow::on_Automatons_list_itemSelectionChanged()
 void MainWindow::on_Generate_Button_clicked()
 {
     translator.brzozowskiMethod(automata.get_automaton_at(ui->Automatons_list->currentRow()));
-    ui->Generated_Regular_Language->setText(translator.getRegex());
+    //ui->Generated_Regular_Language->setPlainText(translator.getRegex());
+    qDebug() << "TEST";
+    qDebug() <<translator.getRegex().length();
 }

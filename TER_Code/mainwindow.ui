@@ -237,11 +237,7 @@
        </layout>
       </item>
       <item>
-       <widget class="QLabel" name="Generated_Regular_Language">
-        <property name="text">
-         <string/>
-        </property>
-       </widget>
+       <widget class="QPlainTextEdit" name="Generated_Regular_Language"/>
       </item>
      </layout>
     </item>
