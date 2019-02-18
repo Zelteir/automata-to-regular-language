@@ -34,13 +34,13 @@ void Translator::brzozowskiMethod(Automaton automaton) //Penser aux options desa
     for(int n = automatonStatesNumber-1; n > -1; n--)
     {
         b[n].prepend(star(a[n*automatonStatesNumber + n]));
-        for(j = 0; j < automatonStatesNumber; j++)
+        for(j = 0; j < n; j++)
           a[n*automatonStatesNumber + j].prepend(star(a[n*automatonStatesNumber + n]));
-        for(i = 0; i < automatonStatesNumber; i++)
+        for(i = 0; i < n; i++)
         {
             b[i].append(a[i*automatonStatesNumber + n]);
             b[i].append(b[n]);
-            for(j = 0; j < automatonStatesNumber; j++)
+            for(j = 0; j < n; j++)
             {
                 a[i*automatonStatesNumber + j].append(a[i*automatonStatesNumber + n]);
                 a[i*automatonStatesNumber + j].append(a[n*automatonStatesNumber + j]);
