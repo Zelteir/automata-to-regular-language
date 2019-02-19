@@ -12,6 +12,7 @@ class Event{
         bool observable; //true==observable
         bool controlable; //true==controlable
    public:
+        Event(){id = -1; label = ""; observable = true; controlable = true;}
         Event(QDomElement);
 
         int getId() {return id;}
@@ -30,6 +31,7 @@ class State{
         bool accepting;
 
     public:
+        State(){id = -1; name = ""; initial = false; accepting = false;}
         State(QDomElement);
 
         int getId() {return id;}
@@ -44,6 +46,7 @@ class Transition{
         int dest;
         int event;
     public:
+        Transition(){source = -1; dest = -1; event = -1;}
         Transition(QDomElement);
 
         int getSource() {return source;}
