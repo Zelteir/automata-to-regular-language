@@ -1,5 +1,5 @@
 #include "translator.hpp"
-#include <qDebug>
+#include <QDebug>
 Translator::Translator()
 {
     regex = "";
@@ -18,7 +18,87 @@ QString Translator::star(QString text)
     return s;
 }
 
-void Translator::brzozowskiMethod(Automaton automaton) //TO DO options desactiver les incontrolables, les invisibles
+void Translator::brzozowskiMethod(Automaton automaton)
+{
+    //Vecteur : liste selon les états RECEVEURS
+    //QMap : int : numéro de l'état qui donnera son expression, QString : l'expression qu'il recevra
+    int automatonStatesNumber = automaton.getStateList().size();
+    QVector<QMap<int, QString>> expressionList;
+    Transition t;
+    QString tmp, tmp2;
+    int i, j, k;
+
+    //Etape 1 : Initialisation des expressions
+    //-1 pour "l'expression fixe"
+    for (i = 0; i < automatonStatesNumber; i++)
+            expressionList[i].insert(-1, "");
+
+    //Ensuite, ajout de toutes les transitions dans les maps
+    for(i = 0; i < automaton.getTransitionList().size(); i++)
+    {
+        t = automaton.getTransition(i);
+        //Unique translation
+        if(!expressionList[t.getDest()].contains(t.getSource()))
+            expressionList[i].insert(t.getSource(), automaton.getEvent(t.getEvent()).getLabel());
+        else { //TODO : ajouter correctement des parenthèses
+            //Multiple translation from a state to another one
+            tmp = (expressionList[i])[t.getSource()];
+            tmp.append("+");
+            tmp.append(automaton.getEvent(t.getEvent()).getLabel());
+            (expressionList[i])[t.getSource()] = tmp;
+        }
+        //TO DO qdebug test
+    }
+
+    //Etape 2 : solving
+    //Etape 2.1 : suppression des états non-finaux
+    for (i = 0; i < automatonStatesNumber; i++)
+    {
+        if(automaton.getState(i).getAccepting())
+        {
+            //Si il existe une transition d'un état à lui-même
+            if(expressionList[i].contains(i))
+            {
+                //Nous récupérons l'expression que nous allons supprimer de la map
+                tmp = star((expressionList[i])[i]);
+                (expressionList[i]).remove(i);
+                //Puis, pour chaque autre "transition" possible, nous ajoutons la transition étoilée à la fin de chaque autre transition de cet état
+                foreach(j, expressionList[i].keys())
+                {
+                    tmp2 = (expressionList[i])[j];
+                    tmp2.append(tmp);
+                    (expressionList[i])[j] = tmp;
+                }
+            }
+
+            //Ensuite, ajout du contenu de cet état aux autres états le nécessitant
+            for(j = 0; j < automatonStatesNumber; j++)
+            {
+                //Inutile sur l'état lui-même ET si l'état le nécessite
+                if(i != j && expressionList[j].contains(i))
+                {
+                    tmp = (expressionList[j])[i];
+                    //Si le nécessite, nous rajoutons le contenu de l'état i dans j
+                    foreach(k, expressionList[i].keys())
+                    {
+                        //Expression qui a injecter dans l'état j
+                        tmp2 = tmp;
+                        tmp2.prepend((expressionList[i])[k]);
+
+                        //TODO
+                        //Dans le cas où il n'y a pas la clé k, juste affecter
+                        //Dans le cas où la clé k existe, ajouter le "+" puis ajouter tmp2 (attention si transition sur le mot vide)
+                    }
+                }
+            }
+        }
+    }
+
+    //Etape 2.2 : suppression des états finaux (relativement similaire mais plus complexe
+
+}
+
+/*void Translator::brzozowskiMethod(Automaton automaton) //TO DO options desactiver les incontrolables, les invisibles
 {
     int automatonStatesNumber = automaton.getStateList().size(), i, j;
     QVector<QString> b(automatonStatesNumber, NULL);
@@ -26,28 +106,30 @@ void Translator::brzozowskiMethod(Automaton automaton) //TO DO options desactive
     QString tmp;
     Transition t;
 
-    //Initialisation
+    //Initialisation of b
     for (i = 0; i < automatonStatesNumber; i++)
     {
         if(automaton.getState(i).getAccepting())
             b[i] = "";
     }
 
+    //Initialisation of a
     for(i = 0; i < automaton.getTransitionList().size(); i++)
     {
         t = automaton.getTransition(i);
         //Unique translation
         if(a[t.getSource()][t.getDest()].isNull())
             a[t.getSource()][t.getDest()] = automaton.getEvent(t.getEvent()).getLabel();
-        else {  /*TO DO plusieurs transitions d'un etat vers un autre -> a verifier (ajouter des parenthèses pour le cas a(b+c)?)*/
+        else {  // -> a verifier (ajouter des parenthèses pour le cas a(b+c)?)
             //Multiple translation from a state to another one
             a[t.getSource()][t.getDest()].append("+");
             a[t.getSource()][t.getDest()].append(automaton.getEvent(t.getEvent()).getLabel());
         }
         //TO DO qdebug test
-    }
+    }*/
 
-    /*for(i=0; i< automatonStatesNumber; i++)
+    /*//Vérification
+    for(i=0; i< automatonStatesNumber; i++)
     {
          for(j=0; j< automatonStatesNumber; j++)
          {
@@ -60,7 +142,7 @@ void Translator::brzozowskiMethod(Automaton automaton) //TO DO options desactive
     }*/
 
     //Solving
-    for(int n = automatonStatesNumber-1; n > -1; n--)
+    /*for(int n = automatonStatesNumber-1; n > -1; n--)
     {
         //B[n] := star(A[n,n]) . B[n]
         if(!a[n][n].isNull())
@@ -69,7 +151,7 @@ void Translator::brzozowskiMethod(Automaton automaton) //TO DO options desactive
                 b[n] = star(a[n][n]);
             else
                 b[n].prepend(star(a[n][n]));
-            for(j = 0; j < n; j++)
+            for(j = 0; j <= n; j++)
             {
                 //A[n,j] := star(A[n,n]) . A[n,j];
                 if(a[n][j].isNull())
@@ -78,7 +160,7 @@ void Translator::brzozowskiMethod(Automaton automaton) //TO DO options desactive
                     a[n][j].prepend(star(a[n][n]));
             }
         }
-        for(i = 0; i < n; i++)
+        for(i = 0; i <= n; i++)
         {
             //B[i] += A[i,n] . B[n]
             if(!a[i][n].isNull())
@@ -96,12 +178,13 @@ void Translator::brzozowskiMethod(Automaton automaton) //TO DO options desactive
                 b[i].append(b[n]);
 
             //A[i,j] += A[i,n] . A[n,j]
-            for(j = 0; j < n; j++)
+            for(j = 0; j <= n; j++)
             {
                 if(!a[i][n].isNull())
                 {
                     if(a[i][n].size()!=1) //TO DO : pour économiser des parenthèses, modifier en "si contient un + mais pas de parenthèse", autre problématique a+a(b+c), gérer cas de multiples + non imbriqués
                     {
+                        a[i][j].append("+");
                         //a[i][j].append("(");
                         a[i][j].append(a[i][n]);
                         //a[i][j].append(")");
@@ -121,6 +204,7 @@ void Translator::brzozowskiMethod(Automaton automaton) //TO DO options desactive
                 }
 
             }
+
             /*if(!a[i][n].isNull() && !b[n].isNull())
             {
                 tmp = a[i][n];
@@ -159,9 +243,14 @@ void Translator::brzozowskiMethod(Automaton automaton) //TO DO options desactive
                 }else {
                     a[i][j] = tmp;
                 }
-            }*/
+            }
         }
     }
 
     regex = b[0];
+}*/
+
+void Translator::reverseBrzozowski(Automaton automaton)
+{
+
 }

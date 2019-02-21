@@ -13,6 +13,7 @@ class Translator
         QString getRegex() {return regex;}
         QString star(QString);
         void brzozowskiMethod(Automaton);
+        void reverseBrzozowski(Automaton);
 };
 
 #endif // TRANSLATOR_HPP
