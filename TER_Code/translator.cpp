@@ -23,7 +23,7 @@ void Translator::brzozowskiMethod(Automaton automaton)
     //Vecteur : liste selon les états RECEVEURS
     //QMap : int : numéro de l'état qui donnera son expression, QString : l'expression qu'il recevra
     int automatonStatesNumber = automaton.getStateList().size();
-    QVector<QMap<int, QString>> expressionList;
+    QVector<QMap<int, QString>> expressionList(automatonStatesNumber);
     Transition t;
     QString tmp, tmp2;
     int i, j, k;
@@ -31,7 +31,7 @@ void Translator::brzozowskiMethod(Automaton automaton)
     //Etape 1 : Initialisation des expressions
     //-1 pour "l'expression fixe"
     for (i = 0; i < automatonStatesNumber; i++)
-            expressionList[i].insert(-1, "");
+        expressionList[i].insert(-1, "");
 
     //Ensuite, ajout de toutes les transitions dans les maps
     for(i = 0; i < automaton.getTransitionList().size(); i++)
@@ -42,12 +42,28 @@ void Translator::brzozowskiMethod(Automaton automaton)
             expressionList[i].insert(t.getSource(), automaton.getEvent(t.getEvent()).getLabel());
         else { //TODO : ajouter correctement des parenthèses
             //Multiple translation from a state to another one
-            tmp = (expressionList[i])[t.getSource()];
+            tmp = (expressionList[i]).take(t.getSource());
             tmp.append("+");
             tmp.append(automaton.getEvent(t.getEvent()).getLabel());
-            (expressionList[i])[t.getSource()] = tmp;
+            (expressionList[i]).insert(t.getSource(), tmp); //SET
         }
         //TO DO qdebug test
+    }
+
+    //Etape 1.1 : ajout des parenthèses au besoin dans les expressions (facilitera les complétions)
+    for(i = 0; i < automatonStatesNumber; i++)
+    {
+        foreach(k, expressionList[i].keys())
+        {
+            tmp = expressionList[i].value(k);
+            if(tmp.contains('+')) //Si plusieurs transitions sont possibles, on aura la présence d'un "+" et nous mettron
+            {
+                tmp.prepend("(");
+                tmp.append(")");
+                expressionList[i].remove(k);
+                (expressionList[i]).insert(k, tmp);
+            }
+        }
     }
 
     //Etape 2 : solving
@@ -60,14 +76,13 @@ void Translator::brzozowskiMethod(Automaton automaton)
             if(expressionList[i].contains(i))
             {
                 //Nous récupérons l'expression que nous allons supprimer de la map
-                tmp = star((expressionList[i])[i]);
-                (expressionList[i]).remove(i);
+                tmp = star((expressionList[i]).take(i));
                 //Puis, pour chaque autre "transition" possible, nous ajoutons la transition étoilée à la fin de chaque autre transition de cet état
                 foreach(j, expressionList[i].keys())
                 {
-                    tmp2 = (expressionList[i])[j];
+                    tmp2 = (expressionList[i]).take(j);
                     tmp2.append(tmp);
-                    (expressionList[i])[j] = tmp;
+                    (expressionList[i]).insert(j, tmp); //SET
                 }
             }
 
@@ -77,24 +92,24 @@ void Translator::brzozowskiMethod(Automaton automaton)
                 //Inutile sur l'état lui-même ET si l'état le nécessite
                 if(i != j && expressionList[j].contains(i))
                 {
-                    tmp = (expressionList[j])[i];
+                    tmp = (expressionList[j]).take(i);
                     //Si le nécessite, nous rajoutons le contenu de l'état i dans j
                     foreach(k, expressionList[i].keys())
                     {
                         //Expression qui a injecter dans l'état j
                         tmp2 = tmp;
-                        tmp2.prepend((expressionList[i])[k]);
+                        tmp2.prepend((expressionList[i]).value(k));
 
-                        //TODO : vérifier
                         //Dans le cas où il n'y a pas la clé k, juste affecter
                         if(!expressionList[j].contains(k))
-                            (expressionList[j])[k] = tmp2;
+                            (expressionList[j]).insert(k, tmp2); //SET
                         //Dans le cas où la clé k existe, ajouter le "+" puis ajouter tmp2 (attention si transition sur le mot vide et optimisation des parenthèses possible)
                         else
                         {
                             tmp2.prepend("(");
                             tmp2.append(")+");
-                            (expressionList[j])[k].prepend(tmp2);
+                            tmp2.append((expressionList[j]).take(k));
+                            (expressionList[j]).insert(k, tmp2); //SET
                         }
                     }
                 }
@@ -102,7 +117,7 @@ void Translator::brzozowskiMethod(Automaton automaton)
         }
     }
 
-    //Etape 2.2 : suppression des états finaux (similaire mais ne diffère en ne traitant que en complétant les autres états finaux)
+    //Etape 2.2 : suppression des états finaux (similaire mais ne diffère en ne complétant que les autres états finaux)
     for (i = 0; i < automatonStatesNumber; i++)
     {
         if(automaton.getState(i).getAccepting())
@@ -111,14 +126,13 @@ void Translator::brzozowskiMethod(Automaton automaton)
             if(expressionList[i].contains(i))
             {
                 //Nous récupérons l'expression que nous allons supprimer de la map
-                tmp = star((expressionList[i])[i]);
-                (expressionList[i]).remove(i);
+                tmp = star((expressionList[i]).take(i));
                 //Puis, pour chaque autre "transition" possible, nous ajoutons la transition étoilée à la fin de chaque autre transition de cet état
                 foreach(j, expressionList[i].keys())
                 {
-                    tmp2 = (expressionList[i])[j];
+                    tmp2 = (expressionList[i]).take(j);
                     tmp2.append(tmp);
-                    (expressionList[i])[j] = tmp;
+                    (expressionList[i]).insert(j, tmp); //SET
                 }
             }
 
@@ -128,24 +142,24 @@ void Translator::brzozowskiMethod(Automaton automaton)
                 //Inutile sur l'état lui-même ET si l'état le nécessite
                 if(i != j && automaton.getState(j).getAccepting() && expressionList[j].contains(i))
                 {
-                    tmp = (expressionList[j])[i];
+                    tmp = (expressionList[j]).take(i);
                     //Si le nécessite, nous rajoutons le contenu de l'état i dans j
                     foreach(k, expressionList[i].keys())
                     {
                         //Expression qui a injecter dans l'état j
                         tmp2 = tmp;
-                        tmp2.prepend((expressionList[i])[k]);
+                        tmp2.prepend((expressionList[i]).value(k));
 
-                        //TODO : vérifier
                         //Dans le cas où il n'y a pas la clé k, juste affecter
                         if(!expressionList[j].contains(k))
-                            (expressionList[j])[k] = tmp2;
+                            (expressionList[j]).insert(k, tmp2); //SET
                         //Dans le cas où la clé k existe, ajouter le "+" puis ajouter tmp2 (attention si transition sur le mot vide et optimisation des parenthèses possible)
                         else
                         {
                             tmp2.prepend("(");
                             tmp2.append(")+");
-                            (expressionList[j])[k].prepend(tmp2);
+                            tmp2.append((expressionList[j]).take(k));
+                            (expressionList[j]).insert(k, tmp2); //SET
                         }
                     }
                 }
@@ -161,11 +175,11 @@ void Translator::brzozowskiMethod(Automaton automaton)
         {
             //Première complétion
             if(finalRegex.isNull())
-                finalRegex = (expressionList[j])[-1];
+                finalRegex = (expressionList[i]).value(-1);
             else //Le final régex est déjà initialisé, donc ajout de l'autre résultat possible
             {
                 finalRegex.append("+");
-                finalRegex.append((expressionList[j])[-1]);
+                finalRegex.append((expressionList[i]).value(-1));
             }
         }
     }
