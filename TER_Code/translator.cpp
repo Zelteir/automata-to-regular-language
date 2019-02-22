@@ -54,6 +54,57 @@ void Translator::brzozowskiMethod(Automaton automaton)
     //Etape 2.1 : suppression des états non-finaux
     for (i = 0; i < automatonStatesNumber; i++)
     {
+        if(!automaton.getState(i).getAccepting())
+        {
+            //Si il existe une transition d'un état à lui-même
+            if(expressionList[i].contains(i))
+            {
+                //Nous récupérons l'expression que nous allons supprimer de la map
+                tmp = star((expressionList[i])[i]);
+                (expressionList[i]).remove(i);
+                //Puis, pour chaque autre "transition" possible, nous ajoutons la transition étoilée à la fin de chaque autre transition de cet état
+                foreach(j, expressionList[i].keys())
+                {
+                    tmp2 = (expressionList[i])[j];
+                    tmp2.append(tmp);
+                    (expressionList[i])[j] = tmp;
+                }
+            }
+
+            //Ensuite, ajout du contenu de cet état aux autres états le nécessitant (possibilité d'amélioration en ne traitant pas les états déjà traités)
+            for(j = 0; j < automatonStatesNumber; j++)
+            {
+                //Inutile sur l'état lui-même ET si l'état le nécessite
+                if(i != j && expressionList[j].contains(i))
+                {
+                    tmp = (expressionList[j])[i];
+                    //Si le nécessite, nous rajoutons le contenu de l'état i dans j
+                    foreach(k, expressionList[i].keys())
+                    {
+                        //Expression qui a injecter dans l'état j
+                        tmp2 = tmp;
+                        tmp2.prepend((expressionList[i])[k]);
+
+                        //TODO : vérifier
+                        //Dans le cas où il n'y a pas la clé k, juste affecter
+                        if(!expressionList[j].contains(k))
+                            (expressionList[j])[k] = tmp2;
+                        //Dans le cas où la clé k existe, ajouter le "+" puis ajouter tmp2 (attention si transition sur le mot vide et optimisation des parenthèses possible)
+                        else
+                        {
+                            tmp2.prepend("(");
+                            tmp2.append(")+");
+                            (expressionList[j])[k].prepend(tmp2);
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+    //Etape 2.2 : suppression des états finaux (similaire mais ne diffère en ne traitant que en complétant les autres états finaux)
+    for (i = 0; i < automatonStatesNumber; i++)
+    {
         if(automaton.getState(i).getAccepting())
         {
             //Si il existe une transition d'un état à lui-même
@@ -71,11 +122,11 @@ void Translator::brzozowskiMethod(Automaton automaton)
                 }
             }
 
-            //Ensuite, ajout du contenu de cet état aux autres états le nécessitant
+            //Ensuite, ajout du contenu de cet état aux autres états le nécessitant (possibilité d'amélioration en ne traitant pas les états déjà traités)
             for(j = 0; j < automatonStatesNumber; j++)
             {
                 //Inutile sur l'état lui-même ET si l'état le nécessite
-                if(i != j && expressionList[j].contains(i))
+                if(i != j && automaton.getState(j).getAccepting() && expressionList[j].contains(i))
                 {
                     tmp = (expressionList[j])[i];
                     //Si le nécessite, nous rajoutons le contenu de l'état i dans j
@@ -85,17 +136,41 @@ void Translator::brzozowskiMethod(Automaton automaton)
                         tmp2 = tmp;
                         tmp2.prepend((expressionList[i])[k]);
 
-                        //TODO
+                        //TODO : vérifier
                         //Dans le cas où il n'y a pas la clé k, juste affecter
-                        //Dans le cas où la clé k existe, ajouter le "+" puis ajouter tmp2 (attention si transition sur le mot vide)
+                        if(!expressionList[j].contains(k))
+                            (expressionList[j])[k] = tmp2;
+                        //Dans le cas où la clé k existe, ajouter le "+" puis ajouter tmp2 (attention si transition sur le mot vide et optimisation des parenthèses possible)
+                        else
+                        {
+                            tmp2.prepend("(");
+                            tmp2.append(")+");
+                            (expressionList[j])[k].prepend(tmp2);
+                        }
                     }
                 }
             }
         }
     }
 
-    //Etape 2.2 : suppression des états finaux (relativement similaire mais plus complexe
+    //Etape 3 : récupération des expressions de tous les états finaux
+    QString finalRegex;
+    for (i = 0; i < automatonStatesNumber; i++)
+    {
+        if(automaton.getState(i).getAccepting())
+        {
+            //Première complétion
+            if(finalRegex.isNull())
+                finalRegex = (expressionList[j])[-1];
+            else //Le final régex est déjà initialisé, donc ajout de l'autre résultat possible
+            {
+                finalRegex.append("+");
+                finalRegex.append((expressionList[j])[-1]);
+            }
+        }
+    }
 
+    regex = finalRegex;
 }
 
 /*void Translator::brzozowskiMethod(Automaton automaton) //TO DO options desactiver les incontrolables, les invisibles
