@@ -82,7 +82,7 @@ void Translator::brzozowskiMethod(Automaton automaton)
                 {
                     tmp2 = (expressionList[i]).take(j);
                     tmp2.append(tmp);
-                    (expressionList[i]).insert(j, tmp); //SET
+                    (expressionList[i]).insert(j, tmp2); //SET
                 }
             }
 
@@ -107,7 +107,7 @@ void Translator::brzozowskiMethod(Automaton automaton)
                         else
                         {
                             tmp2.prepend("(");
-                            tmp2.append(")+");
+                            tmp2.append(")");
                             tmp2.append((expressionList[j]).take(k));
                             (expressionList[j]).insert(k, tmp2); //SET
                         }
@@ -132,7 +132,7 @@ void Translator::brzozowskiMethod(Automaton automaton)
                 {
                     tmp2 = (expressionList[i]).take(j);
                     tmp2.append(tmp);
-                    (expressionList[i]).insert(j, tmp); //SET
+                    (expressionList[i]).insert(j, tmp2); //SET
                 }
             }
 
@@ -157,7 +157,7 @@ void Translator::brzozowskiMethod(Automaton automaton)
                         else
                         {
                             tmp2.prepend("(");
-                            tmp2.append(")+");
+                            tmp2.append(")");
                             tmp2.append((expressionList[j]).take(k));
                             (expressionList[j]).insert(k, tmp2); //SET
                         }
