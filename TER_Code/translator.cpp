@@ -27,11 +27,15 @@ void Translator::brzozowskiMethod(Automaton automaton)
     Transition t;
     QString tmp, tmp2;
     int i, j, k;
+    QMap<int, bool> traitement;
 
     //Etape 1 : Initialisation des expressions
     //-1 pour "l'expression fixe"
     for (i = 0; i < automatonStatesNumber; i++)
+    {
         expressionList[i].insert(-1, "");
+        traitement.insert(i, false);
+    }
 
 
     //Ensuite, ajout de toutes les transitions dans les maps
@@ -56,7 +60,7 @@ void Translator::brzozowskiMethod(Automaton automaton)
         foreach(k, expressionList[i].keys())
         {
             tmp = expressionList[i].value(k);
-            if(tmp.contains('+')) //Si plusieurs transitions sont possibles, on aura la présence d'un "+" et nous mettron
+            if(tmp.contains('+')) //Si plusieurs transitions sont possibles, on aura la présence d'un "+" et nous mettrons des parenthèses a cette expression
             {
                 tmp.prepend("(");
                 tmp.append(")");
@@ -72,11 +76,33 @@ void Translator::brzozowskiMethod(Automaton automaton)
     {
         if(!automaton.getState(i).getAccepting())
         {
-            //Si il existe une transition d'un état à lui-même
+            //Si il existe au moins une transition d'un état à lui-même
             if(expressionList[i].contains(i))
             {
-                //Nous récupérons l'expression que nous allons supprimer de la map
-                tmp = star((expressionList[i]).take(i));
+                //Nous récupérons toutes ces transitions que nous allons supprimer de la map
+                tmp = "";
+                while(expressionList[i].contains(i))
+                {
+                    tmp2 = (expressionList[i]).take(i);
+                    if(tmp2.length() != 0) //Dans le cas où la transition n'est pas sur le mot vide
+                    {
+                        if(tmp2.length() > 1) //Nous mettons des parenthèses par prudence pour les cas de chaines concaténées (voir comment simplifier)
+                        {
+                            tmp2.prepend("(");
+                            tmp2.append(")");
+                        }
+                        if(tmp.length() == 0)
+                            tmp = tmp2;
+                        else
+                        {
+                            tmp.append("+");
+                            tmp.append(tmp2);
+                        }
+                    }
+                }
+
+                tmp = star(tmp);
+
                 //Puis, pour chaque autre "transition" possible, nous ajoutons la transition étoilée à la fin de chaque autre transition de cet état
                 foreach(j, expressionList[i].keys())
                 {
@@ -86,11 +112,11 @@ void Translator::brzozowskiMethod(Automaton automaton)
                 }
             }
 
-            //Ensuite, ajout du contenu de cet état aux autres états le nécessitant (possibilité d'amélioration en ne traitant pas les états déjà traités)
+            //Ensuite, ajout du contenu de cet état aux autres états le nécessitant (en ignorant les cas déjà traités)
             for(j = 0; j < automatonStatesNumber; j++)
             {
                 //Inutile sur l'état lui-même ET si l'état le nécessite
-                if(i != j && expressionList[j].contains(i))
+                if(traitement[j] == false && i != j && expressionList[j].contains(i))
                 {
                     tmp = (expressionList[j]).take(i);
                     //Si le nécessite, nous rajoutons le contenu de l'état i dans j
@@ -100,20 +126,13 @@ void Translator::brzozowskiMethod(Automaton automaton)
                         tmp2 = tmp;
                         tmp2.prepend((expressionList[i]).value(k));
 
-                        //Dans le cas où il n'y a pas la clé k, juste affecter
-                        if(!expressionList[j].contains(k))
-                            (expressionList[j]).insert(k, tmp2); //SET
-                        //Dans le cas où la clé k existe, ajouter le "+" puis ajouter tmp2 (attention si transition sur le mot vide et optimisation des parenthèses possible)
-                        else
-                        {
-                            tmp2.prepend("(");
-                            tmp2.append(")");
-                            tmp2.append((expressionList[j]).take(k));
-                            (expressionList[j]).insert(k, tmp2); //SET
-                        }
+                        //Nous insérons ainsi l'expression dans l'état, donnant la possibilité d'une multiple transition pour un même état (clé déjà existante)
+                        (expressionList[j]).insert(k, tmp2); //SET
                     }
                 }
             }
+
+            traitement[i] = true;
         }
     }
 
@@ -122,11 +141,33 @@ void Translator::brzozowskiMethod(Automaton automaton)
     {
         if(automaton.getState(i).getAccepting())
         {
-            //Si il existe une transition d'un état à lui-même
+            //Si il existe au moins une transition d'un état à lui-même
             if(expressionList[i].contains(i))
             {
-                //Nous récupérons l'expression que nous allons supprimer de la map
-                tmp = star((expressionList[i]).take(i));
+                //Nous récupérons toutes ces transitions que nous allons supprimer de la map
+                tmp = "";
+                while(expressionList[i].contains(i))
+                {
+                    tmp2 = (expressionList[i]).take(i);
+                    if(tmp2.length() != 0) //Dans le cas où la transition n'est pas sur le mot vide
+                    {
+                        if(tmp2.length() > 1) //Nous mettons des parenthèses par prudence pour les cas de chaines concaténées (voir comment simplifier)
+                        {
+                            tmp2.prepend("(");
+                            tmp2.append(")");
+                        }
+                        if(tmp.length() == 0)
+                            tmp = tmp2;
+                        else
+                        {
+                            tmp.append("+");
+                            tmp.append(tmp2);
+                        }
+                    }
+                }
+
+                tmp = star(tmp);
+
                 //Puis, pour chaque autre "transition" possible, nous ajoutons la transition étoilée à la fin de chaque autre transition de cet état
                 foreach(j, expressionList[i].keys())
                 {
@@ -140,7 +181,7 @@ void Translator::brzozowskiMethod(Automaton automaton)
             for(j = 0; j < automatonStatesNumber; j++)
             {
                 //Inutile sur l'état lui-même ET si l'état le nécessite
-                if(i != j && automaton.getState(j).getAccepting() && expressionList[j].contains(i))
+                if(traitement[j] == false && i != j && automaton.getState(j).getAccepting() && expressionList[j].contains(i))
                 {
                     tmp = (expressionList[j]).take(i);
                     //Si le nécessite, nous rajoutons le contenu de l'état i dans j
@@ -150,20 +191,13 @@ void Translator::brzozowskiMethod(Automaton automaton)
                         tmp2 = tmp;
                         tmp2.prepend((expressionList[i]).value(k));
 
-                        //Dans le cas où il n'y a pas la clé k, juste affecter
-                        if(!expressionList[j].contains(k))
-                            (expressionList[j]).insert(k, tmp2); //SET
-                        //Dans le cas où la clé k existe, ajouter le "+" puis ajouter tmp2 (attention si transition sur le mot vide et optimisation des parenthèses possible)
-                        else
-                        {
-                            tmp2.prepend("(");
-                            tmp2.append(")");
-                            tmp2.append((expressionList[j]).take(k));
-                            (expressionList[j]).insert(k, tmp2); //SET
-                        }
+                        //Nous insérons ainsi l'expression dans l'état, donnant la possibilité d'une multiple transition pour un même état (clé déjà existante)
+                        (expressionList[j]).insert(k, tmp2); //SET
                     }
                 }
             }
+
+            traitement[i] = true;
         }
     }
 
@@ -176,11 +210,19 @@ void Translator::brzozowskiMethod(Automaton automaton)
             //Première complétion
             if(finalRegex.isEmpty() && !(expressionList[i]).value(-1).isEmpty())
                 finalRegex = (expressionList[i]).value(-1);
-            else if(!(expressionList[i]).value(-1).isEmpty())//Le final régex est déjà initialisé, donc ajout de l'autre résultat possible
+            else //Le final régex est déjà initialisé, donc ajout de l'autre résultat possible
             {
-                if(finalRegex[finalRegex.size()-1] != '+')
-                    finalRegex.append("+");
-                finalRegex.append((expressionList[i]).value(-1));
+                QList<QString> valeurs = (expressionList[i]).values(-1);
+                qDebug() << valeurs.count();
+                for(j=0;j<valeurs.count();j++)
+                {
+                    if(!valeurs[j].isEmpty())
+                    {
+                        if(finalRegex[finalRegex.size()-1] != '+')
+                            finalRegex.append("+");
+                        finalRegex.append(valeurs[j]);
+                    }
+                }
             }
         }
     }
