@@ -174,11 +174,12 @@ void Translator::brzozowskiMethod(Automaton automaton)
         if(automaton.getState(i).getAccepting())
         {
             //Première complétion
-            if(finalRegex.isNull())
+            if(finalRegex.isEmpty() && !(expressionList[i]).value(-1).isEmpty())
                 finalRegex = (expressionList[i]).value(-1);
-            else //Le final régex est déjà initialisé, donc ajout de l'autre résultat possible
+            else if(!(expressionList[i]).value(-1).isEmpty())//Le final régex est déjà initialisé, donc ajout de l'autre résultat possible
             {
-                finalRegex.append("+");
+                if(finalRegex[finalRegex.size()-1] != '+')
+                    finalRegex.append("+");
                 finalRegex.append((expressionList[i]).value(-1));
             }
         }
