@@ -33,23 +33,23 @@ void Translator::brzozowskiMethod(Automaton automaton)
     for (i = 0; i < automatonStatesNumber; i++)
         expressionList[i].insert(-1, "");
 
+
     //Ensuite, ajout de toutes les transitions dans les maps
     for(i = 0; i < automaton.getTransitionList().size(); i++)
     {
         t = automaton.getTransition(i);
         //Unique translation
         if(!expressionList[t.getDest()].contains(t.getSource()))
-            expressionList[i].insert(t.getSource(), automaton.getEvent(t.getEvent()).getLabel());
+            expressionList[t.getDest()].insert(t.getSource(), automaton.getEvent(t.getEvent()).getLabel());
         else { //TODO : ajouter correctement des parenthèses
             //Multiple translation from a state to another one
-            tmp = (expressionList[i]).take(t.getSource());
+            tmp = (expressionList[t.getDest()]).take(t.getSource());
             tmp.append("+");
             tmp.append(automaton.getEvent(t.getEvent()).getLabel());
-            (expressionList[i]).insert(t.getSource(), tmp); //SET
+            (expressionList[t.getDest()]).insert(t.getSource(), tmp); //SET
         }
         //TO DO qdebug test
     }
-
     //Etape 1.1 : ajout des parenthèses au besoin dans les expressions (facilitera les complétions)
     for(i = 0; i < automatonStatesNumber; i++)
     {
