@@ -237,7 +237,26 @@
        </layout>
       </item>
       <item>
-       <widget class="QPlainTextEdit" name="Generated_Regular_Language"/>
+       <widget class="QPlainTextEdit" name="Generated_Regular_Language">
+        <property name="enabled">
+         <bool>false</bool>
+        </property>
+        <property name="sizePolicy">
+         <sizepolicy hsizetype="Expanding" vsizetype="Minimum">
+          <horstretch>0</horstretch>
+          <verstretch>0</verstretch>
+         </sizepolicy>
+        </property>
+        <property name="maximumSize">
+         <size>
+          <width>16777215</width>
+          <height>50</height>
+         </size>
+        </property>
+        <property name="textInteractionFlags">
+         <set>Qt::TextSelectableByKeyboard|Qt::TextSelectableByMouse</set>
+        </property>
+       </widget>
       </item>
      </layout>
     </item>

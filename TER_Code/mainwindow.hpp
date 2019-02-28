@@ -24,11 +24,15 @@ private slots:
 
     void on_Generate_Button_clicked();
 
+    void on_actionClose_triggered();
+
+    void on_actionSave_as_triggered();
+
 private:
     Ui::MainWindow *ui;
     Automata automata;
     Translator translator;
-    void activate_interface();
+    void toggle_interface(bool b);
     void fill_interface();
     void fill_automaton_list();
     void clear_interface();

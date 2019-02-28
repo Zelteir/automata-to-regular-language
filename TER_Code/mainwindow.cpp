@@ -36,20 +36,22 @@ void MainWindow::on_actionOpen_Import_triggered()
         return;
     if (automata.fromSupremica(file_name))
     {
-        this->activate_interface();
+        this->toggle_interface(true);
     }
 }
 
 /*
  * Enable the interface to user
 */
-void MainWindow::activate_interface()
+void MainWindow::toggle_interface(bool b)
 {
-    ui->Events_list->setEnabled(true);
-    ui->States_list->setEnabled(true);
-    ui->Automatons_list->setEnabled(true);
-    ui->Transitions_list->setEnabled(true);
-    ui->Generate_Button->setEnabled(true);
+    ui->Events_list->setEnabled(b);
+    ui->States_list->setEnabled(b);
+    ui->Automatons_list->setEnabled(b);
+    ui->Transitions_list->setEnabled(b);
+    ui->Generate_Button->setEnabled(b);
+    ui->Generated_Regular_Language->setEnabled(b);
+    ui->actionClose->setEnabled(b);
     /*
      * TO DO
      * Other things to enable
@@ -145,6 +147,7 @@ void MainWindow::clear_interface()
     ui->Events_list->clearContents();
     ui->States_list->clearContents();
     ui->Transitions_list->clearContents();
+    ui->Generated_Regular_Language->clear();
 }
 
 /*
@@ -170,4 +173,34 @@ void MainWindow::on_Generate_Button_clicked()
 {
     translator.brzozowskiMethod(automata.get_automaton_at(ui->Automatons_list->currentRow()));
     ui->Generated_Regular_Language->setPlainText(translator.getRegex());
+    ui->actionSave_as->setEnabled(true);
+}
+
+void MainWindow::on_actionClose_triggered()
+{
+
+    toggle_interface(false);
+    clear_interface();
+    clear_automaton_list();
+    ui->States_list->setRowCount(0);
+    ui->Events_list->setRowCount(0);
+    ui->Transitions_list->setRowCount(0);
+    ui->actionSave_as->setEnabled(false);
+}
+
+void MainWindow::on_actionSave_as_triggered()
+{
+    QString file_name = QFileDialog::getSaveFileName(this, tr("Save regular language"), "", tr("Text Files (*.txt);;All Files (*)"));
+    if (file_name.isEmpty())
+        return;
+    QFile file(file_name);
+    if (!file.open(QIODevice::WriteOnly)) {
+        QMessageBox::information(this, tr("Unable to open file"),
+        file.errorString());
+        return;
+    }
+    QTextStream out(&file);
+    out << ui->Generated_Regular_Language->toPlainText();
+    file.close();
+    QMessageBox::information(this, tr("Save sucessful"),"Regular expression saved sucessfuly.");
 }
