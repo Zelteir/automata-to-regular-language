@@ -207,7 +207,16 @@ void Translator::brzozowskiMethod(Automaton automaton)
     {
         if(automaton.getState(i).getAccepting())
         {
-            //Première complétion
+            //Dans le cas où l'état initial est aussi acceptant, nous ajoutons le mot vide
+            if(automaton.getState(i).getInitial())
+            {
+                if(finalRegex.isEmpty())
+                    finalRegex = "Є";
+                else
+                    finalRegex.prepend("Є+");
+            }
+
+            //Complétion par les autres transitions
             if(finalRegex.isEmpty() && !(expressionList[i]).value(-1).isEmpty())
                 finalRegex = (expressionList[i]).value(-1);
             else //Le final régex est déjà initialisé, donc ajout de l'autre résultat possible
