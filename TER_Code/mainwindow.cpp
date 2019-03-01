@@ -212,7 +212,10 @@ void MainWindow::on_actionSave_as_triggered()
         return;
     }
     QTextStream out(&file);
+    out << automata.get_automaton_at(ui->Automatons_list->currentRow());
+    out << " : ";
     out << ui->Generated_Regular_Language->toPlainText();
+    out << "\n";
     file.close();
     QMessageBox::information(this, tr("Save sucessful"),"Regular expression saved sucessfuly.");
 }
@@ -227,7 +230,7 @@ void MainWindow::on_States_list_itemChanged(QTableWidgetItem *item)
             if(ui->States_list->item(i,0)->text() == item->text() && i != item->row())
             {
                 QMessageBox::information(this, tr("Error"),
-                QString("This name is already in use"));
+                QString("This name is already in use."));
                 item->setText(automata.get_automaton_at(id)->getState(item->row()).getName());
                 return;
             }
@@ -236,7 +239,7 @@ void MainWindow::on_States_list_itemChanged(QTableWidgetItem *item)
             if(ui->Events_list->item(i,0)->text() == item->text())
             {
                 QMessageBox::information(this, tr("Error"),
-                QString("This name is already in use"));
+                QString("This name is already in use."));
                 item->setText(automata.get_automaton_at(id)->getState(item->row()).getName());
                 return;
             }
@@ -270,7 +273,7 @@ void MainWindow::on_Events_list_itemChanged(QTableWidgetItem *item)
             if(ui->States_list->item(i,0)->text() == item->text())
             {
                 QMessageBox::information(this, tr("Error"),
-                QString("This name is already in use"));
+                QString("This name is already in use."));
                 item->setText(automata.get_automaton_at(id)->getEvent(item->row()).getLabel());
                 return;
             }
@@ -279,7 +282,7 @@ void MainWindow::on_Events_list_itemChanged(QTableWidgetItem *item)
             if(ui->Events_list->item(i,0)->text() == item->text() && i != item->row())
             {
                 QMessageBox::information(this, tr("Error"),
-                QString("This name is already in use"));
+                QString("This name is already in use."));
                 item->setText(automata.get_automaton_at(id)->getEvent(item->row()).getLabel());
                 return;
             }
@@ -307,46 +310,72 @@ void MainWindow::on_Events_list_itemChanged(QTableWidgetItem *item)
 void MainWindow::on_Transitions_list_itemChanged(QTableWidgetItem *item)
 {
     /*TO DO*/
-    /*int id = ui->Automatons_list->currentRow();
-    int s;
-    int d;
-    int e;
+    int id = ui->Automatons_list->currentRow();
+    int s = -1;
+    int d = -1;
+    int e = -1;
+    int i = 0;
+    Transition t;
     switch (item->column()) {
     case (0):
-        for (int i = 0;i < ui->States_list->rowCount();i++) {
+        while (i < ui->States_list->rowCount()) {
             if(ui->States_list->item(i,0)->text() == item->text())
             {
-                QMessageBox::information(this, tr("Error"),
-                QString("This name is already in use"));
-                item->setText(automata.get_automaton_at(id)->getEvent(item->row()).getLabel());
-                return;
+                s = i;
+                break;
             }
+            i++;
         }
-        for (int i = 0;i < ui->Events_list->rowCount();i++) {
-            if(ui->Events_list->item(i,0)->text() == item->text() && i != item->row())
-            {
-                QMessageBox::information(this, tr("Error"),
-                QString("This name is already in use"));
-                item->setText(automata.get_automaton_at(id)->getEvent(item->row()).getLabel());
-                return;
-            }
-        }
-        try {
-            Event s = automata.get_automaton_at(id)->getEvent(item->row());
-            s.setLabel(item->text());
-            automata.get_automaton_at(id)->getEventList()->replace(item->row(),s);
-        } catch (SetterException &e) {
+        if(s == -1)
+        {
             QMessageBox::information(this, tr("Error"),
-            e.getMsg());
-            item->setText(automata.get_automaton_at(id)->getEvent(item->row()).getLabel());
+            QString("This state does not exist."));
+            item->setText(automata.get_automaton_at(id)->getState(automata.get_automaton_at(id)->getTransition(item->row()).getSource()).getName());
             return;
         }
+        t = automata.get_automaton_at(id)->getTransition(item->row());
+        t.setSource(s);
+        automata.get_automaton_at(id)->getTransitionList()->replace(item->row(),t);
         break;
     case 1:
-        automata.get_automaton_at(id)->getEvent(item->row()).setObservable(item->checkState()==Qt::Checked?true:false);
+        while (i < ui->States_list->rowCount()) {
+            if(ui->States_list->item(i,0)->text() == item->text())
+            {
+                d = i;
+                break;
+            }
+            i++;
+        }
+        if(d == -1)
+        {
+            QMessageBox::information(this, tr("Error"),
+            QString("This state does not exist."));
+            item->setText(automata.get_automaton_at(id)->getState(automata.get_automaton_at(id)->getTransition(item->row()).getDest()).getName());
+            return;
+        }
+        t = automata.get_automaton_at(id)->getTransition(item->row());
+        t.setDest(d);
+        automata.get_automaton_at(id)->getTransitionList()->replace(item->row(),t);
         break;
     case 2:
-        automata.get_automaton_at(id)->getEvent(item->row()).setControlable(item->checkState()==Qt::Checked?true:false);
+        while (i < ui->Events_list->rowCount()) {
+            if(ui->Events_list->item(i,0)->text() == item->text())
+            {
+                e = i;
+                break;
+            }
+            i++;
+        }
+        if(e == -1)
+        {
+            QMessageBox::information(this, tr("Error"),
+            QString("This event does not exist."));
+            item->setText(automata.get_automaton_at(id)->getEvent(automata.get_automaton_at(id)->getTransition(item->row()).getEvent()).getLabel());
+            return;
+        }
+        t = automata.get_automaton_at(id)->getTransition(item->row());
+        t.setEvent(e);
+        automata.get_automaton_at(id)->getTransitionList()->replace(item->row(),t);
         break;
-    }*/
+    }
 }
