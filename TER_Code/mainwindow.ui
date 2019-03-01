@@ -69,9 +69,6 @@
             <property name="editTriggers">
              <set>QAbstractItemView::DoubleClicked</set>
             </property>
-            <property name="sortingEnabled">
-             <bool>true</bool>
-            </property>
             <attribute name="verticalHeaderVisible">
              <bool>false</bool>
             </attribute>
@@ -120,9 +117,6 @@
             <property name="editTriggers">
              <set>QAbstractItemView::DoubleClicked</set>
             </property>
-            <property name="sortingEnabled">
-             <bool>true</bool>
-            </property>
             <attribute name="verticalHeaderVisible">
              <bool>false</bool>
             </attribute>
@@ -170,9 +164,6 @@
             </property>
             <property name="editTriggers">
              <set>QAbstractItemView::DoubleClicked</set>
-            </property>
-            <property name="sortingEnabled">
-             <bool>true</bool>
             </property>
             <attribute name="verticalHeaderVisible">
              <bool>false</bool>
