@@ -13,6 +13,12 @@ Event::Event(QDomElement element)
     controlable = element.attribute("controlable","true")==QString("true");
 }
 
+void Event::setLabel(QString l)
+{
+    if(l.isEmpty())throw SetterException("Name cannot be empty.");
+    this->label = l;
+}
+
 State::State(QDomElement element)
 {
     /*int id;
@@ -24,6 +30,12 @@ State::State(QDomElement element)
     name = element.attribute("name","");
     initial = element.attribute("initial","false")==QString("true");
     accepting = element.attribute("accepting","false")==QString("true");
+}
+
+void State::setName(QString n)
+{
+    if(n.isEmpty())throw SetterException("Name cannot be empty.");
+    this->name = n;
 }
 
 Transition::Transition(QDomElement element)
@@ -60,4 +72,9 @@ Automaton::Automaton(QDomNode node)
     {
         transitionList.append(Transition(element));
     }
+}
+
+QString SetterException::getMsg()
+{
+    return msg;
 }

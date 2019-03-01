@@ -45,16 +45,16 @@ bool Automata::fromSupremica(QString fileName)
 /*
  * Return la liste des automatons contenu dans l'automata
 */
-QList<Automaton> Automata::get_automatons()
+QList<Automaton> *Automata::get_automatons()
 {
-    return QList<Automaton>(this->automatonList);
+    return &(this->automatonList);
 }
 
 /*
  * Return un automaton spécifique de la liste à l'indice i
 */
-Automaton Automata::get_automaton_at(int i)
+Automaton *Automata::get_automaton_at(int i)
 {
-    return Automaton(this->automatonList.at(i));
+    return &(this->automatonList[i]);
 }
 

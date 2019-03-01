@@ -4,6 +4,18 @@
 #include <QList>
 #include <QString>
 #include <QDomNode>
+#include <QException>
+
+class SetterException : public QException
+{
+    public:
+        SetterException(QString const& msg):msg(msg){}
+        void raise() const override { throw *this; }
+        SetterException *clone() const override { return new SetterException(*this); }
+        virtual QString getMsg();
+    private:
+        QString msg;
+};
 
 class Event{
     private:
@@ -19,8 +31,9 @@ class Event{
         QString getLabel() {return label;}
         bool getObservable() {return observable;}
         bool getControlable(){return controlable;}
-
-
+        void setObservable(bool b) {observable = b;}
+        void setControlable(bool b) {controlable = b;}
+        void setLabel(QString);
 };
 
 class State{
@@ -38,6 +51,9 @@ class State{
         QString getName() {return name;}
         bool getInitial() {return initial;}
         bool getAccepting() {return accepting;}
+        void setName(QString);
+        void setInitial(bool b) {initial = b;}
+        void setAccepting(bool b) {accepting = b;}
 };
 
 class Transition{
@@ -52,6 +68,9 @@ class Transition{
         int getSource() {return source;}
         int getDest() {return dest;}
         int getEvent() {return event;}
+        void setSource(int s) {source = s;}
+        void setDest(int d) {dest = d;}
+        void setEvent(int e) {event = e;}
 };
 
 class Automaton{
@@ -66,9 +85,9 @@ class Automaton{
         Automaton(QDomNode);
         QString getName() {return name;}
         QString getType() {return type;}
-        QList<Event> getEventList(){return eventList;}
-        QList<State> getStateList(){return stateList;}
-        QList<Transition> getTransitionList(){return transitionList;}
+        QList<Event> *getEventList(){return &eventList;}
+        QList<State> *getStateList(){return &stateList;}
+        QList<Transition> *getTransitionList(){return &transitionList;}
         State getState(int i){return stateList[i];}
         Event getEvent(int i){return eventList[i];}
         Transition getTransition(int i){return transitionList[i];}

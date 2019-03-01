@@ -67,7 +67,7 @@
              <bool>false</bool>
             </property>
             <property name="editTriggers">
-             <set>QAbstractItemView::NoEditTriggers</set>
+             <set>QAbstractItemView::DoubleClicked</set>
             </property>
             <property name="sortingEnabled">
              <bool>true</bool>
@@ -84,10 +84,16 @@
              <property name="text">
               <string>Initial</string>
              </property>
+             <property name="textAlignment">
+              <set>AlignCenter</set>
+             </property>
             </column>
             <column>
              <property name="text">
               <string>Accepting</string>
+             </property>
+             <property name="textAlignment">
+              <set>AlignCenter</set>
              </property>
             </column>
            </widget>
@@ -112,7 +118,7 @@
              <bool>false</bool>
             </property>
             <property name="editTriggers">
-             <set>QAbstractItemView::NoEditTriggers</set>
+             <set>QAbstractItemView::DoubleClicked</set>
             </property>
             <property name="sortingEnabled">
              <bool>true</bool>
@@ -130,7 +136,7 @@
               <string>Unobservable</string>
              </property>
              <property name="textAlignment">
-              <set>AlignLeading|AlignVCenter</set>
+              <set>AlignCenter</set>
              </property>
             </column>
             <column>
@@ -138,7 +144,7 @@
               <string>Uncontrolable</string>
              </property>
              <property name="textAlignment">
-              <set>AlignLeading|AlignVCenter</set>
+              <set>AlignCenter</set>
              </property>
             </column>
            </widget>
@@ -163,7 +169,7 @@
              <bool>false</bool>
             </property>
             <property name="editTriggers">
-             <set>QAbstractItemView::NoEditTriggers</set>
+             <set>QAbstractItemView::DoubleClicked</set>
             </property>
             <property name="sortingEnabled">
              <bool>true</bool>

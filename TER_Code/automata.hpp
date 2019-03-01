@@ -14,8 +14,8 @@ class Automata{
 
     public:
         bool fromSupremica(QString fileName);
-        QList<Automaton> get_automatons();
-        Automaton get_automaton_at(int i);
+        QList<Automaton> *get_automatons();
+        Automaton *get_automaton_at(int i);
 };
 
 #endif // AUTOMATA_HPP

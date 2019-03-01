@@ -3,6 +3,7 @@
 #include "type_choice.hpp"
 #include <QFileDialog>
 #include <QDebug>
+#include <QSignalBlocker>
 
 MainWindow::MainWindow(QWidget *parent) :
     QMainWindow(parent),
@@ -64,16 +65,20 @@ void MainWindow::toggle_interface(bool b)
 */
 void MainWindow::fill_interface()
 {
+    QSignalBlocker states_blocker(ui->States_list);
+    QSignalBlocker events_blocker(ui->Events_list);
+    /*TO DO disconnect slots*/
     clear_interface();
     QString string;
     int i;
     int id = ui->Automatons_list->currentRow();
-    ui->States_list->setRowCount(automata.get_automaton_at(id).getStateList().length());
+    ui->States_list->setRowCount(automata.get_automaton_at(id)->getStateList()->length());
     /*fill states table with name, initial and accepted information*/
-    for(i = 0; i< automata.get_automaton_at(id).getStateList().length();i++)
+    for(i = 0; i< automata.get_automaton_at(id)->getStateList()->length();i++)
     {
-        ui->States_list->setItem(i,0,new QTableWidgetItem(automata.get_automaton_at(id).getStateList()[i].getName()));
-        if(automata.get_automaton_at(id).getStateList()[i].getInitial())
+        ui->States_list->setItem(i,0,new QTableWidgetItem((*automata.get_automaton_at(id)->getStateList())[i].getName()));
+        ui->States_list->item(i,0)->setTextAlignment(Qt::AlignHCenter);
+        if((*automata.get_automaton_at(id)->getStateList())[i].getInitial())
         {
             ui->States_list->setItem(i,1,new QTableWidgetItem(""));
             ui->States_list->item(i,1)->setCheckState(Qt::Checked);
@@ -82,7 +87,8 @@ void MainWindow::fill_interface()
             ui->States_list->setItem(i,1,new QTableWidgetItem(""));
             ui->States_list->item(i,1)->setCheckState(Qt::Unchecked);
         }
-        if(automata.get_automaton_at(id).getStateList()[i].getAccepting())
+        ui->States_list->item(i,1)->setFlags(ui->States_list->item(i,1)->flags() & (~Qt::ItemIsEditable));
+        if((*automata.get_automaton_at(id)->getStateList())[i].getAccepting())
         {
             ui->States_list->setItem(i,2,new QTableWidgetItem(""));
             ui->States_list->item(i,2)->setCheckState(Qt::Checked);
@@ -91,13 +97,15 @@ void MainWindow::fill_interface()
             ui->States_list->setItem(i,2,new QTableWidgetItem(""));
             ui->States_list->item(i,2)->setCheckState(Qt::Unchecked);
         }
+        ui->States_list->item(i,2)->setFlags(ui->States_list->item(i,1)->flags() & (~Qt::ItemIsEditable));
     }
-    ui->Events_list->setRowCount(automata.get_automaton_at(id).getEventList().length());
+    ui->Events_list->setRowCount(automata.get_automaton_at(id)->getEventList()->length());
     /*fill events table with name, observable and controlable information*/
-    for(i = 0; i< automata.get_automaton_at(id).getEventList().length();i++)
+    for(i = 0; i< automata.get_automaton_at(id)->getEventList()->length();i++)
     {
-        ui->Events_list->setItem(i,0,new QTableWidgetItem(automata.get_automaton_at(id).getEventList()[i].getLabel()));
-        if(!automata.get_automaton_at(id).getEventList()[i].getObservable())
+        ui->Events_list->setItem(i,0,new QTableWidgetItem((*automata.get_automaton_at(id)->getEventList())[i].getLabel()));
+        ui->Events_list->item(i,0)->setTextAlignment(Qt::AlignHCenter);
+        if(!(*automata.get_automaton_at(id)->getEventList())[i].getObservable())
         {
             ui->Events_list->setItem(i,1,new QTableWidgetItem(""));
             ui->Events_list->item(i,1)->setCheckState(Qt::Checked);
@@ -107,7 +115,8 @@ void MainWindow::fill_interface()
             ui->Events_list->setItem(i,1,new QTableWidgetItem(""));
             ui->Events_list->item(i,1)->setCheckState(Qt::Unchecked);
         }
-        if(!automata.get_automaton_at(id).getEventList()[i].getControlable())
+        ui->Events_list->item(i,1)->setFlags(ui->Events_list->item(i,1)->flags() & (~Qt::ItemIsEditable));
+        if(!(*automata.get_automaton_at(id)->getEventList())[i].getControlable())
         {
             ui->Events_list->setItem(i,2,new QTableWidgetItem(""));
             ui->Events_list->item(i,2)->setCheckState(Qt::Checked);
@@ -117,15 +126,18 @@ void MainWindow::fill_interface()
             ui->Events_list->setItem(i,2,new QTableWidgetItem(""));
             ui->Events_list->item(i,2)->setCheckState(Qt::Unchecked);
         }
+        ui->Events_list->item(i,2)->setFlags(ui->Events_list->item(i,1)->flags() & (~Qt::ItemIsEditable));
     }
-    ui->Transitions_list->setRowCount(automata.get_automaton_at(id).getTransitionList().length());
+    ui->Transitions_list->setRowCount(automata.get_automaton_at(id)->getTransitionList()->length());
     /*fill transition table with origin, destination and event information*/
-    for(i = 0; i< automata.get_automaton_at(id).getTransitionList().length();i++)
+    for(i = 0; i< automata.get_automaton_at(id)->getTransitionList()->length();i++)
     {
-        ui->Transitions_list->setItem(i,0, new QTableWidgetItem(*ui->States_list->item(automata.get_automaton_at(id).getTransitionList()[i].getSource(),0)));
-        ui->Transitions_list->setItem(i,1, new QTableWidgetItem(*ui->States_list->item(automata.get_automaton_at(id).getTransitionList()[i].getDest(),0)));
-        ui->Transitions_list->setItem(i,2, new QTableWidgetItem(*ui->Events_list->item(automata.get_automaton_at(id).getTransitionList()[i].getEvent(),0)));
+        ui->Transitions_list->setItem(i,0, new QTableWidgetItem(*ui->States_list->item((*automata.get_automaton_at(id)->getTransitionList())[i].getSource(),0)));
+        ui->Transitions_list->setItem(i,1, new QTableWidgetItem(*ui->States_list->item((*automata.get_automaton_at(id)->getTransitionList())[i].getDest(),0)));
+        ui->Transitions_list->setItem(i,2, new QTableWidgetItem(*ui->Events_list->item((*automata.get_automaton_at(id)->getTransitionList())[i].getEvent(),0)));
     }
+    states_blocker.unblock();
+    events_blocker.unblock();
 }
 
 /*
@@ -134,7 +146,7 @@ void MainWindow::fill_interface()
 void MainWindow::fill_automaton_list()
 {
     clear_automaton_list();
-    for(Automaton tmp : this->automata.get_automatons())
+    for(Automaton tmp : *this->automata.get_automatons())
         ui->Automatons_list->addItem(tmp.getName());
     ui->Automatons_list->setCurrentRow(0);
 }
@@ -171,7 +183,7 @@ void MainWindow::on_Automatons_list_itemSelectionChanged()
 */
 void MainWindow::on_Generate_Button_clicked()
 {
-    translator.brzozowskiMethod(automata.get_automaton_at(ui->Automatons_list->currentRow()));
+    translator.brzozowskiMethod(*automata.get_automaton_at(ui->Automatons_list->currentRow()));
     ui->Generated_Regular_Language->setPlainText(translator.getRegex());
     ui->actionSave_as->setEnabled(true);
 }
@@ -203,4 +215,138 @@ void MainWindow::on_actionSave_as_triggered()
     out << ui->Generated_Regular_Language->toPlainText();
     file.close();
     QMessageBox::information(this, tr("Save sucessful"),"Regular expression saved sucessfuly.");
+}
+
+void MainWindow::on_States_list_itemChanged(QTableWidgetItem *item)
+{
+    int id = ui->Automatons_list->currentRow();
+    switch (item->column()) {
+    case 0:
+        qDebug() <<"setName";
+        for (int i = 0;i < ui->States_list->rowCount();i++) {
+            if(ui->States_list->item(i,0)->text() == item->text() && i != item->row())
+            {
+                QMessageBox::information(this, tr("Error"),
+                QString("This name is already in use"));
+                item->setText(automata.get_automaton_at(id)->getState(item->row()).getName());
+                return;
+            }
+        }
+        for (int i = 0;i < ui->Events_list->rowCount();i++) {
+            if(ui->Events_list->item(i,0)->text() == item->text())
+            {
+                QMessageBox::information(this, tr("Error"),
+                QString("This name is already in use"));
+                item->setText(automata.get_automaton_at(id)->getState(item->row()).getName());
+                return;
+            }
+        }
+        try {
+            State s = automata.get_automaton_at(id)->getState(item->row());
+            s.setName(item->text());
+            automata.get_automaton_at(id)->getStateList()->replace(item->row(),s);
+        } catch (SetterException &e) {
+            QMessageBox::information(this, tr("Error"),
+            e.getMsg());
+            item->setText(automata.get_automaton_at(id)->getState(item->row()).getName());
+            return;
+        }
+        break;
+    case 1:
+        automata.get_automaton_at(id)->getState(item->row()).setInitial(item->checkState()==Qt::Checked?true:false);
+        break;
+    case 2:
+        automata.get_automaton_at(id)->getState(item->row()).setAccepting(item->checkState()==Qt::Checked?true:false);
+        break;
+    }
+}
+
+void MainWindow::on_Events_list_itemChanged(QTableWidgetItem *item)
+{
+    int id = ui->Automatons_list->currentRow();
+    switch (item->column()) {
+    case 0:
+        for (int i = 0;i < ui->States_list->rowCount();i++) {
+            if(ui->States_list->item(i,0)->text() == item->text())
+            {
+                QMessageBox::information(this, tr("Error"),
+                QString("This name is already in use"));
+                item->setText(automata.get_automaton_at(id)->getEvent(item->row()).getLabel());
+                return;
+            }
+        }
+        for (int i = 0;i < ui->Events_list->rowCount();i++) {
+            if(ui->Events_list->item(i,0)->text() == item->text() && i != item->row())
+            {
+                QMessageBox::information(this, tr("Error"),
+                QString("This name is already in use"));
+                item->setText(automata.get_automaton_at(id)->getEvent(item->row()).getLabel());
+                return;
+            }
+        }
+        try {
+            Event s = automata.get_automaton_at(id)->getEvent(item->row());
+            s.setLabel(item->text());
+            automata.get_automaton_at(id)->getEventList()->replace(item->row(),s);
+        } catch (SetterException &e) {
+            QMessageBox::information(this, tr("Error"),
+            e.getMsg());
+            item->setText(automata.get_automaton_at(id)->getEvent(item->row()).getLabel());
+            return;
+        }
+        break;
+    case 1:
+        automata.get_automaton_at(id)->getEvent(item->row()).setObservable(item->checkState()==Qt::Checked?true:false);
+        break;
+    case 2:
+        automata.get_automaton_at(id)->getEvent(item->row()).setControlable(item->checkState()==Qt::Checked?true:false);
+        break;
+    }
+}
+
+void MainWindow::on_Transitions_list_itemChanged(QTableWidgetItem *item)
+{
+    /*TO DO*/
+    /*int id = ui->Automatons_list->currentRow();
+    int s;
+    int d;
+    int e;
+    switch (item->column()) {
+    case (0):
+        for (int i = 0;i < ui->States_list->rowCount();i++) {
+            if(ui->States_list->item(i,0)->text() == item->text())
+            {
+                QMessageBox::information(this, tr("Error"),
+                QString("This name is already in use"));
+                item->setText(automata.get_automaton_at(id)->getEvent(item->row()).getLabel());
+                return;
+            }
+        }
+        for (int i = 0;i < ui->Events_list->rowCount();i++) {
+            if(ui->Events_list->item(i,0)->text() == item->text() && i != item->row())
+            {
+                QMessageBox::information(this, tr("Error"),
+                QString("This name is already in use"));
+                item->setText(automata.get_automaton_at(id)->getEvent(item->row()).getLabel());
+                return;
+            }
+        }
+        try {
+            Event s = automata.get_automaton_at(id)->getEvent(item->row());
+            s.setLabel(item->text());
+            automata.get_automaton_at(id)->getEventList()->replace(item->row(),s);
+        } catch (SetterException &e) {
+            QMessageBox::information(this, tr("Error"),
+            e.getMsg());
+            item->setText(automata.get_automaton_at(id)->getEvent(item->row()).getLabel());
+            return;
+        }
+        break;
+    case 1:
+        automata.get_automaton_at(id)->getEvent(item->row()).setObservable(item->checkState()==Qt::Checked?true:false);
+        break;
+    case 2:
+        automata.get_automaton_at(id)->getEvent(item->row()).setControlable(item->checkState()==Qt::Checked?true:false);
+        break;
+    }*/
 }

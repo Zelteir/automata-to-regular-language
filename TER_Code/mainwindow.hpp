@@ -2,6 +2,7 @@
 #define MAINWINDOW_HPP
 
 #include <QMainWindow>
+#include <QTableWidgetItem>
 #include "automata.hpp"
 #include "translator.hpp"
 
@@ -27,6 +28,12 @@ private slots:
     void on_actionClose_triggered();
 
     void on_actionSave_as_triggered();
+
+    void on_States_list_itemChanged(QTableWidgetItem *item);
+
+    void on_Events_list_itemChanged(QTableWidgetItem *item);
+
+    void on_Transitions_list_itemChanged(QTableWidgetItem *item);
 
 private:
     Ui::MainWindow *ui;
