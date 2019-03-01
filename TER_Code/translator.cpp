@@ -20,47 +20,51 @@ QString Translator::star(QString text)
 
 void Translator::brzozowskiMethod(Automaton automaton)
 {
+    int automatonStatesNumber = automaton.getStateList()->size();
     //Vecteur : liste selon les états RECEVEURS
-    //QMap : int : numéro de l'état qui donnera son expression, QString : l'expression qu'il recevra
-    int automatonStatesNumber = automaton.getStateList().size();
-    QVector<QMap<int, QString>> expressionList(automatonStatesNumber);
-    Transition t;
-    QString tmp, tmp2;
-    int i, j, k;
+    //QMultiMap : int : numéro de l'état qui donnera son expression, QString : l'expression qu'il recevra
+    QVector<QMultiMap<int, QString>> expressionList(automatonStatesNumber);
     QMap<int, bool> traitement;
+    Transition t;
+    int i, j, k, l, m;
+    QList<QString> expressionsTempo1, expressionsTempo2;
+    QString tmp, tmp2;
+    QList<bool> traitementTempo;
 
-    //Etape 1 : Initialisation des expressions
-    //-1 pour "l'expression fixe"
+
+    //Etape 1 : Initialisation des expressions et du traitement à faux
+    //-1 pour "l'état initial", donnera au final les expressions finies
     for (i = 0; i < automatonStatesNumber; i++)
     {
-        expressionList[i].insert(-1, "");
+        if(automaton.getState(i).getInitial())
+            expressionList[i].insert(-1, "");
         traitement.insert(i, false);
+        traitementTempo.insert(i, false);
     }
+    traitementTempo.insert(automatonStatesNumber, false);
 
-
-    //Ensuite, ajout de toutes les transitions dans les maps
-    for(i = 0; i < automaton.getTransitionList().size(); i++)
+    //Ensuite, ajout de toutes les transitions dans les multiMaps (par défaut, un état transite de plusieurs manières sur un autre, nous mettons tous ces mots sur une même expression)
+    for(i = 0; i < automaton.getTransitionList()->size(); i++)
     {
         t = automaton.getTransition(i);
-        //Unique translation
+        //Transition Unique (si aucune transition n'existe pour le moment avec cette clé)
         if(!expressionList[t.getDest()].contains(t.getSource()))
             expressionList[t.getDest()].insert(t.getSource(), automaton.getEvent(t.getEvent()).getLabel());
-        else { //TODO : ajouter correctement des parenthèses
-            //Multiple translation from a state to another one
+        else {
+            //Transition Multiple (si la clé existe déjà, nous rajoutons le nouveau mot dans l'expression. Les parenthèses seront rajoutées après toute la lecture.)
             tmp = (expressionList[t.getDest()]).take(t.getSource());
             tmp.append("+");
             tmp.append(automaton.getEvent(t.getEvent()).getLabel());
-            (expressionList[t.getDest()]).insert(t.getSource(), tmp); //SET
+            (expressionList[t.getDest()]).insert(t.getSource(), tmp);
         }
-        //TO DO qdebug test
     }
     //Etape 1.1 : ajout des parenthèses au besoin dans les expressions (facilitera les complétions)
     for(i = 0; i < automatonStatesNumber; i++)
     {
-        foreach(k, expressionList[i].keys())
+        foreach(k, expressionList[i].keys()) //Suffisant car une seule clé lors de l'initialisation
         {
             tmp = expressionList[i].value(k);
-            if(tmp.contains('+')) //Si plusieurs transitions sont possibles, on aura la présence d'un "+" et nous mettrons des parenthèses a cette expression
+            if(tmp.contains('+')) //Si plusieurs transitions sont possibles, on aura la présence d'un "+" et nous mettrons des parenthèses à cette expression
             {
                 tmp.prepend("(");
                 tmp.append(")");
@@ -70,9 +74,22 @@ void Translator::brzozowskiMethod(Automaton automaton)
         }
     }
 
+    //Etape 1.2 : Verification du contenu (à supprimer quand le code sera opérationnel)
+    qDebug() << "Verification de l'initialisation";
+    for(i = 0; i < automatonStatesNumber; i++)
+    {
+        qDebug() << "Etat " << i;
+        foreach(k, expressionList[i].keys())
+        {
+            QList<QString> expressions = expressionList[i].values(k);
+            for(j = 0; j<expressions.count(); j++)
+                qDebug() << "cle : " << k << " expression : " << expressions[j];
+        }
+    }
+
     //Etape 2 : solving
-    //Etape 2.1 : suppression des états non-finaux
-    for (i = 0; i < automatonStatesNumber; i++)
+    //Etape 2.1 : suppression des états non-finaux (identique à 2.2)
+    /*for (i = 0; i < automatonStatesNumber; i++)
     {
         if(!automaton.getState(i).getAccepting())
         {
@@ -108,7 +125,7 @@ void Translator::brzozowskiMethod(Automaton automaton)
                 {
                     tmp2 = (expressionList[i]).take(j);
                     tmp2.append(tmp);
-                    (expressionList[i]).insert(j, tmp2); //SET
+                    (expressionList[i]).insert(j, tmp2);
                 }
             }
 
@@ -127,14 +144,27 @@ void Translator::brzozowskiMethod(Automaton automaton)
                         tmp2.prepend((expressionList[i]).value(k));
 
                         //Nous insérons ainsi l'expression dans l'état, donnant la possibilité d'une multiple transition pour un même état (clé déjà existante)
-                        (expressionList[j]).insert(k, tmp2); //SET
+                        (expressionList[j]).insert(k, tmp2);
                     }
                 }
             }
 
             traitement[i] = true;
+
+            //Etape 2.1.1 : Verification du contenu
+            qDebug() << "Verification de la modification a l'etape 2.1 en s'occupant de l'etat " << i;
+            for(l = 0; l < automatonStatesNumber; l++)
+            {
+                qDebug() << "Etat " << l;
+                foreach(k, expressionList[l].keys())
+                {
+                    QList<QString> expressions = expressionList[l].values(k);
+                    for(j = 0; j<expressions.count(); j++)
+                        qDebug() << "cle : " << k << " expression : " << expressions[j];
+                }
+            }
         }
-    }
+    }*/
 
     //Etape 2.2 : suppression des états finaux (similaire mais ne diffère en ne complétant que les autres états finaux)
     for (i = 0; i < automatonStatesNumber; i++)
@@ -145,59 +175,106 @@ void Translator::brzozowskiMethod(Automaton automaton)
             if(expressionList[i].contains(i))
             {
                 //Nous récupérons toutes ces transitions que nous allons supprimer de la map
+                expressionsTempo1 = (expressionList[i]).values(i);
+                (expressionList[i]).remove(i);
                 tmp = "";
-                while(expressionList[i].contains(i))
+                while(!expressionsTempo1.isEmpty())
                 {
-                    tmp2 = (expressionList[i]).take(i);
-                    if(tmp2.length() != 0) //Dans le cas où la transition n'est pas sur le mot vide
+                    tmp2 = expressionsTempo1.takeFirst();
+                    if(tmp.length() == 0)
+                        tmp = tmp2;
+                    else
                     {
-                        if(tmp2.length() > 1) //Nous mettons des parenthèses par prudence pour les cas de chaines concaténées (voir comment simplifier)
-                        {
-                            tmp2.prepend("(");
-                            tmp2.append(")");
-                        }
-                        if(tmp.length() == 0)
-                            tmp = tmp2;
-                        else
-                        {
-                            tmp.append("+");
-                            tmp.append(tmp2);
-                        }
+                        tmp.append("+"); //les transitions sur le mot vide ne sont PAS traitées ici
+                        tmp.append(tmp2);
                     }
                 }
 
                 tmp = star(tmp);
 
+                for(k=0;k<=automatonStatesNumber;k++)
+                    traitementTempo[k] = false;
                 //Puis, pour chaque autre "transition" possible, nous ajoutons la transition étoilée à la fin de chaque autre transition de cet état
                 foreach(j, expressionList[i].keys())
                 {
-                    tmp2 = (expressionList[i]).take(j);
-                    tmp2.append(tmp);
-                    (expressionList[i]).insert(j, tmp2); //SET
+                    if(traitementTempo[j+1] == false)
+                    {
+                        //Pour cela, nous retirons toutes les expressions clé par clé (dans le cas où la clé est utilisée plusieurs fois)
+                        expressionsTempo1 = (expressionList[i]).values(j);
+                        (expressionList[i]).remove(j);
+
+                        //Puis pour chaque expression, nous lui ajoutons l'expression étoilée et nous insérons le tout dans la MultiMap à la clé correspondante
+                        while(!expressionsTempo1.isEmpty())
+                        {
+                            tmp2 = expressionsTempo1.takeFirst();
+                            tmp2.append(tmp);
+                            (expressionList[i]).insert(j, tmp2);
+                        }
+                        traitementTempo[j+1] = true;
+                    }
                 }
             }
 
-            //Ensuite, ajout du contenu de cet état aux autres états le nécessitant (possibilité d'amélioration en ne traitant pas les états déjà traités)
-            for(j = 0; j < automatonStatesNumber; j++)
+            //Ensuite, ajout du contenu de cet état aux autres états le nécessitant (les états précédents devraient déjà être traités, d'où le i+1)
+            for(j = i+1; j < automatonStatesNumber; j++)
             {
-                //Inutile sur l'état lui-même ET si l'état le nécessite
-                if(traitement[j] == false && i != j && automaton.getState(j).getAccepting() && expressionList[j].contains(i))
+                //Inutile sur l'état lui-même ET si l'état le nécessite (excluant donc les états traités et les non-acceptants)
+                if(traitement[j] == false && automaton.getState(j).getAccepting() && expressionList[j].contains(i))
                 {
-                    tmp = (expressionList[j]).take(i);
-                    //Si le nécessite, nous rajoutons le contenu de l'état i dans j
-                    foreach(k, expressionList[i].keys())
+                    //Nous traiterons chaque expression
+                    expressionsTempo1 = (expressionList[j]).values(i);
+                    (expressionList[j]).remove(i);
+                    while(!expressionsTempo1.isEmpty())
                     {
-                        //Expression qui a injecter dans l'état j
-                        tmp2 = tmp;
-                        tmp2.prepend((expressionList[i]).value(k));
+                        tmp = expressionsTempo1.takeFirst();
+                        for(k=0;k<=automatonStatesNumber;k++)
+                            traitementTempo[k] = false;
+                        //Si le nécessite, nous rajoutons le contenu de l'état i dans j
+                        foreach(l, expressionList[i].keys())
+                        {
+                            if(traitementTempo[l+1] == false)
+                            {
+                                //Nous traiterons chaque expression
+                                expressionsTempo2 = (expressionList[i]).values(l);
+                                for(m=0; m<expressionsTempo2.count(); m++)
+                                {
+                                    //Expression qui a injecter dans l'état j
+                                    tmp2 = tmp;
+                                    tmp2.prepend(expressionsTempo2[m]);
 
-                        //Nous insérons ainsi l'expression dans l'état, donnant la possibilité d'une multiple transition pour un même état (clé déjà existante)
-                        (expressionList[j]).insert(k, tmp2); //SET
+                                    //Nous insérons ainsi l'expression dans l'état, donnant la possibilité d'une multiple transition pour un même état (clé déjà existante)
+                                    (expressionList[j]).insert(l, tmp2);
+                                }
+
+                                traitementTempo[l+1] = true;
+                            }
+                        }
                     }
                 }
             }
 
             traitement[i] = true;
+
+
+            //Etape 2.2.1 : Verification du contenu (a effacer une fois fini)
+            qDebug() << "Verification de la modification a l'etape 2.2 en s'occupant de l'etat " << i;
+            for(j = 0; j < automatonStatesNumber; j++)
+            {
+                for(k=0;k<=automatonStatesNumber;k++)
+                    traitementTempo[k] = false;
+
+                qDebug() << "Etat " << j;
+                foreach(k, expressionList[j].keys())
+                {
+                    if(traitementTempo[k+1] == false)
+                    {
+                        expressionsTempo1 = (expressionList[j]).values(k);
+                        for(l = 0; l < expressionsTempo1.count(); l++)
+                            qDebug() << "cle : " << k << " expression : " << expressionsTempo1[l];
+                    }
+                    traitementTempo[k+1] = true;
+                }
+            }
         }
     }
 
@@ -222,7 +299,6 @@ void Translator::brzozowskiMethod(Automaton automaton)
             else //Le final régex est déjà initialisé, donc ajout de l'autre résultat possible
             {
                 QList<QString> valeurs = (expressionList[i]).values(-1);
-                qDebug() << valeurs.count();
                 for(j=0;j<valeurs.count();j++)
                 {
                     if(!valeurs[j].isEmpty())
