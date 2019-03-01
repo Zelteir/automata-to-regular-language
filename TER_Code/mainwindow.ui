@@ -200,7 +200,7 @@
            <bool>false</bool>
           </property>
           <property name="text">
-           <string>Ignore Invisible</string>
+           <string>Ignore Unobservable</string>
           </property>
          </widget>
         </item>
@@ -283,7 +283,23 @@
     <addaction name="separator"/>
     <addaction name="actionExit"/>
    </widget>
+   <widget class="QMenu" name="menuEdit">
+    <property name="title">
+     <string>Edit</string>
+    </property>
+    <addaction name="actionAdd"/>
+    <addaction name="actionDelete"/>
+   </widget>
+   <widget class="QMenu" name="menuTool">
+    <property name="title">
+     <string>Tool</string>
+    </property>
+    <addaction name="actionSave_automaton_group"/>
+    <addaction name="actionGenerate_all_languages"/>
+   </widget>
    <addaction name="menuFichier"/>
+   <addaction name="menuEdit"/>
+   <addaction name="menuTool"/>
   </widget>
   <widget class="QStatusBar" name="statusBar"/>
   <action name="actionNew">
@@ -338,6 +354,38 @@
    </property>
    <property name="shortcut">
     <string>Ctrl+Q</string>
+   </property>
+  </action>
+  <action name="actionSave_automaton_group">
+   <property name="enabled">
+    <bool>false</bool>
+   </property>
+   <property name="text">
+    <string>Save automatons</string>
+   </property>
+  </action>
+  <action name="actionAdd">
+   <property name="enabled">
+    <bool>false</bool>
+   </property>
+   <property name="text">
+    <string>Add...</string>
+   </property>
+  </action>
+  <action name="actionDelete">
+   <property name="enabled">
+    <bool>false</bool>
+   </property>
+   <property name="text">
+    <string>Delete...</string>
+   </property>
+  </action>
+  <action name="actionGenerate_all_languages">
+   <property name="enabled">
+    <bool>false</bool>
+   </property>
+   <property name="text">
+    <string>Generate all languages</string>
    </property>
   </action>
  </widget>
