@@ -312,7 +312,37 @@ void Translator::brzozowskiMethod(Automaton automaton)
         }
     }
 
-    //Etape 3 : récupération des expressions de tous les états finaux
+    //Etape 3 : "Injection" des expressions des états finaux dans le sens inverse (pour y ajouter les boucles déjà traitées sur certains sommets)
+    //Le dernier état est déjà traité
+    for(i=automatonStatesNumber-2; i>-1; i--)
+    {
+        //Le cas n'est à traiter que pour les états acceptants
+        if(automaton.getState(i).getAccepting())
+        {
+            //Si le cas est valide nous récupérons les expressions à partir des sommets déjà traités
+            for (j=automatonStatesNumber-1; j>i ; j--)
+            {
+                expressionsTempo1 = (expressionList[j]).values(-1);
+                if(expressionList[i].contains(j))
+                {
+                    for(k=0; k<expressionsTempo1.count(); k++)
+                    {
+                        tmp = expressionsTempo1[k];
+
+                        expressionsTempo2 = (expressionList[i]).values(j);
+                        for(l = 0; l < expressionsTempo2.count(); l++)
+                        {
+                            tmp2 = expressionsTempo2[l];
+                            tmp2.prepend(tmp);
+                            (expressionList[i]).insert(-1, tmp2);
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+    //Etape 4 : récupération des expressions de tous les états finaux
     QString finalRegex;
     for (i = 0; i < automatonStatesNumber; i++)
     {
