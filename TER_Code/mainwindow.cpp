@@ -42,7 +42,7 @@ void MainWindow::on_actionOpen_Import_triggered()
 }
 
 /*
- * Enable the interface to user
+ * Toggle the interface to user
 */
 void MainWindow::toggle_interface(bool b)
 {
@@ -55,7 +55,7 @@ void MainWindow::toggle_interface(bool b)
     ui->actionClose->setEnabled(b);
     /*
      * TO DO
-     * Other things to enable
+     * Other things to toggle
     */
     this->fill_automaton_list();
 }
@@ -67,7 +67,7 @@ void MainWindow::fill_interface()
 {
     QSignalBlocker states_blocker(ui->States_list);
     QSignalBlocker events_blocker(ui->Events_list);
-    /*TO DO disconnect slots*/
+    QSignalBlocker transitions_blocker(ui->Transitions_list);
     clear_interface();
     QString string;
     int i;
@@ -138,6 +138,7 @@ void MainWindow::fill_interface()
     }
     states_blocker.unblock();
     events_blocker.unblock();
+    transitions_blocker.unblock();
 }
 
 /*
@@ -183,6 +184,7 @@ void MainWindow::on_Automatons_list_itemSelectionChanged()
 */
 void MainWindow::on_Generate_Button_clicked()
 {
+    // TO DO Verif initial et accept
     translator.brzozowskiMethod(*automata.get_automaton_at(ui->Automatons_list->currentRow()));
     ui->Generated_Regular_Language->setPlainText(translator.getRegex());
     ui->actionSave_as->setEnabled(true);
@@ -257,6 +259,7 @@ void MainWindow::on_States_list_itemChanged(QTableWidgetItem *item)
         break;
     case 1:
         automata.get_automaton_at(id)->getState(item->row()).setInitial(item->checkState()==Qt::Checked?true:false);
+        // TO DO verif changement
         break;
     case 2:
         automata.get_automaton_at(id)->getState(item->row()).setAccepting(item->checkState()==Qt::Checked?true:false);
@@ -309,7 +312,6 @@ void MainWindow::on_Events_list_itemChanged(QTableWidgetItem *item)
 
 void MainWindow::on_Transitions_list_itemChanged(QTableWidgetItem *item)
 {
-    /*TO DO*/
     int id = ui->Automatons_list->currentRow();
     int s = -1;
     int d = -1;
