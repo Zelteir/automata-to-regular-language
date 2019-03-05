@@ -184,7 +184,31 @@ void MainWindow::on_Automatons_list_itemSelectionChanged()
 */
 void MainWindow::on_Generate_Button_clicked()
 {
-    // TO DO Verif initial et accept
+    int nb_init = 0;
+    bool accept = false;
+    int id = ui->Automatons_list->currentRow();
+    //contain exactly one initial state TO DO
+    //contain at least one eccepting state TO DO
+    for(State s : *automata.get_automaton_at(id)->getStateList())
+    {
+        if(s.getAccepting())
+            accept = true;
+        if(s.getInitial())
+            nb_init++;
+    }
+
+    if(nb_init != 1)
+    {
+        QMessageBox::information(this, tr("Incorrect graph"),
+        "A graph needs exactly one initial state.");
+        return;
+    }
+    if(!accept)
+    {
+        QMessageBox::information(this, tr("Incorrect graph"),
+        "A graph needs at least one accepting state.");
+        return;
+    }
     translator.brzozowskiMethod(*automata.get_automaton_at(ui->Automatons_list->currentRow()));
     ui->Generated_Regular_Language->setPlainText(translator.getRegex());
     ui->actionSave_as->setEnabled(true);
