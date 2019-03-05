@@ -225,6 +225,7 @@ void MainWindow::on_actionSave_as_triggered()
 void MainWindow::on_States_list_itemChanged(QTableWidgetItem *item)
 {
     int id = ui->Automatons_list->currentRow();
+    State s = automata.get_automaton_at(id)->getState(item->row());
     switch (item->column()) {
     case 0:
         qDebug() <<"setName";
@@ -247,7 +248,7 @@ void MainWindow::on_States_list_itemChanged(QTableWidgetItem *item)
             }
         }
         try {
-            State s = automata.get_automaton_at(id)->getState(item->row());
+
             s.setName(item->text());
             automata.get_automaton_at(id)->getStateList()->replace(item->row(),s);
         } catch (SetterException &e) {
@@ -258,11 +259,12 @@ void MainWindow::on_States_list_itemChanged(QTableWidgetItem *item)
         }
         break;
     case 1:
-        automata.get_automaton_at(id)->getState(item->row()).setInitial(item->checkState()==Qt::Checked?true:false);
-        // TO DO verif changement
+        s.setInitial(item->checkState()==Qt::Checked?true:false);
+        automata.get_automaton_at(id)->getStateList()->replace(item->row(),s);
         break;
     case 2:
-        automata.get_automaton_at(id)->getState(item->row()).setAccepting(item->checkState()==Qt::Checked?true:false);
+        s.setAccepting(item->checkState()==Qt::Checked?true:false);
+        automata.get_automaton_at(id)->getStateList()->replace(item->row(),s);
         break;
     }
 }
@@ -270,6 +272,7 @@ void MainWindow::on_States_list_itemChanged(QTableWidgetItem *item)
 void MainWindow::on_Events_list_itemChanged(QTableWidgetItem *item)
 {
     int id = ui->Automatons_list->currentRow();
+    Event e = automata.get_automaton_at(id)->getEvent(item->row());
     switch (item->column()) {
     case 0:
         for (int i = 0;i < ui->States_list->rowCount();i++) {
@@ -291,9 +294,8 @@ void MainWindow::on_Events_list_itemChanged(QTableWidgetItem *item)
             }
         }
         try {
-            Event s = automata.get_automaton_at(id)->getEvent(item->row());
-            s.setLabel(item->text());
-            automata.get_automaton_at(id)->getEventList()->replace(item->row(),s);
+            e.setLabel(item->text());
+            automata.get_automaton_at(id)->getEventList()->replace(item->row(),e);
         } catch (SetterException &e) {
             QMessageBox::information(this, tr("Error"),
             e.getMsg());
@@ -302,10 +304,12 @@ void MainWindow::on_Events_list_itemChanged(QTableWidgetItem *item)
         }
         break;
     case 1:
-        automata.get_automaton_at(id)->getEvent(item->row()).setObservable(item->checkState()==Qt::Checked?true:false);
+        e.setObservable(item->checkState()==Qt::Checked?true:false);
+        automata.get_automaton_at(id)->getEventList()->replace(item->row(),e);
         break;
     case 2:
-        automata.get_automaton_at(id)->getEvent(item->row()).setControlable(item->checkState()==Qt::Checked?true:false);
+        e.setControlable(item->checkState()==Qt::Checked?true:false);
+        automata.get_automaton_at(id)->getEventList()->replace(item->row(),e);
         break;
     }
 }
