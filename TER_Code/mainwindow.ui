@@ -69,9 +69,17 @@
             <property name="editTriggers">
              <set>QAbstractItemView::DoubleClicked</set>
             </property>
+            <property name="sortingEnabled">
+             <bool>true</bool>
+            </property>
             <attribute name="verticalHeaderVisible">
              <bool>false</bool>
             </attribute>
+            <column>
+             <property name="text">
+              <string>Id</string>
+             </property>
+            </column>
             <column>
              <property name="text">
               <string>Name</string>
@@ -117,9 +125,17 @@
             <property name="editTriggers">
              <set>QAbstractItemView::DoubleClicked</set>
             </property>
+            <property name="sortingEnabled">
+             <bool>true</bool>
+            </property>
             <attribute name="verticalHeaderVisible">
              <bool>false</bool>
             </attribute>
+            <column>
+             <property name="text">
+              <string>Id</string>
+             </property>
+            </column>
             <column>
              <property name="text">
               <string>Label</string>
@@ -165,9 +181,17 @@
             <property name="editTriggers">
              <set>QAbstractItemView::DoubleClicked</set>
             </property>
+            <property name="sortingEnabled">
+             <bool>true</bool>
+            </property>
             <attribute name="verticalHeaderVisible">
              <bool>false</bool>
             </attribute>
+            <column>
+             <property name="text">
+              <string>Id</string>
+             </property>
+            </column>
             <column>
              <property name="text">
               <string>Source</string>

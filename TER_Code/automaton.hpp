@@ -6,6 +6,8 @@
 #include <QDomNode>
 #include <QException>
 
+static int id = 0;
+
 class SetterException : public QException
 {
     public:
@@ -58,16 +60,18 @@ class State{
 
 class Transition{
     private:
+        int currentId;
         int source;
         int dest;
         int event;
     public:
-        Transition(){source = -1; dest = -1; event = -1;}
+        Transition() : currentId(id++) {source = -1; dest = -1; event = -1;}
         Transition(QDomElement);
 
         int getSource() {return source;}
         int getDest() {return dest;}
         int getEvent() {return event;}
+        int getId() {return currentId;}
         void setSource(int s) {source = s;}
         void setDest(int d) {dest = d;}
         void setEvent(int e) {event = e;}

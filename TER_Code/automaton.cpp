@@ -38,7 +38,7 @@ void State::setName(QString n)
     this->name = n;
 }
 
-Transition::Transition(QDomElement element)
+Transition::Transition(QDomElement element) : currentId(id++)
 {
    /* int source;
     int dest;
