@@ -46,4 +46,13 @@ private:
     void clear_automaton_list();
 };
 
+class TableWidgetCheckboxItem: public QTableWidgetItem
+{
+    public:
+    TableWidgetCheckboxItem(const QString &text, int type = Type);
+    bool operator< (const QTableWidgetItem &other) const
+    {
+        return (this->checkState() > other.checkState());
+    }
+};
 #endif // MAINWINDOW_HPP

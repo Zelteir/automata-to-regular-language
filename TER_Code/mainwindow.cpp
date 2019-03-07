@@ -5,6 +5,10 @@
 #include <QDebug>
 #include <QSignalBlocker>
 
+TableWidgetCheckboxItem::TableWidgetCheckboxItem(const QString &text, int type) : QTableWidgetItem(text, type){
+
+}
+
 MainWindow::MainWindow(QWidget *parent) :
     QMainWindow(parent),
     ui(new Ui::MainWindow)
@@ -82,7 +86,7 @@ void MainWindow::fill_interface()
         ui->States_list->setItem(i,0,new QTableWidgetItem(QString::number((*automata.get_automaton_at(id)->getStateList())[i].getId())));
         ui->States_list->setItem(i,1,new QTableWidgetItem((*automata.get_automaton_at(id)->getStateList())[i].getName()));
         ui->States_list->item(i,1)->setTextAlignment(Qt::AlignHCenter);
-        ui->States_list->setItem(i,2,new QTableWidgetItem(""));
+        ui->States_list->setItem(i,2,new TableWidgetCheckboxItem(""));
         if((*automata.get_automaton_at(id)->getStateList())[i].getInitial())
         {
             ui->States_list->item(i,2)->setCheckState(Qt::Checked);
@@ -91,7 +95,7 @@ void MainWindow::fill_interface()
             ui->States_list->item(i,2)->setCheckState(Qt::Unchecked);
         }
         ui->States_list->item(i,2)->setFlags(ui->States_list->item(i,2)->flags() & (~Qt::ItemIsEditable));
-        ui->States_list->setItem(i,3,new QTableWidgetItem(""));
+        ui->States_list->setItem(i,3,new TableWidgetCheckboxItem(""));
         if((*automata.get_automaton_at(id)->getStateList())[i].getAccepting())
         {
             ui->States_list->item(i,3)->setCheckState(Qt::Checked);
@@ -109,7 +113,7 @@ void MainWindow::fill_interface()
         ui->Events_list->setItem(i,1,new QTableWidgetItem((*automata.get_automaton_at(id)->getEventList())[i].getLabel()));
         ui->Events_list->item(i,1)->setTextAlignment(Qt::AlignHCenter);
 
-        ui->Events_list->setItem(i,2,new QTableWidgetItem(""));
+        ui->Events_list->setItem(i,2,new TableWidgetCheckboxItem(""));
         if(!(*automata.get_automaton_at(id)->getEventList())[i].getObservable())
         {
             ui->Events_list->item(i,2)->setCheckState(Qt::Checked);
@@ -119,7 +123,7 @@ void MainWindow::fill_interface()
             ui->Events_list->item(i,2)->setCheckState(Qt::Unchecked);
         }
         ui->Events_list->item(i,2)->setFlags(ui->Events_list->item(i,2)->flags() & (~Qt::ItemIsEditable));
-        ui->Events_list->setItem(i,3,new QTableWidgetItem(""));
+        ui->Events_list->setItem(i,3,new TableWidgetCheckboxItem(""));
         if(!(*automata.get_automaton_at(id)->getEventList())[i].getControlable())
         {
             ui->Events_list->item(i,3)->setCheckState(Qt::Checked);
