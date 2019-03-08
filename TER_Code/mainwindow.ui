@@ -309,6 +309,9 @@
      <string>Edit</string>
     </property>
     <widget class="QMenu" name="menuAdd">
+     <property name="enabled">
+      <bool>false</bool>
+     </property>
      <property name="title">
       <string>Add...</string>
      </property>
@@ -318,6 +321,9 @@
      <addaction name="actionTransitionCreate"/>
     </widget>
     <widget class="QMenu" name="menuDelete">
+     <property name="enabled">
+      <bool>false</bool>
+     </property>
      <property name="title">
       <string>Delete...</string>
      </property>

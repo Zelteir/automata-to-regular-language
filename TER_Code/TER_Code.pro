@@ -30,18 +30,21 @@ SOURCES += \
     automata.cpp \
     automaton.cpp \
     type_choice.cpp \
-    translator.cpp
+    translator.cpp \
+    create_state_dialog.cpp
 
 HEADERS += \
         mainwindow.hpp \
     automata.hpp \
     automaton.hpp \
     type_choice.hpp \
-    translator.hpp
+    translator.hpp \
+    create_state_dialog.hpp
 
 FORMS += \
         mainwindow.ui \
-    type_choice.ui
+    type_choice.ui \
+    create_state_dialog.ui
 
 # Default rules for deployment.
 qnx: target.path = /tmp/$${TARGET}/bin

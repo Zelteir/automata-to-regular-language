@@ -4,6 +4,7 @@
 #include <QFileDialog>
 #include <QDebug>
 #include <QSignalBlocker>
+#include "create_state_dialog.hpp"
 
 TableWidgetCheckboxItem::TableWidgetCheckboxItem(const QString &text, int type) : QTableWidgetItem(text, type){
 
@@ -60,11 +61,85 @@ void MainWindow::toggle_interface(bool b)
     ui->Generate_Button->setEnabled(b);
     ui->Generated_Regular_Language->setEnabled(b);
     ui->actionClose->setEnabled(b);
+    ui->actionStateCreate->setEnabled(b);
+    ui->menuAdd->setEnabled(b);
     /*
      * TO DO
      * Other things to toggle
     */
     this->fill_automaton_list();
+}
+
+void MainWindow::add_state_to_list(State s)
+{
+    int pos = ui->States_list->rowCount();
+    ui->States_list->insertRow(pos);
+    qDebug() << "id " << s.getId();
+    qDebug() << "pos" << pos;
+
+    ui->States_list->setItem(pos,0,new QTableWidgetItem(QString::number(s.getId())));
+    ui->States_list->setItem(pos,1,new QTableWidgetItem(s.getName()));
+    ui->States_list->item(pos,1)->setTextAlignment(Qt::AlignHCenter);
+    ui->States_list->setItem(pos,2,new TableWidgetCheckboxItem(""));
+    if(s.getInitial())
+    {
+        ui->States_list->item(pos,2)->setCheckState(Qt::Checked);
+    }
+    else {
+        ui->States_list->item(pos,2)->setCheckState(Qt::Unchecked);
+    }
+    ui->States_list->item(pos,2)->setFlags(ui->States_list->item(pos,2)->flags() & (~Qt::ItemIsEditable));
+    ui->States_list->setItem(pos,3,new TableWidgetCheckboxItem(""));
+    if(s.getAccepting())
+    {
+        ui->States_list->item(pos,3)->setCheckState(Qt::Checked);
+    }
+    else {
+        ui->States_list->item(pos,3)->setCheckState(Qt::Unchecked);
+    }
+    ui->States_list->item(pos,3)->setFlags(ui->States_list->item(pos,3)->flags() & (~Qt::ItemIsEditable));
+}
+
+void MainWindow::add_event_to_list(Event e)
+{
+    int pos = ui->Events_list->rowCount();
+    ui->Events_list->insertRow(pos);
+
+    ui->Events_list->setItem(pos,0,new QTableWidgetItem(QString::number(e.getId())));
+    ui->Events_list->setItem(pos,1,new QTableWidgetItem(e.getLabel()));
+    ui->Events_list->item(pos,1)->setTextAlignment(Qt::AlignHCenter);
+
+    ui->Events_list->setItem(pos,2,new TableWidgetCheckboxItem(""));
+    if(!e.getObservable())
+    {
+        ui->Events_list->item(pos,2)->setCheckState(Qt::Checked);
+    }
+    else
+    {
+        ui->Events_list->item(pos,2)->setCheckState(Qt::Unchecked);
+    }
+    ui->Events_list->item(pos,2)->setFlags(ui->Events_list->item(pos,2)->flags() & (~Qt::ItemIsEditable));
+    ui->Events_list->setItem(pos,3,new TableWidgetCheckboxItem(""));
+    if(!e.getControlable())
+    {
+        ui->Events_list->item(pos,3)->setCheckState(Qt::Checked);
+    }
+    else
+    {
+        ui->Events_list->item(pos,3)->setCheckState(Qt::Unchecked);
+    }
+    ui->Events_list->item(pos,3)->setFlags(ui->Events_list->item(pos,3)->flags() & (~Qt::ItemIsEditable));
+}
+
+void MainWindow::add_transition_to_list(Transition t)
+{
+    int pos = ui->Transitions_list->rowCount();
+    ui->Transitions_list->insertRow(pos);
+
+    ui->Transitions_list->setItem(pos,0, new QTableWidgetItem(QString::number(t.getId())));
+    ui->Transitions_list->setItem(pos,1, new QTableWidgetItem(*ui->States_list->item(t.getSource(),1)));
+    ui->Transitions_list->setItem(pos,2, new QTableWidgetItem(*ui->States_list->item(t.getDest(),1)));
+    ui->Transitions_list->setItem(pos,3, new QTableWidgetItem(*ui->Events_list->item(t.getEvent(),1)));
 }
 
 /*
@@ -77,71 +152,21 @@ void MainWindow::fill_interface()
     QSignalBlocker events_blocker(ui->Events_list);
     QSignalBlocker transitions_blocker(ui->Transitions_list);
     clear_interface();
-    int i;
     int id = ui->Automatons_list->currentRow();
-    ui->States_list->setRowCount(automata.get_automaton_at(id)->getStateList()->length());
     /*fill states table with name, initial and accepted information*/
-    for(i = 0; i< automata.get_automaton_at(id)->getStateList()->length();i++)
+    for(State s: *(automata.get_automaton_at(id)->getStateList()))
     {
-        ui->States_list->setItem(i,0,new QTableWidgetItem(QString::number((*automata.get_automaton_at(id)->getStateList())[i].getId())));
-        ui->States_list->setItem(i,1,new QTableWidgetItem((*automata.get_automaton_at(id)->getStateList())[i].getName()));
-        ui->States_list->item(i,1)->setTextAlignment(Qt::AlignHCenter);
-        ui->States_list->setItem(i,2,new TableWidgetCheckboxItem(""));
-        if((*automata.get_automaton_at(id)->getStateList())[i].getInitial())
-        {
-            ui->States_list->item(i,2)->setCheckState(Qt::Checked);
-        }
-        else {
-            ui->States_list->item(i,2)->setCheckState(Qt::Unchecked);
-        }
-        ui->States_list->item(i,2)->setFlags(ui->States_list->item(i,2)->flags() & (~Qt::ItemIsEditable));
-        ui->States_list->setItem(i,3,new TableWidgetCheckboxItem(""));
-        if((*automata.get_automaton_at(id)->getStateList())[i].getAccepting())
-        {
-            ui->States_list->item(i,3)->setCheckState(Qt::Checked);
-        }
-        else {
-            ui->States_list->item(i,3)->setCheckState(Qt::Unchecked);
-        }
-        ui->States_list->item(i,3)->setFlags(ui->States_list->item(i,3)->flags() & (~Qt::ItemIsEditable));
+        add_state_to_list(s);
     }
-    ui->Events_list->setRowCount(automata.get_automaton_at(id)->getEventList()->length());
     /*fill events table with name, observable and controlable information*/
-    for(i = 0; i< automata.get_automaton_at(id)->getEventList()->length();i++)
+    for(Event e : *(automata.get_automaton_at(id)->getEventList()))
     {
-        ui->Events_list->setItem(i,0,new QTableWidgetItem(QString::number((*automata.get_automaton_at(id)->getEventList())[i].getId())));
-        ui->Events_list->setItem(i,1,new QTableWidgetItem((*automata.get_automaton_at(id)->getEventList())[i].getLabel()));
-        ui->Events_list->item(i,1)->setTextAlignment(Qt::AlignHCenter);
-
-        ui->Events_list->setItem(i,2,new TableWidgetCheckboxItem(""));
-        if(!(*automata.get_automaton_at(id)->getEventList())[i].getObservable())
-        {
-            ui->Events_list->item(i,2)->setCheckState(Qt::Checked);
-        }
-        else
-        {
-            ui->Events_list->item(i,2)->setCheckState(Qt::Unchecked);
-        }
-        ui->Events_list->item(i,2)->setFlags(ui->Events_list->item(i,2)->flags() & (~Qt::ItemIsEditable));
-        ui->Events_list->setItem(i,3,new TableWidgetCheckboxItem(""));
-        if(!(*automata.get_automaton_at(id)->getEventList())[i].getControlable())
-        {
-            ui->Events_list->item(i,3)->setCheckState(Qt::Checked);
-        }
-        else
-        {
-            ui->Events_list->item(i,3)->setCheckState(Qt::Unchecked);
-        }
-        ui->Events_list->item(i,3)->setFlags(ui->Events_list->item(i,3)->flags() & (~Qt::ItemIsEditable));
+        add_event_to_list(e);
     }
-    ui->Transitions_list->setRowCount(automata.get_automaton_at(id)->getTransitionList()->length());
     /*fill transition table with origin, destination and event information*/
-    for(i = 0; i< automata.get_automaton_at(id)->getTransitionList()->length();i++)
+    for(Transition t : *(automata.get_automaton_at(id)->getTransitionList()))
     {
-        ui->Transitions_list->setItem(i,0, new QTableWidgetItem(QString::number((*automata.get_automaton_at(id)->getTransitionList())[i].getId())));
-        ui->Transitions_list->setItem(i,1, new QTableWidgetItem(*ui->States_list->item((*automata.get_automaton_at(id)->getTransitionList())[i].getSource(),1)));
-        ui->Transitions_list->setItem(i,2, new QTableWidgetItem(*ui->States_list->item((*automata.get_automaton_at(id)->getTransitionList())[i].getDest(),1)));
-        ui->Transitions_list->setItem(i,3, new QTableWidgetItem(*ui->Events_list->item((*automata.get_automaton_at(id)->getTransitionList())[i].getEvent(),1)));
+        add_transition_to_list(t);
     }
     states_blocker.unblock();
     events_blocker.unblock();
@@ -165,8 +190,11 @@ void MainWindow::fill_automaton_list()
 void MainWindow::clear_interface()
 {
     ui->Events_list->clearContents();
+    ui->Events_list->setRowCount(0);
     ui->States_list->clearContents();
+    ui->States_list->setRowCount(0);
     ui->Transitions_list->clearContents();
+    ui->Transitions_list->setRowCount(0);
     ui->Generated_Regular_Language->clear();
 }
 
@@ -433,7 +461,50 @@ void MainWindow::on_Transitions_list_itemChanged(QTableWidgetItem *item)
     }
 }
 
+void MainWindow::on_actionAutomatonCreate_triggered()
+{
+    /*TO DO*/
+}
+
+void MainWindow::createAutomaton_finished(Automaton a)
+{
+    /*TO DO*/
+}
+
 void MainWindow::on_actionStateCreate_triggered()
 {
+    /*TO DO*/
+    int id = ui->Automatons_list->currentRow();
+    Create_state_dialog dialog(*automata.get_automaton_at(id)->getEventList(),*automata.get_automaton_at(id)->getStateList(), this);
+    /*TO DO*/
+    connect(&dialog, SIGNAL(creation(State)), this, SLOT(createState_finished(State)));
+    dialog.exec();
+}
 
+void MainWindow::createState_finished(State s)
+{
+    QSignalBlocker states_blocker(ui->States_list);
+    automata.get_automaton_at(ui->Automatons_list->currentRow())->getStateList()->append(s);
+    add_state_to_list(s);
+    states_blocker.unblock();
+}
+
+void MainWindow::on_actionEventCreate_triggered()
+{
+    /*TO DO*/
+}
+
+void MainWindow::createEvent_finished(Event e)
+{
+    /*TO DO*/
+}
+
+void MainWindow::on_actionTransitionCreate_triggered()
+{
+    /*TO DO*/
+}
+
+void MainWindow::createTransition_finished(Transition t)
+{
+    /*TO DO*/
 }

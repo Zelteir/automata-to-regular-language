@@ -7,7 +7,7 @@
 #include <QException>
 
 static int idEvent = 0;
-static int idState = 0;
+
 static int idTransition = 0;
 
 class SetterException : public QException
@@ -43,6 +43,7 @@ class Event{
 
 class State{
     private:
+        static int idState;
         int id;
         QString name;
         bool initial;

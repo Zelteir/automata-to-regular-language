@@ -37,6 +37,20 @@ private slots:
 
     void on_actionStateCreate_triggered();
 
+    void createState_finished(State);
+
+    void on_actionEventCreate_triggered();
+
+    void createEvent_finished(Event e);
+
+    void on_actionTransitionCreate_triggered();
+
+    void createTransition_finished(Transition t);
+
+    void on_actionAutomatonCreate_triggered();
+
+    void createAutomaton_finished(Automaton a);
+
 private:
     Ui::MainWindow *ui;
     Automata automata;
@@ -46,6 +60,9 @@ private:
     void fill_automaton_list();
     void clear_interface();
     void clear_automaton_list();
+    void add_state_to_list(State s);
+    void add_event_to_list(Event e);
+    void add_transition_to_list(Transition t);
 };
 
 class TableWidgetCheckboxItem: public QTableWidgetItem

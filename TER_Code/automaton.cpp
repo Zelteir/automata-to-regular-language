@@ -1,4 +1,5 @@
 #include "automaton.hpp"
+#include <QDebug>
 
 Event::Event(QDomElement element)
 {
@@ -19,6 +20,8 @@ void Event::setLabel(QString l)
     this->label = l;
 }
 
+int State::idState = 0;
+
 State::State(QDomElement element)
 {
     /*int id;
@@ -30,6 +33,7 @@ State::State(QDomElement element)
     name = element.attribute("name","");
     initial = element.attribute("initial","false")==QString("true");
     accepting = element.attribute("accepting","false")==QString("true");
+    idState++;
 }
 
 void State::setName(QString n)
@@ -67,8 +71,6 @@ Automaton::Automaton(QDomNode node)
     {
         stateList.append(State(element));
     }
-    idState = stateList.size();
-
     childElement = node.firstChildElement("Transitions");
     for(element = childElement.firstChildElement("Transition");!element.isNull();element = element.nextSiblingElement())
     {
