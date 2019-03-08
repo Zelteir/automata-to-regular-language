@@ -38,7 +38,7 @@ void State::setName(QString n)
     this->name = n;
 }
 
-Transition::Transition(QDomElement element) : currentId(id++)
+Transition::Transition(QDomElement element) : id(idTransition++)
 {
    /* int source;
     int dest;
@@ -60,12 +60,14 @@ Automaton::Automaton(QDomNode node)
     {
         eventList.append(Event(element));
     }
+    idEvent = eventList.size();
 
     childElement = node.firstChildElement("States");
     for(element = childElement.firstChildElement("State");!element.isNull();element = element.nextSiblingElement())
     {
         stateList.append(State(element));
     }
+    idState = stateList.size();
 
     childElement = node.firstChildElement("Transitions");
     for(element = childElement.firstChildElement("Transition");!element.isNull();element = element.nextSiblingElement())

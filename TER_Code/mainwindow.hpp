@@ -35,6 +35,8 @@ private slots:
 
     void on_Transitions_list_itemChanged(QTableWidgetItem *item);
 
+    void on_actionStateCreate_triggered();
+
 private:
     Ui::MainWindow *ui;
     Automata automata;

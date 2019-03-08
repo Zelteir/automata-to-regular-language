@@ -432,3 +432,8 @@ void MainWindow::on_Transitions_list_itemChanged(QTableWidgetItem *item)
         break;
     }
 }
+
+void MainWindow::on_actionStateCreate_triggered()
+{
+
+}
