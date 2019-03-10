@@ -178,8 +178,8 @@ void Translator::brzozowskiMethod(Automaton automaton)
             traitement[i] = true;
 
 
-            //Etape 2.2.1 : Verification du contenu (a effacer une fois fini)
-            qDebug() << "Verification de la modification a l'etape 2.2 en s'occupant de l'etat " << i;
+            //Etape 2.1.1 : Verification du contenu (a effacer une fois fini)
+            qDebug() << "Verification de la modification a l'etape 2.1 en s'occupant de l'etat " << i;
             for(j = 0; j < automatonStatesNumber; j++)
             {
                 for(k=0;k<=automatonStatesNumber;k++)
@@ -339,6 +339,26 @@ void Translator::brzozowskiMethod(Automaton automaton)
                     }
                 }
             }
+
+            //Etape 3.1 : Verification du contenu (a effacer une fois fini)
+            qDebug() << "Verification de la modification a l'etape 3 en s'occupant de l'etat " << i;
+            for(j = 0; j < automatonStatesNumber; j++)
+            {
+                for(k=0;k<=automatonStatesNumber;k++)
+                    traitementTempo[k] = false;
+
+                qDebug() << "Etat " << j;
+                foreach(k, expressionList[j].keys())
+                {
+                    if(traitementTempo[k+1] == false)
+                    {
+                        expressionsTempo1 = (expressionList[j]).values(k);
+                        for(l = 0; l < expressionsTempo1.count(); l++)
+                            qDebug() << "cle : " << k << " expression : " << expressionsTempo1[l];
+                    }
+                    traitementTempo[k+1] = true;
+                }
+            }
         }
     }
 
@@ -358,24 +378,33 @@ void Translator::brzozowskiMethod(Automaton automaton)
             }
 
             //Complétion par les autres transitions
-            if(finalRegex.isEmpty() && !(expressionList[i]).value(-1).isEmpty())
-                finalRegex = (expressionList[i]).value(-1);
-            else //Le final régex est déjà initialisé, donc ajout de l'autre résultat possible
+            //Déjà, le traitement est inutile si l'on a un état final n'ayant jamais de cas l'utilisant
+            if(!(expressionList[i]).values(-1).isEmpty())
             {
+                //Ensuite, nous récupérons la liste des expressions finales obtenable par la clé -1
                 QList<QString> valeurs = (expressionList[i]).values(-1);
+                //Puis, pour chacune de ces expressions, nous ajoutons son contenu (une "optimisation" serait de trier les éléments pour supprimer les doublons)
                 for(j=0;j<valeurs.count();j++)
                 {
+                    //Nous excluons les cas de mots vides
                     if(!valeurs[j].isEmpty())
                     {
-                        if(finalRegex[finalRegex.size()-1] != '+')
-                            finalRegex.append("+");
-                        finalRegex.append(valeurs[j]);
+                        //Nous vérifions si le final Regex est actuellement vide
+                        if(finalRegex.isEmpty())
+                            finalRegex = valeurs[j];
+                        else //Sinon, nous ajoutons l'expression dans le final regex
+                        {
+                            if(finalRegex[finalRegex.size()-1] != '+')
+                                finalRegex.append("+");
+                            finalRegex.append(valeurs[j]);
+                        }
                     }
                 }
             }
         }
     }
 
+    //Bien que l'expression sera une énumération grossière, nous pouvons obtenir tous les cas possibles
     regex = finalRegex;
 }
 
