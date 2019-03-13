@@ -82,3 +82,8 @@ QString SetterException::getMsg()
 {
     return msg;
 }
+
+/*TO DO
+ * QStringList get_name_list()
+ * for events & states
+*/

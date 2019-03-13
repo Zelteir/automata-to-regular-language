@@ -21,7 +21,7 @@ private slots:
     void Create_state_dialog_accept_clicked();
 
 signals:
-    void creation(State);
+    void creation_state(State);
 
 private:
     Ui::Create_state_dialog *ui;

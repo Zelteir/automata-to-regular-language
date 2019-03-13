@@ -31,7 +31,9 @@ SOURCES += \
     automaton.cpp \
     type_choice.cpp \
     translator.cpp \
-    create_state_dialog.cpp
+    create_state_dialog.cpp \
+    create_event_dialog.cpp \
+    create_transition_dialog.cpp
 
 HEADERS += \
         mainwindow.hpp \
@@ -39,12 +41,16 @@ HEADERS += \
     automaton.hpp \
     type_choice.hpp \
     translator.hpp \
-    create_state_dialog.hpp
+    create_state_dialog.hpp \
+    create_event_dialog.hpp \
+    create_transition_dialog.hpp
 
 FORMS += \
         mainwindow.ui \
     type_choice.ui \
-    create_state_dialog.ui
+    create_state_dialog.ui \
+    create_event_dialog.ui \
+    create_transition_dialog.ui
 
 # Default rules for deployment.
 qnx: target.path = /tmp/$${TARGET}/bin

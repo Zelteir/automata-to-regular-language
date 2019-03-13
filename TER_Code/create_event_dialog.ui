@@ -1,29 +1,23 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <ui version="4.0">
- <class>Create_state_dialog</class>
- <widget class="QDialog" name="Create_state_dialog">
+ <class>Create_event_dialog</class>
+ <widget class="QDialog" name="Create_event_dialog">
   <property name="geometry">
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>300</width>
-    <height>136</height>
+    <width>315</width>
+    <height>138</height>
    </rect>
-  </property>
-  <property name="minimumSize">
-   <size>
-    <width>300</width>
-    <height>136</height>
-   </size>
   </property>
   <property name="windowTitle">
    <string>Dialog</string>
   </property>
   <layout class="QVBoxLayout" name="verticalLayout">
    <item>
-    <widget class="QLabel" name="label">
+    <widget class="QLabel" name="label_2">
      <property name="text">
-      <string>Label :</string>
+      <string>Name :</string>
      </property>
     </widget>
    </item>
@@ -31,16 +25,16 @@
     <widget class="QLineEdit" name="edit_name"/>
    </item>
    <item>
-    <widget class="QCheckBox" name="checkBox_initial">
+    <widget class="QCheckBox" name="checkBox_Unobservable">
      <property name="text">
-      <string>Initial</string>
+      <string>Unobservable</string>
      </property>
     </widget>
    </item>
    <item>
-    <widget class="QCheckBox" name="checkBox_accepting">
+    <widget class="QCheckBox" name="checkBox_Uncontrolable">
      <property name="text">
-      <string>Accepting</string>
+      <string>Uncontrolable</string>
      </property>
     </widget>
    </item>
@@ -57,9 +51,18 @@
        <property name="palette">
         <palette>
          <active>
-          <colorrole role="WindowText">
+          <colorrole role="Text">
            <brush brushstyle="SolidPattern">
             <color alpha="255">
+             <red>255</red>
+             <green>0</green>
+             <blue>0</blue>
+            </color>
+           </brush>
+          </colorrole>
+          <colorrole role="PlaceholderText">
+           <brush brushstyle="SolidPattern">
+            <color alpha="128">
              <red>255</red>
              <green>0</green>
              <blue>0</blue>
@@ -68,7 +71,7 @@
           </colorrole>
          </active>
          <inactive>
-          <colorrole role="WindowText">
+          <colorrole role="Text">
            <brush brushstyle="SolidPattern">
             <color alpha="255">
              <red>255</red>
@@ -77,14 +80,32 @@
             </color>
            </brush>
           </colorrole>
+          <colorrole role="PlaceholderText">
+           <brush brushstyle="SolidPattern">
+            <color alpha="128">
+             <red>255</red>
+             <green>0</green>
+             <blue>0</blue>
+            </color>
+           </brush>
+          </colorrole>
          </inactive>
          <disabled>
-          <colorrole role="WindowText">
+          <colorrole role="Text">
            <brush brushstyle="SolidPattern">
             <color alpha="96">
              <red>164</red>
              <green>166</green>
              <blue>168</blue>
+            </color>
+           </brush>
+          </colorrole>
+          <colorrole role="PlaceholderText">
+           <brush brushstyle="SolidPattern">
+            <color alpha="128">
+             <red>208</red>
+             <green>208</green>
+             <blue>208</blue>
             </color>
            </brush>
           </colorrole>
@@ -99,7 +120,7 @@
      <item>
       <widget class="QDialogButtonBox" name="buttonBox">
        <property name="sizePolicy">
-        <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+        <sizepolicy hsizetype="Maximum" vsizetype="Fixed">
          <horstretch>0</horstretch>
          <verstretch>0</verstretch>
         </sizepolicy>
@@ -121,16 +142,16 @@
   <connection>
    <sender>buttonBox</sender>
    <signal>rejected()</signal>
-   <receiver>Create_state_dialog</receiver>
+   <receiver>Create_event_dialog</receiver>
    <slot>reject()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>302</x>
-     <y>174</y>
+     <x>316</x>
+     <y>260</y>
     </hint>
     <hint type="destinationlabel">
      <x>286</x>
-     <y>135</y>
+     <y>274</y>
     </hint>
    </hints>
   </connection>

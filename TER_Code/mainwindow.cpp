@@ -5,6 +5,7 @@
 #include <QDebug>
 #include <QSignalBlocker>
 #include "create_state_dialog.hpp"
+#include "create_event_dialog.hpp"
 
 TableWidgetCheckboxItem::TableWidgetCheckboxItem(const QString &text, int type) : QTableWidgetItem(text, type){
 
@@ -61,8 +62,9 @@ void MainWindow::toggle_interface(bool b)
     ui->Generate_Button->setEnabled(b);
     ui->Generated_Regular_Language->setEnabled(b);
     ui->actionClose->setEnabled(b);
-    ui->actionStateCreate->setEnabled(b);
     ui->menuAdd->setEnabled(b);
+    ui->actionStateCreate->setEnabled(b);
+    ui->actionEventCreate->setEnabled(b);
     /*
      * TO DO
      * Other things to toggle
@@ -473,11 +475,9 @@ void MainWindow::createAutomaton_finished(Automaton a)
 
 void MainWindow::on_actionStateCreate_triggered()
 {
-    /*TO DO*/
     int id = ui->Automatons_list->currentRow();
     Create_state_dialog dialog(*automata.get_automaton_at(id)->getEventList(),*automata.get_automaton_at(id)->getStateList(), this);
-    /*TO DO*/
-    connect(&dialog, SIGNAL(creation(State)), this, SLOT(createState_finished(State)));
+    connect(&dialog, SIGNAL(creation_state(State)), this, SLOT(createState_finished(State)));
     dialog.exec();
 }
 
@@ -491,12 +491,18 @@ void MainWindow::createState_finished(State s)
 
 void MainWindow::on_actionEventCreate_triggered()
 {
-    /*TO DO*/
+    int id = ui->Automatons_list->currentRow();
+    Create_event_dialog dialog(*automata.get_automaton_at(id)->getEventList(),*automata.get_automaton_at(id)->getStateList(), this);
+    connect(&dialog, SIGNAL(creation_event(Event)), this, SLOT(createEvent_finished(Event)));
+    dialog.exec();
 }
 
 void MainWindow::createEvent_finished(Event e)
 {
-    /*TO DO*/
+    QSignalBlocker events_blocker(ui->Events_list);
+    automata.get_automaton_at(ui->Automatons_list->currentRow())->getEventList()->append(e);
+    add_event_to_list(e);
+    events_blocker.unblock();
 }
 
 void MainWindow::on_actionTransitionCreate_triggered()
