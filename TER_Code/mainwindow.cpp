@@ -246,7 +246,7 @@ void MainWindow::on_Generate_Button_clicked()
         "A graph needs at least one accepting state.");
         return;
     }
-    translator.brzozowskiMethod(*automata.get_automaton_at(ui->Automatons_list->currentRow()));
+    translator.brzozowskiMethod(*automata.get_automaton_at(ui->Automatons_list->currentRow()), ui->Ignore_Unobservable_check->isChecked(), ui->Ignore_Uncontrolable_check->isChecked());
     ui->Generated_Regular_Language->setPlainText(translator.getRegex());
     ui->actionSave_as->setEnabled(true);
 }
