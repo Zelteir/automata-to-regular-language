@@ -16,3 +16,8 @@ Create_transition_dialog::~Create_transition_dialog()
 {
     delete ui;
 }
+
+void Create_transition_dialog::Create_transition_dialog_accept_clicked()
+{
+
+}
