@@ -6,6 +6,7 @@
 #include <QSignalBlocker>
 #include "create_state_dialog.hpp"
 #include "create_event_dialog.hpp"
+#include "create_transition_dialog.hpp"
 
 TableWidgetCheckboxItem::TableWidgetCheckboxItem(const QString &text, int type) : QTableWidgetItem(text, type){
 
@@ -65,6 +66,7 @@ void MainWindow::toggle_interface(bool b)
     ui->menuAdd->setEnabled(b);
     ui->actionStateCreate->setEnabled(b);
     ui->actionEventCreate->setEnabled(b);
+    ui->actionTransitionCreate->setEnabled(b);
     ui->Ignore_Unobservable_check->setEnabled(b);
     ui->Ignore_Uncontrolable_check->setEnabled(b);
     /*
@@ -510,9 +512,18 @@ void MainWindow::createEvent_finished(Event e)
 void MainWindow::on_actionTransitionCreate_triggered()
 {
     /*TO DO*/
+    int id = ui->Automatons_list->currentRow();
+    Create_transition_dialog *dialog = new Create_transition_dialog(*automata.get_automaton_at(id)->getEventList(),*automata.get_automaton_at(id)->getStateList(),*automata.get_automaton_at(id)->getTransitionList(), this);
+    connect(dialog, SIGNAL(creation_transition(Transition)), this, SLOT(createTransition_finished(Transition)));
+    dialog->exec();
+    delete dialog;
 }
 
 void MainWindow::createTransition_finished(Transition t)
 {
     /*TO DO*/
+    QSignalBlocker transition_blocker(ui->Transitions_list);
+    automata.get_automaton_at(ui->Automatons_list->currentRow())->getTransitionList()->append(t);
+    add_transition_to_list(t);
+    transition_blocker.unblock();
 }
