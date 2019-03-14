@@ -65,6 +65,8 @@ void MainWindow::toggle_interface(bool b)
     ui->menuAdd->setEnabled(b);
     ui->actionStateCreate->setEnabled(b);
     ui->actionEventCreate->setEnabled(b);
+    ui->Ignore_Unobservable_check->setEnabled(b);
+    ui->Ignore_Uncontrolable_check->setEnabled(b);
     /*
      * TO DO
      * Other things to toggle
