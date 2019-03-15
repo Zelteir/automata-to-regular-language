@@ -28,6 +28,9 @@ bool Automata::fromSupremica(QString fileName)
         return false;
     }
 
+    QDomElement node = doc.firstChildElement();
+    name = node.attributes().namedItem("name").nodeValue();
+
     //Creation of an automaton list
     QDomNodeList list=doc.elementsByTagName("Automaton");
 
@@ -40,6 +43,15 @@ bool Automata::fromSupremica(QString fileName)
     }
 
     return true;
+}
+
+void Automata::toSupremica(QXmlStreamWriter *stream)
+{
+    stream->writeStartElement("Automata");
+    stream->writeAttribute("name", this->name);
+    for(Automaton a : automatonList)
+        a.toSupremica(stream);
+    stream->writeEndElement();
 }
 
 /*

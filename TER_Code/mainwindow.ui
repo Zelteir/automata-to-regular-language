@@ -298,8 +298,8 @@
     </property>
     <addaction name="actionNew"/>
     <addaction name="actionOpen_Import"/>
-    <addaction name="actionSave"/>
-    <addaction name="actionSave_as"/>
+    <addaction name="actionSaveAutomaton"/>
+    <addaction name="actionSaveRL"/>
     <addaction name="actionClose"/>
     <addaction name="separator"/>
     <addaction name="actionExit"/>
@@ -372,29 +372,29 @@
     <string>Ctrl+O</string>
    </property>
   </action>
-  <action name="actionSave">
+  <action name="actionSaveAutomaton">
    <property name="enabled">
     <bool>false</bool>
    </property>
    <property name="text">
-    <string>Save</string>
+    <string>Save automaton</string>
    </property>
    <property name="toolTip">
-    <string>Save generated RL</string>
+    <string>Save automaton</string>
    </property>
    <property name="shortcut">
     <string>Ctrl+S</string>
    </property>
   </action>
-  <action name="actionSave_as">
+  <action name="actionSaveRL">
    <property name="enabled">
     <bool>false</bool>
    </property>
    <property name="text">
-    <string>Save as...</string>
+    <string>Save language</string>
    </property>
    <property name="toolTip">
-    <string>Save in specific file</string>
+    <string>Save generated regular language</string>
    </property>
   </action>
   <action name="actionClose">

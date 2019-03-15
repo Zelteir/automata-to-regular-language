@@ -57,18 +57,9 @@
        <property name="palette">
         <palette>
          <active>
-          <colorrole role="Text">
+          <colorrole role="WindowText">
            <brush brushstyle="SolidPattern">
             <color alpha="255">
-             <red>255</red>
-             <green>0</green>
-             <blue>0</blue>
-            </color>
-           </brush>
-          </colorrole>
-          <colorrole role="PlaceholderText">
-           <brush brushstyle="SolidPattern">
-            <color alpha="128">
              <red>255</red>
              <green>0</green>
              <blue>0</blue>
@@ -77,7 +68,7 @@
           </colorrole>
          </active>
          <inactive>
-          <colorrole role="Text">
+          <colorrole role="WindowText">
            <brush brushstyle="SolidPattern">
             <color alpha="255">
              <red>255</red>
@@ -86,32 +77,14 @@
             </color>
            </brush>
           </colorrole>
-          <colorrole role="PlaceholderText">
-           <brush brushstyle="SolidPattern">
-            <color alpha="128">
-             <red>255</red>
-             <green>0</green>
-             <blue>0</blue>
-            </color>
-           </brush>
-          </colorrole>
          </inactive>
          <disabled>
-          <colorrole role="Text">
+          <colorrole role="WindowText">
            <brush brushstyle="SolidPattern">
             <color alpha="96">
              <red>164</red>
              <green>166</green>
              <blue>168</blue>
-            </color>
-           </brush>
-          </colorrole>
-          <colorrole role="PlaceholderText">
-           <brush brushstyle="SolidPattern">
-            <color alpha="128">
-             <red>208</red>
-             <green>208</green>
-             <blue>208</blue>
             </color>
            </brush>
           </colorrole>

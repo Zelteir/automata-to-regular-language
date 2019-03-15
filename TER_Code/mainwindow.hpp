@@ -27,8 +27,6 @@ private slots:
 
     void on_actionClose_triggered();
 
-    void on_actionSave_as_triggered();
-
     void on_States_list_itemChanged(QTableWidgetItem *item);
 
     void on_Events_list_itemChanged(QTableWidgetItem *item);
@@ -50,6 +48,10 @@ private slots:
     void on_actionAutomatonCreate_triggered();
 
     void createAutomaton_finished(Automaton a);
+
+    void on_actionSaveAutomaton_triggered();
+
+    void on_actionSaveRL_triggered();
 
 private:
     Ui::MainWindow *ui;

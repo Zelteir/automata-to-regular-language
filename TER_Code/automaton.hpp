@@ -5,10 +5,7 @@
 #include <QString>
 #include <QDomNode>
 #include <QException>
-
-static int idEvent = 0;
-
-static int idTransition = 0;
+#include <QXmlStreamWriter>
 
 class SetterException : public QException
 {
@@ -23,6 +20,7 @@ class SetterException : public QException
 
 class Event{
     private:
+        static int idEvent;
         int id;
         QString label;
         bool observable; //true==observable
@@ -39,6 +37,7 @@ class Event{
         void setObservable(bool b) {observable = b;}
         void setControlable(bool b) {controlable = b;}
         void setLabel(QString);
+        void toSupremica(QXmlStreamWriter *stream);
 };
 
 class State{
@@ -61,10 +60,12 @@ class State{
         void setName(QString);
         void setInitial(bool b) {initial = b;}
         void setAccepting(bool b) {accepting = b;}
+        void toSupremica(QXmlStreamWriter *stream);
 };
 
 class Transition{
     private:
+        static int idTransition;
         int id;
         int source;
         int dest;
@@ -81,6 +82,9 @@ class Transition{
         void setSource(int s) {source = s;}
         void setDest(int d) {dest = d;}
         void setEvent(int e) {event = e;}
+        bool operator==(const Transition& rhs);
+        bool operator!=(const Transition& rhs){return !(*this==rhs);}
+        void toSupremica(QXmlStreamWriter *stream);
 };
 
 class Automaton{
@@ -101,6 +105,7 @@ class Automaton{
         State getState(int i){return stateList[i];}
         Event getEvent(int i){return eventList[i];}
         Transition getTransition(int i){return transitionList[i];}
+        void toSupremica(QXmlStreamWriter *stream);
 };
 
 #endif // AUTOMATON_HPP
