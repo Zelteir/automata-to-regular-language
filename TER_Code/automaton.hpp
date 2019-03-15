@@ -5,6 +5,7 @@
 #include <QString>
 #include <QDomNode>
 #include <QException>
+#include <QXmlStreamWriter>
 
 class SetterException : public QException
 {
@@ -36,6 +37,7 @@ class Event{
         void setObservable(bool b) {observable = b;}
         void setControlable(bool b) {controlable = b;}
         void setLabel(QString);
+        void toSupremica(QXmlStreamWriter *stream);
 };
 
 class State{
@@ -58,6 +60,7 @@ class State{
         void setName(QString);
         void setInitial(bool b) {initial = b;}
         void setAccepting(bool b) {accepting = b;}
+        void toSupremica(QXmlStreamWriter *stream);
 };
 
 class Transition{
@@ -81,6 +84,7 @@ class Transition{
         void setEvent(int e) {event = e;}
         bool operator==(const Transition& rhs);
         bool operator!=(const Transition& rhs){return !(*this==rhs);}
+        void toSupremica(QXmlStreamWriter *stream);
 };
 
 class Automaton{
@@ -101,6 +105,7 @@ class Automaton{
         State getState(int i){return stateList[i];}
         Event getEvent(int i){return eventList[i];}
         Transition getTransition(int i){return transitionList[i];}
+        void toSupremica(QXmlStreamWriter *stream);
 };
 
 #endif // AUTOMATON_HPP

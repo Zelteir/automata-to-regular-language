@@ -4,6 +4,7 @@
 #include <QFileDialog>
 #include <QDebug>
 #include <QSignalBlocker>
+#include <QXmlStreamWriter>
 #include "create_state_dialog.hpp"
 #include "create_event_dialog.hpp"
 #include "create_transition_dialog.hpp"
@@ -69,6 +70,7 @@ void MainWindow::toggle_interface(bool b)
     ui->actionTransitionCreate->setEnabled(b);
     ui->Ignore_Unobservable_check->setEnabled(b);
     ui->Ignore_Uncontrolable_check->setEnabled(b);
+    ui->actionSaveAutomaton->setEnabled(b);
     /*
      * TO DO
      * Other things to toggle
@@ -251,7 +253,7 @@ void MainWindow::on_Generate_Button_clicked()
     }
     translator.brzozowskiMethod(*automata.get_automaton_at(ui->Automatons_list->currentRow()), ui->Ignore_Unobservable_check->isChecked(), ui->Ignore_Uncontrolable_check->isChecked());
     ui->Generated_Regular_Language->setPlainText(translator.getRegex());
-    ui->actionSave_as->setEnabled(true);
+    ui->actionSaveRL->setEnabled(true);
 }
 
 void MainWindow::on_actionClose_triggered()
@@ -263,27 +265,7 @@ void MainWindow::on_actionClose_triggered()
     ui->States_list->setRowCount(0);
     ui->Events_list->setRowCount(0);
     ui->Transitions_list->setRowCount(0);
-    ui->actionSave_as->setEnabled(false);
-}
-
-void MainWindow::on_actionSave_as_triggered()
-{
-    QString file_name = QFileDialog::getSaveFileName(this, tr("Save regular language"), "", tr("Text Files (*.txt);;All Files (*)"));
-    if (file_name.isEmpty())
-        return;
-    QFile file(file_name);
-    if (!file.open(QIODevice::WriteOnly)) {
-        QMessageBox::information(this, tr("Unable to open file"),
-        file.errorString());
-        return;
-    }
-    QTextStream out(&file);
-    out << automata.get_automaton_at(ui->Automatons_list->currentRow());
-    out << " : ";
-    out << ui->Generated_Regular_Language->toPlainText();
-    out << "\n";
-    file.close();
-    QMessageBox::information(this, tr("Save sucessful"),"Regular expression saved sucessfuly.");
+    ui->actionSaveRL->setEnabled(false);
 }
 
 void MainWindow::on_States_list_itemChanged(QTableWidgetItem *item)
@@ -559,4 +541,42 @@ void MainWindow::createTransition_finished(Transition t)
     automata.get_automaton_at(ui->Automatons_list->currentRow())->getTransitionList()->append(t);
     add_transition_to_list(t);
     transition_blocker.unblock();
+}
+
+void MainWindow::on_actionSaveAutomaton_triggered()
+{
+    QString file_name = QFileDialog::getSaveFileName(this, tr("Select XML file"), "", tr("XML file (*.xml);;All Files (*)"));
+    QFile file(file_name);
+    if(!file.open(QIODevice::WriteOnly)){
+        QMessageBox::information(this, "Unable to open the file!",file.errorString());
+        return;
+    }
+    QXmlStreamWriter *stream = new QXmlStreamWriter(&file);
+    stream->setAutoFormatting(true);
+    stream->writeStartDocument();
+    automata.toSupremica(stream);
+    stream->writeEndDocument();
+    file.close();
+    delete stream;
+    QMessageBox::information(this, tr("Save sucessful"),"Automaton saved sucessfuly.");
+}
+
+void MainWindow::on_actionSaveRL_triggered()
+{
+    QString file_name = QFileDialog::getSaveFileName(this, tr("Save regular language"), "", tr("Text Files (*.txt);;All Files (*)"));
+    if (file_name.isEmpty())
+        return;
+    QFile file(file_name);
+    if (!file.open(QIODevice::WriteOnly)) {
+        QMessageBox::information(this, tr("Unable to open file"),
+        file.errorString());
+        return;
+    }
+    QTextStream out(&file);
+    out << automata.get_automaton_at(ui->Automatons_list->currentRow());
+    out << " : ";
+    out << ui->Generated_Regular_Language->toPlainText();
+    out << "\n";
+    file.close();
+    QMessageBox::information(this, tr("Save sucessful"),"Regular expression saved sucessfuly.");
 }
