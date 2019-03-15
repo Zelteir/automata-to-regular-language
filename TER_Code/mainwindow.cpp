@@ -80,8 +80,6 @@ void MainWindow::add_state_to_list(State s)
 {
     int pos = ui->States_list->rowCount();
     ui->States_list->insertRow(pos);
-    qDebug() << "id " << s.getId();
-    qDebug() << "pos" << pos;
 
     ui->States_list->setItem(pos,0,new QTableWidgetItem(QString::number(s.getId())));
     ui->States_list->setItem(pos,1,new QTableWidgetItem(s.getName()));
@@ -140,12 +138,13 @@ void MainWindow::add_event_to_list(Event e)
 void MainWindow::add_transition_to_list(Transition t)
 {
     int pos = ui->Transitions_list->rowCount();
+    int id = ui->Automatons_list->currentRow();
     ui->Transitions_list->insertRow(pos);
 
     ui->Transitions_list->setItem(pos,0, new QTableWidgetItem(QString::number(t.getId())));
-    ui->Transitions_list->setItem(pos,1, new QTableWidgetItem(*ui->States_list->item(t.getSource(),1)));
-    ui->Transitions_list->setItem(pos,2, new QTableWidgetItem(*ui->States_list->item(t.getDest(),1)));
-    ui->Transitions_list->setItem(pos,3, new QTableWidgetItem(*ui->Events_list->item(t.getEvent(),1)));
+    ui->Transitions_list->setItem(pos,1, new QTableWidgetItem(automata.get_automaton_at(id)->getState(t.getSource()).getName()));
+    ui->Transitions_list->setItem(pos,2, new QTableWidgetItem(automata.get_automaton_at(id)->getState(t.getDest()).getName()));
+    ui->Transitions_list->setItem(pos,3, new QTableWidgetItem(automata.get_automaton_at(id)->getEvent(t.getEvent()).getLabel()));
 }
 
 /*
@@ -290,6 +289,7 @@ void MainWindow::on_actionSave_as_triggered()
 void MainWindow::on_States_list_itemChanged(QTableWidgetItem *item)
 {
     int id = ui->Automatons_list->currentRow();
+    QSignalBlocker states_blocker(ui->States_list);
     State s = automata.get_automaton_at(id)->getState(ui->States_list->item(item->row(),0)->text().toInt());
     QString old = s.getName();
     switch (item->column()) {
@@ -343,11 +343,13 @@ void MainWindow::on_States_list_itemChanged(QTableWidgetItem *item)
         automata.get_automaton_at(id)->getStateList()->replace(s.getId(),s);
         break;
     }
+    states_blocker.unblock();
 }
 
 void MainWindow::on_Events_list_itemChanged(QTableWidgetItem *item)
 {
     int id = ui->Automatons_list->currentRow();
+    QSignalBlocker events_blocker(ui->Events_list);
     Event e = automata.get_automaton_at(id)->getEvent(ui->Events_list->item(item->row(),0)->text().toInt());
     QString old = e.getLabel();
     switch (item->column()) {
@@ -396,10 +398,12 @@ void MainWindow::on_Events_list_itemChanged(QTableWidgetItem *item)
         automata.get_automaton_at(id)->getEventList()->replace(e.getId(),e);
         break;
     }
+    events_blocker.unblock();
 }
 
 void MainWindow::on_Transitions_list_itemChanged(QTableWidgetItem *item)
 {
+    QSignalBlocker transition_blocker(ui->Transitions_list);
     int id = ui->Automatons_list->currentRow();
     int s = -1;
     int d = -1;
@@ -424,6 +428,16 @@ void MainWindow::on_Transitions_list_itemChanged(QTableWidgetItem *item)
             return;
         }
         t.setSource(s);
+        for(Transition tmp : *automata.get_automaton_at(id)->getTransitionList())
+        {
+            if(t == tmp)
+            {
+                QMessageBox::information(this, tr("Error"),
+                QString("This transition already exist."));
+                item->setText(automata.get_automaton_at(id)->getState(automata.get_automaton_at(id)->getTransition(t.getId()).getSource()).getName());
+                return;
+            }
+        }
         automata.get_automaton_at(id)->getTransitionList()->replace(t.getId(),t);
         break;
     case 2:
@@ -443,6 +457,16 @@ void MainWindow::on_Transitions_list_itemChanged(QTableWidgetItem *item)
             return;
         }
         t.setDest(d);
+        for(Transition tmp : *automata.get_automaton_at(id)->getTransitionList())
+        {
+            if(t == tmp)
+            {
+                QMessageBox::information(this, tr("Error"),
+                QString("This transition already exist."));
+                item->setText(automata.get_automaton_at(id)->getState(automata.get_automaton_at(id)->getTransition(t.getId()).getDest()).getName());
+                return;
+            }
+        }
         automata.get_automaton_at(id)->getTransitionList()->replace(t.getId(),t);
         break;
     case 3:
@@ -462,9 +486,20 @@ void MainWindow::on_Transitions_list_itemChanged(QTableWidgetItem *item)
             return;
         }
         t.setEvent(e);
+        for(Transition tmp : *automata.get_automaton_at(id)->getTransitionList())
+        {
+            if(t == tmp)
+            {
+                QMessageBox::information(this, tr("Error"),
+                QString("This transition already exist."));
+                item->setText(automata.get_automaton_at(id)->getEvent(automata.get_automaton_at(id)->getTransition(t.getId()).getEvent()).getLabel());
+                return;
+            }
+        }
         automata.get_automaton_at(id)->getTransitionList()->replace(t.getId(),t);
         break;
     }
+    transition_blocker.unblock();
 }
 
 void MainWindow::on_actionAutomatonCreate_triggered()
@@ -511,7 +546,6 @@ void MainWindow::createEvent_finished(Event e)
 
 void MainWindow::on_actionTransitionCreate_triggered()
 {
-    /*TO DO*/
     int id = ui->Automatons_list->currentRow();
     Create_transition_dialog *dialog = new Create_transition_dialog(*automata.get_automaton_at(id)->getEventList(),*automata.get_automaton_at(id)->getStateList(),*automata.get_automaton_at(id)->getTransitionList(), this);
     connect(dialog, SIGNAL(creation_transition(Transition)), this, SLOT(createTransition_finished(Transition)));
@@ -521,7 +555,6 @@ void MainWindow::on_actionTransitionCreate_triggered()
 
 void MainWindow::createTransition_finished(Transition t)
 {
-    /*TO DO*/
     QSignalBlocker transition_blocker(ui->Transitions_list);
     automata.get_automaton_at(ui->Automatons_list->currentRow())->getTransitionList()->append(t);
     add_transition_to_list(t);

@@ -28,7 +28,7 @@ private:
     Ui::Create_transition_dialog *ui;
     QList<Event> eventList;
     QList<State> stateList;
-    QList<Transition> transitionList,
+    QList<Transition> transitionList;
     QStringList eventNameList;
     QStringList stateNameList;
     QCompleter *eventCompleter;

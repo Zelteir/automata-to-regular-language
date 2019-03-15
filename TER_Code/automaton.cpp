@@ -1,6 +1,8 @@
 #include "automaton.hpp"
 #include <QDebug>
 
+int Event::idEvent = 0;
+
 Event::Event(QDomElement element)
 {
     /*int id;
@@ -12,6 +14,7 @@ Event::Event(QDomElement element)
     label = element.attribute("label","");
     observable = element.attribute("observable","true")==QString("true");
     controlable = element.attribute("controlable","true")==QString("true");
+    idEvent++;
 }
 
 void Event::setLabel(QString l)
@@ -42,6 +45,8 @@ void State::setName(QString n)
     this->name = n;
 }
 
+int Transition::idTransition = 0;
+
 Transition::Transition(QDomElement element) : id(idTransition++)
 {
    /* int source;
@@ -51,6 +56,14 @@ Transition::Transition(QDomElement element) : id(idTransition++)
     source = element.attribute("source","-1").toInt();
     dest = element.attribute("dest","-1").toInt();
     event = element.attribute("event","-1").toInt();
+}
+
+bool Transition::operator==(const Transition &rhs)
+{
+    /*if(this->source == rhs.source && this->dest == rhs.dest && this->event == rhs.event)
+        return true;
+    return false;*/
+    return (this->source == rhs.source && this->dest == rhs.dest && this->event == rhs.event)? true : false;
 }
 
 Automaton::Automaton(QDomNode node)
@@ -64,7 +77,6 @@ Automaton::Automaton(QDomNode node)
     {
         eventList.append(Event(element));
     }
-    idEvent = eventList.size();
 
     childElement = node.firstChildElement("States");
     for(element = childElement.firstChildElement("State");!element.isNull();element = element.nextSiblingElement())

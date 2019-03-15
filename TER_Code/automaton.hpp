@@ -6,10 +6,6 @@
 #include <QDomNode>
 #include <QException>
 
-static int idEvent = 0;
-
-static int idTransition = 0;
-
 class SetterException : public QException
 {
     public:
@@ -23,6 +19,7 @@ class SetterException : public QException
 
 class Event{
     private:
+        static int idEvent;
         int id;
         QString label;
         bool observable; //true==observable
@@ -65,6 +62,7 @@ class State{
 
 class Transition{
     private:
+        static int idTransition;
         int id;
         int source;
         int dest;
@@ -81,6 +79,8 @@ class Transition{
         void setSource(int s) {source = s;}
         void setDest(int d) {dest = d;}
         void setEvent(int e) {event = e;}
+        bool operator==(const Transition& rhs);
+        bool operator!=(const Transition& rhs){return !(*this==rhs);}
 };
 
 class Automaton{
