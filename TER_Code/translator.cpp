@@ -88,7 +88,7 @@ void Translator::brzozowskiMethod(Automaton automaton, bool ignoreUnobservable, 
         }
     }
 
-    //Etape 1.2 : Verification du contenu (à supprimer quand le code sera opérationnel)
+    /*//Etape 1.2 : Verification du contenu (à supprimer quand le code sera opérationnel)
     qDebug() << "Verification de l'initialisation";
     for(i = 0; i < automatonStatesNumber; i++)
     {
@@ -99,7 +99,7 @@ void Translator::brzozowskiMethod(Automaton automaton, bool ignoreUnobservable, 
             for(j = 0; j<expressions.count(); j++)
                 qDebug() << "cle : " << k << " expression : " << expressions[j];
         }
-    }
+    }*/
 
     //Etape 2 : solving
     //Etape 2.1 : suppression des états non-finaux (identique à 2.2)
@@ -192,7 +192,7 @@ void Translator::brzozowskiMethod(Automaton automaton, bool ignoreUnobservable, 
             traitement[i] = true;
 
 
-            //Etape 2.1.1 : Verification du contenu (a effacer une fois fini)
+            /*//Etape 2.1.1 : Verification du contenu (a effacer une fois fini)
             qDebug() << "Verification de la modification a l'etape 2.1 en s'occupant de l'etat " << i;
             for(j = 0; j < automatonStatesNumber; j++)
             {
@@ -210,7 +210,7 @@ void Translator::brzozowskiMethod(Automaton automaton, bool ignoreUnobservable, 
                     }
                     traitementTempo[k+1] = true;
                 }
-            }
+            }*/
         }
     }
 
@@ -304,7 +304,7 @@ void Translator::brzozowskiMethod(Automaton automaton, bool ignoreUnobservable, 
             traitement[i] = true;
 
 
-            //Etape 2.2.1 : Verification du contenu (a effacer une fois fini)
+            /*//Etape 2.2.1 : Verification du contenu (a effacer une fois fini)
             qDebug() << "Verification de la modification a l'etape 2.2 en s'occupant de l'etat " << i;
             for(j = 0; j < automatonStatesNumber; j++)
             {
@@ -322,7 +322,7 @@ void Translator::brzozowskiMethod(Automaton automaton, bool ignoreUnobservable, 
                     }
                     traitementTempo[k+1] = true;
                 }
-            }
+            }*/
         }
     }
 
@@ -355,7 +355,7 @@ void Translator::brzozowskiMethod(Automaton automaton, bool ignoreUnobservable, 
             }
 
             //Etape 3.1 : Verification du contenu (a effacer une fois fini)
-            qDebug() << "Verification de la modification a l'etape 3 en s'occupant de l'etat " << i;
+            /*qDebug() << "Verification de la modification a l'etape 3 en s'occupant de l'etat " << i;
             for(j = 0; j < automatonStatesNumber; j++)
             {
                 for(k=0;k<=automatonStatesNumber;k++)
@@ -372,7 +372,7 @@ void Translator::brzozowskiMethod(Automaton automaton, bool ignoreUnobservable, 
                     }
                     traitementTempo[k+1] = true;
                 }
-            }
+            }*/
         }
     }
 
@@ -427,12 +427,13 @@ void Translator::reverseBrzozowski(Automaton automaton)
     int automatonStatesNumber = automaton.getStateList()->size();
     int automatonEventsNumber = automaton.getEventList()->size();
     int automatonTransitionsNumber = automaton.getTransitionList()->size();
-    int indiceInit;
-    QVector<int> statesSet, initState;
+    int indiceInit, i, j;
+    QVector<int> statesSet, initState, statesSetTempo;
     QMap<QVector<int>, QMultiMap<QVector<int>, QString>> expressionMap;
-    QMap<QVector<int>, QMultiMap<QVector<int>, QString>>::iterator iterator;
-    QMultiMap<QVector<int>, QString> temporaryMap;
-    int i, j;
+    QMap<QVector<int>, QMultiMap<QVector<int>, QString>>::iterator iterator, iterator2;
+    QMultiMap<QVector<int>, QString> temporaryMap, temporaryMap2;
+    QString expression, tmp;
+
 
     //Etape 0 : récupération du states-set d'initialisation : l'ensemble des états acceptants
     for (i = 0; i < automatonStatesNumber; i++)
@@ -494,4 +495,66 @@ void Translator::reverseBrzozowski(Automaton automaton)
     }
 
     //Etape 2 : Traitement des ensembles. Nous partons du dernier élément de la QMap jusqu'à revenir au début, et faire un traitement
+    iterator = expressionMap.end();
+    iterator--;
+    while(iterator != expressionMap.begin())
+    {
+        //Nous commençons par contanéner ensemble les différentes chaines de même clé
+        temporaryMap = expressionMap[iterator.key()];
+        foreach(statesSetTempo, temporaryMap.keys()) //A VERIFIER
+        {
+            expression = "";
+            //Si la clé est présente plusieurs fois, nous concaténons le tout
+            if(temporaryMap.count(statesSetTempo) > 1)
+            {
+                expression.append(temporaryMap.take(statesSetTempo));
+                while(temporaryMap.contains(statesSetTempo))
+                {
+                    tmp = temporaryMap.take(statesSetTempo);
+                    if(tmp.size() != 0)
+                    {
+                        if (expression.size() == 0)
+                            expression = tmp;
+                        else
+                        {
+                            expression.append("+");
+                            expression.append(tmp);
+                        }
+                    }
+                }
+
+                //Si la clé est identique à l'itérateur (donc si nous bouclons!), nous appelons la fonction star, sinon nous lui ajoutons juste des parenthèses
+                if(statesSetTempo == iterator.key())
+                {
+                    expression = star(expression);
+                    temporaryMap.insert(statesSetTempo, expression);
+                }
+                else
+                {
+                    expression.prepend("(");
+                    expression.append(")");
+                    temporaryMap.insert(statesSetTempo, expression);
+                }
+            }else if(statesSetTempo == iterator.key()) //Sinon, nous vérifions si la clé est identique à la clé de l'itérateur, donc si nous bouclons sur lui-même
+            {
+                expression.append(temporaryMap.take(statesSetTempo));
+                expression = star(expression);
+                temporaryMap.insert(statesSetTempo, expression);
+            }
+        }
+
+        //Au besoin, si la clé de l'itérateur est présente dans la map, la fonction star a déjà été utilisée donc nous l'injectons dans les autres expressions
+        if(temporaryMap.contains(iterator.key()))
+        {
+            expression = temporaryMap.take((iterator.key()));
+            foreach(statesSetTempo, temporaryMap.keys())
+            {
+                tmp = temporaryMap.take(statesSetTempo);
+                tmp.append(expression);
+                temporaryMap.insert(statesSetTempo, tmp);
+            }
+        }
+
+        //Ensuite, nous ajoutons le contenu des éléments déjà traités dans celui-ci
+    }
 }
