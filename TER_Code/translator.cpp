@@ -450,7 +450,7 @@ void Translator::reverseBrzozowski(Automaton automaton, bool ignoreUnobservable,
     QMap<QVector<int>, QMultiMap<QVector<int>, QString>>::iterator iterator, iterator2;
     QMultiMap<QVector<int>, QString> temporaryMap, temporaryMap2;
     QString expression, tmp;
-
+    bool verifParenthesis;
 
     //Etape 0 : récupération du states-set d'initialisation : l'ensemble des états acceptants
     for (i = 0; i < automatonStatesNumber; i++)
@@ -550,60 +550,63 @@ void Translator::reverseBrzozowski(Automaton automaton, bool ignoreUnobservable,
         iterator++;
     }
 
-    //Etape 2 : Traitement des ensembles. Nous partons du dernier élément de la QMap jusqu'à revenir au début, et faire un traitement
+    //Etape 2 : Solving. Nous partons du dernier élément de la QMap jusqu'à revenir au début, et faire un traitement
     iterator = expressionMap.end();
     iterator--;
+    //Nous traiterons la dernière expression en une étape particulière
     while(iterator != expressionMap.begin())
     {
-        //Nous commençons par contanéner ensemble les différentes chaines de même clé
+        //Durant l'étape 1, nous avons déjà concaténé les chaines, nous n'avons donc plus qu'à récupérer les contenus des maps nécessaires étant déjà traitées
         temporaryMap = expressionMap[iterator.key()];
-        foreach(statesSetTempo, temporaryMap.keys()) //A VERIFIER
+        for(iterator2 = iterator; iterator2 != expressionMap.end(); iterator2++)
         {
-            expression = "";
-            //Si la clé est présente plusieurs fois, nous concaténons le tout
-            if(temporaryMap.count(statesSetTempo) > 1)
+            //Si la clé du states-set déjà traité est présent, nous effectuons le traitement sur celle-ci
+            if(temporaryMap.contains(iterator2.key()))
             {
-                expression.append(temporaryMap.take(statesSetTempo));
-                while(temporaryMap.contains(statesSetTempo))
+                expression = temporaryMap.take(iterator2.key());
+                temporaryMap2 = expressionMap[iterator2.key()];
+                foreach(statesSetTempo, temporaryMap2.keys()) //A VERIFIER
                 {
-                    tmp = temporaryMap.take(statesSetTempo);
-                    if(tmp.size() != 0)
-                    {
-                        if (expression.size() == 0)
-                            expression = tmp;
-                        else
-                        {
-                            expression.append("+");
-                            expression.append(tmp);
-                        }
-                    }
+                    tmp = temporaryMap2.value(statesSetTempo);
+                    tmp.append(expression);
+                    temporaryMap.insert(statesSetTempo, tmp);
                 }
-
-                //Si la clé est identique à l'itérateur (donc si nous bouclons!), nous appelons la fonction star, sinon nous lui ajoutons juste des parenthèses
-                if(statesSetTempo == iterator.key())
-                {
-                    expression = star(expression);
-                    temporaryMap.insert(statesSetTempo, expression);
-                }
-                else
-                {
-                    expression.prepend("(");
-                    expression.append(")");
-                    temporaryMap.insert(statesSetTempo, expression);
-                }
-            }else if(statesSetTempo == iterator.key()) //Sinon, nous vérifions si la clé est identique à la clé de l'itérateur, donc si nous bouclons sur lui-même
-            {
-                expression.append(temporaryMap.take(statesSetTempo));
-                expression = star(expression);
-                temporaryMap.insert(statesSetTempo, expression);
             }
         }
 
-        //Au besoin, si la clé de l'itérateur est présente dans la map, la fonction star a déjà été utilisée donc nous l'injectons dans les autres expressions
+        //Une fois les traitements effectués, nous effectuons à nouveau les rassemblements d'expressions par clé au besoin
+        foreach(statesSetTempo, temporaryMap.keys())
+        {
+            if(temporaryMap.count(statesSetTempo) > 2)
+            {
+                verifParenthesis = false; //Servira à ajouter au besoin des parenthèses
+                expression = temporaryMap.take(statesSetTempo);
+                while(temporaryMap.contains(statesSetTempo))
+                {
+                    tmp = temporaryMap.take(statesSetTempo);
+                    if(expression.size() == 0)
+                        expression.append(tmp);
+                    else if(tmp.size() != 0)
+                    {
+                        verifParenthesis = true;
+                        expression.append("+");
+                        expression.append(tmp);
+                    }
+                }
+
+                if(verifParenthesis)
+                {
+                    expression.prepend("(");
+                    expression.append(")");
+                }
+            }
+        }
+
+        //Une fois les rassemblements effectués, nous appliquons les effets de boucles via la fonction star si nécessaire
         if(temporaryMap.contains(iterator.key()))
         {
-            expression = temporaryMap.take((iterator.key()));
-            foreach(statesSetTempo, temporaryMap.keys())
+            expression = star(temporaryMap.take(iterator.key()));
+            foreach(statesSetTempo, temporaryMap.keys()) //A VERIFIER
             {
                 tmp = temporaryMap.take(statesSetTempo);
                 tmp.append(expression);
@@ -611,6 +614,74 @@ void Translator::reverseBrzozowski(Automaton automaton, bool ignoreUnobservable,
             }
         }
 
-        //Ensuite, nous ajoutons le contenu des éléments déjà traités dans celui-ci
+        //Une fois les sous-étapes précédentes appliquées, nous remettons la "temporaryMap" en tant que nouvelle valeur à la position de l'itérateur, puis nous passons à la valeur précédente
+        expressionMap[iterator.key()] = temporaryMap;
+        iterator--;
     }
+
+    //Etape 3 : Solving final. Les précédents states-set étant traités, nous pouvons modifier le states-set ne contenant que les états finaux pour obtenir l'expression finale.
+    //Cette expression sera obtenue que lorsqu'il ne restera qu'une seule clé dans la map : le QVecteur n'ayant que la clé -1
+    temporaryMap = expressionMap.first();
+    while(temporaryMap.count() != 1)
+    {
+        //La procédure de solving se fait de la même manière que précédemment
+        for(iterator = expressionMap.begin(); iterator != expressionMap.end(); iterator++)
+        {
+            //Si la clé du states-set déjà traité est présent, nous effectuons le traitement sur celle-ci
+            if(temporaryMap.contains(iterator.key()))
+            {
+                expression = temporaryMap.take(iterator.key());
+                temporaryMap2 = expressionMap[iterator.key()];
+                foreach(statesSetTempo, temporaryMap2.keys()) //A VERIFIER
+                {
+                    tmp = temporaryMap2.value(statesSetTempo);
+                    tmp.append(expression);
+                    temporaryMap.insert(statesSetTempo, tmp);
+                }
+            }
+        }
+
+        //Une fois les traitements effectués, nous effectuons à nouveau les rassemblements d'expressions par clé au besoin
+        foreach(statesSetTempo, temporaryMap.keys())
+        {
+            if(temporaryMap.count(statesSetTempo) > 2)
+            {
+                verifParenthesis = false; //Servira à ajouter au besoin des parenthèses
+                expression = temporaryMap.take(statesSetTempo);
+                while(temporaryMap.contains(statesSetTempo))
+                {
+                    tmp = temporaryMap.take(statesSetTempo);
+                    if(expression.size() == 0)
+                        expression.append(tmp);
+                    else if(tmp.size() != 0)
+                    {
+                        verifParenthesis = true;
+                        expression.append("+");
+                        expression.append(tmp);
+                    }
+                }
+
+                if(verifParenthesis)
+                {
+                    expression.prepend("(");
+                    expression.append(")");
+                }
+            }
+        }
+
+        //Une fois les rassemblements effectués, nous appliquons les effets de boucles via la fonction star si nécessaire
+        if(temporaryMap.contains(iterator.key()))
+        {
+            expression = star(temporaryMap.take(iterator.key()));
+            foreach(statesSetTempo, temporaryMap.keys()) //A VERIFIER
+            {
+                tmp = temporaryMap.take(statesSetTempo);
+                tmp.append(expression);
+                temporaryMap.insert(statesSetTempo, tmp);
+            }
+        }
+    }
+
+    //Une fois qu'il ne reste plus qu'une clé, nous devrions obtenir notre regex final
+    regex = temporaryMap.value(initState);
 }
