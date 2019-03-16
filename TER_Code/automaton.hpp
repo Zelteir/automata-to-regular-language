@@ -94,6 +94,7 @@ class Automaton{
         QList<Event> eventList;
         QList<State> stateList;
         QList<Transition> transitionList;
+        QString generatedLanguage;
 
     public:
         Automaton(QDomNode);
@@ -106,6 +107,8 @@ class Automaton{
         Event getEvent(int i){return eventList[i];}
         Transition getTransition(int i){return transitionList[i];}
         void toSupremica(QXmlStreamWriter *stream);
+        QString getGeneratedLanguage() {return generatedLanguage;}
+        void setGeneratedLanguage(QString language) {generatedLanguage = language;}
 };
 
 #endif // AUTOMATON_HPP

@@ -53,10 +53,13 @@ private slots:
 
     void on_actionSaveRL_triggered();
 
+    void on_actionGenerate_all_languages_triggered();
+
 private:
     Ui::MainWindow *ui;
     Automata automata;
     Translator translator;
+    int currentAutomaton;
     void toggle_interface(bool b);
     void fill_interface();
     void fill_automaton_list();
@@ -65,6 +68,7 @@ private:
     void add_state_to_list(State s);
     void add_event_to_list(Event e);
     void add_transition_to_list(Transition t);
+    void generateLanguage(Automaton *a);
 };
 
 class TableWidgetCheckboxItem: public QTableWidgetItem
