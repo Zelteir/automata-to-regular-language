@@ -15,6 +15,23 @@ QString Translator::star(QString text)
         s = "";
     else if(text.size() == 1)
         s = text + "*";
+    else if(text[0] == ('(') && text[text.size()-1] == (')')) //Si la chaine de caractères commence et fini par des parenthèses, nous vérifions si elles sont liées
+    {
+        //Pour cela, nous utilisons un compteur (méthode naive) : en parcourant la chaine de caractères, nous augmentons le compteur à la présence de '(' et diminuons en présence de ')'.
+        //Si le compteur tombe à 0 avant la fin, les parenthèses ne sont pas liées!
+        int i=1, compteur = 1;
+        while(compteur!=0 && i != text.size()-1)
+        {
+            if(text[i] == '(')
+                compteur++;
+            else if (text[i] == ')')
+                compteur--;
+        }
+        if (compteur == 0)
+            s = "(" + text + ")*";
+        else
+            s = text + "*";
+    }
     else
         s = "(" + text + ")*";
     return s;
@@ -422,7 +439,7 @@ void Translator::brzozowskiMethod(Automaton automaton, bool ignoreUnobservable, 
     regex = finalRegex;
 }
 
-void Translator::reverseBrzozowski(Automaton automaton)
+void Translator::reverseBrzozowski(Automaton automaton, bool ignoreUnobservable, bool ignoreUncontrolable)
 {
     int automatonStatesNumber = automaton.getStateList()->size();
     int automatonEventsNumber = automaton.getEventList()->size();
@@ -455,24 +472,63 @@ void Translator::reverseBrzozowski(Automaton automaton)
             //Nous vérifions les transitions pour voir si un des états du states-set de l'itérateur est destination de la transition et si la transition est du bon mot
             for(j=0; j< automatonTransitionsNumber; j++)
             {
-                //Si la transition est valide, nous ajoutons la valeur dans le State-set
+                //Si la transition est valide, nous ajoutons la valeur dans le States-set
                 if(iterator.key().contains(automaton.getTransition(j).getSource()) && automaton.getTransition(i).getEvent() == j)
                     statesSet.append(j);
             }
 
-            //Une fois le State-set calculé, nous vérifions si il existe déjà dans la QMap. Si non, nous l'ajoutons. Dans tous les cas, nous ajoutons la clé/valeur dans le states-set de l'itérateur
-            if(!expressionMap.contains(statesSet))
-                expressionMap.insert(statesSet, QMultiMap<QVector<int>, QString>());
-
-            //Nous sommes obligés de faire une copie, ne pouvant pas manipuler directement
-            temporaryMap = expressionMap[iterator.key()];
-            temporaryMap.insert(statesSet, automaton.getEvent(i).getLabel());
-            expressionMap[iterator.key()] = temporaryMap;
+            //Une fois le states-set calculé, nous vérifions si il n'est PAS vide
+            if(!statesSet.isEmpty())
+            {
+                //Puis nous si il existe déjà dans la QMap. Si non, nous l'ajoutons. Dans tous les cas, nous ajoutons la clé/valeur dans le states-set de l'itérateur
+                if(!expressionMap.contains(statesSet))
+                {
+                    expressionMap.insert(statesSet, QMultiMap<QVector<int>, QString>());
+                    //Nous sommes obligés de faire une copie, ne pouvant pas manipuler directement (Comme le states-set est nouveau, il n'est pas déjà présent dans la map, ce qui nous fait gagner du temps à la vérification)
+                    temporaryMap = expressionMap[iterator.key()];
+                    //Cependant, nous devons vérifier si le mot doit être ignoré
+                    if((ignoreUnobservable == true && automaton.getEvent(i).getControlable() == false) || (ignoreUncontrolable == true && automaton.getEvent(i).getObservable() == false))
+                        temporaryMap.insert(statesSet, "");
+                    else
+                        temporaryMap.insert(statesSet, automaton.getEvent(i).getLabel());
+                    expressionMap[iterator.key()] = temporaryMap;
+                }
+                else //Dans le cas où le states-set existe déjà, nous ajouterons la transition dans la map si la clé n'y était pas avant ou nous ajoutons le mot à la chaine pré-existante si besoin
+                {
+                    temporaryMap = expressionMap[iterator.key()];
+                    //Dans le cas où la clé existe, nous n'ajoutons le mot si il n'est pas ignoré
+                    if(temporaryMap.contains(statesSet) && !((ignoreUnobservable == true && automaton.getEvent(i).getControlable() == false) || (ignoreUncontrolable == true && automaton.getEvent(i).getObservable() == false)))
+                    {
+                        tmp = temporaryMap.take(statesSet);
+                        if(tmp.size() != 0)
+                        {
+                            if(!tmp.contains("("))//Nous ajoutons les parenthèses au besoin
+                                tmp.prepend("(");
+                            else
+                                tmp.remove(")");
+                            tmp.append("+");
+                            tmp.append(automaton.getEvent(i).getLabel());
+                            tmp.append(")");
+                        }
+                        else
+                            tmp.append(automaton.getEvent(i).getLabel());
+                        temporaryMap.insert(statesSet, tmp);
+                    }else
+                    {
+                        //Cependant, nous devons vérifier si le mot doit être ignoré
+                        if((ignoreUnobservable == true && automaton.getEvent(i).getControlable() == false) || (ignoreUncontrolable == true && automaton.getEvent(i).getObservable() == false))
+                            temporaryMap.insert(statesSet, "");
+                        else
+                            temporaryMap.insert(statesSet, automaton.getEvent(i).getLabel());
+                    }
+                    expressionMap[iterator.key()] = temporaryMap;
+                }
+            }
         }
         iterator++;
     }
 
-    //Etape 1.1 : Pour chaque ensemble de la QMap, si elle contient l'état initial, nous ajoutons une chaine vide avec indice un QVector contenant -1
+    //Etape 1.1 : Pour chaque ensemble de la QMap, si elle contient l'état initial, nous ajoutons une chaine vide ayant pour clé un QVector contenant uniquement -1
     for (i = 0; i < automatonStatesNumber; i++)
     {
         if(automaton.getState(i).getInitial())
