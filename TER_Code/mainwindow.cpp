@@ -70,6 +70,7 @@ void MainWindow::toggle_interface(bool b)
     ui->Ignore_Uncontrolable_check->setEnabled(b);
     ui->actionSaveAutomaton->setEnabled(b);
     ui->actionGenerate_all_languages->setEnabled(b);
+    ui->Minimize_Language_check->setEnabled(b);
     /*
      * TO DO
      * Other things to toggle
@@ -250,7 +251,10 @@ void MainWindow::generateLanguage(Automaton *a)
         "A graph needs at least one accepting state.");
         return;
     }
-    translator.brzozowskiMethod(*a, ui->Ignore_Unobservable_check->isChecked(), ui->Ignore_Uncontrolable_check->isChecked());
+    if(!ui->Minimize_Language_check->isChecked())
+        translator.brzozowskiMethod(*a, ui->Ignore_Unobservable_check->isChecked(), ui->Ignore_Uncontrolable_check->isChecked());
+    else
+        translator.reverseBrzozowski(*a, ui->Ignore_Unobservable_check->isChecked(), ui->Ignore_Uncontrolable_check->isChecked());
     a->setGeneratedLanguage(translator.getRegex());
 }
 
