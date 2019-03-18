@@ -250,8 +250,8 @@ void MainWindow::generateLanguage(Automaton *a)
         "A graph needs at least one accepting state.");
         return;
     }
-    translator.brzozowskiMethod(*automata.get_automaton_at(ui->Automatons_list->currentRow()), ui->Ignore_Unobservable_check->isChecked(), ui->Ignore_Uncontrolable_check->isChecked());
-    automata.get_automaton_at(currentAutomaton)->setGeneratedLanguage(translator.getRegex());
+    translator.brzozowskiMethod(*a, ui->Ignore_Unobservable_check->isChecked(), ui->Ignore_Uncontrolable_check->isChecked());
+    a->setGeneratedLanguage(translator.getRegex());
 }
 
 /*
@@ -583,7 +583,6 @@ void MainWindow::on_actionSaveRL_triggered()
     QMessageBox::information(this, tr("Save sucessful"),"Regular expression saved sucessfuly.");
 }
 
-/*TO DO*/
 void MainWindow::on_actionGenerate_all_languages_triggered()
 {
     QString file_name = QFileDialog::getSaveFileName(this, tr("Save regular language"), "", tr("Text Files (*.txt);;All Files (*)"));
