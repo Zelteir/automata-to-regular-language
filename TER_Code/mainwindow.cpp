@@ -252,9 +252,15 @@ void MainWindow::generateLanguage(Automaton *a)
         return;
     }
     if(!ui->Minimize_Language_check->isChecked())
+    {
         translator.brzozowskiMethod(*a, ui->Ignore_Unobservable_check->isChecked(), ui->Ignore_Uncontrolable_check->isChecked());
+        qDebug() << "test1";
+    }
     else
+    {
         translator.reverseBrzozowski(*a, ui->Ignore_Unobservable_check->isChecked(), ui->Ignore_Uncontrolable_check->isChecked());
+        qDebug() << "test2";
+    }
     a->setGeneratedLanguage(translator.getRegex());
 }
 
