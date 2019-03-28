@@ -479,9 +479,11 @@ void Translator::reverseBrzozowski(Automaton automaton, bool ignoreUnobservable,
             //Nous vérifions les transitions pour voir si un des états du states-set de l'itérateur est destination de la transition et si la transition est du bon mot
             for(j=0; j< automatonTransitionsNumber; j++)
             {
-                //Si la transition est valide, nous ajoutons le sommet de source dans le States-set
-                if(statesSetTempo.contains(automaton.getTransition(j).getDest()) && automaton.getTransition(j).getEvent() == i)
+                //Si la transition est valide, nous ajoutons l'état de source dans le States-set si il n'est pas déjà présent
+                if(statesSetTempo.contains(automaton.getTransition(j).getDest()) && automaton.getTransition(j).getEvent() == i && !statesSet.contains(automaton.getTransition(j).getSource()))
+                {
                     statesSet.append(automaton.getTransition(j).getSource());
+                }
             }
             //Une fois le states-set calculé, nous vérifions si il n'est PAS vide. Dans le cas où il est vide, nous ne faisons rien
             if(!statesSet.isEmpty())
@@ -491,14 +493,15 @@ void Translator::reverseBrzozowski(Automaton automaton, bool ignoreUnobservable,
                 //Dans le cas où le states-set calculé n'est pas vide, nous vérifions si il existe déjà dans notre QMap
                 while(j<mapStatesSet.size() && verification == false)
                 {
+
                     statesSetTempo2 = mapStatesSet[j];
-                    if(statesSetTempo.size() == statesSetTempo2.size()) //Si les 2 states-set sont de même longueur, nous pouvons vérifier si leurs contenus sont identiques (ne pas utiliser l'operateur == qui vérifie l'ordre)
+                    if(statesSet.size() == statesSetTempo2.size()) //Si les 2 states-set sont de même longueur, nous pouvons vérifier si leurs contenus sont identiques (ne pas utiliser l'operateur == qui vérifie l'ordre)
                     {
                         verification = true;
                         k = 0;
-                        while(k < statesSetTempo.size() && verification == true)
+                        while(k < statesSet.size() && verification == true)
                         {
-                            if(statesSetTempo2.contains(statesSetTempo.at(k)))
+                            if(statesSetTempo2.contains(statesSet.at(k)))
                                 k++;
                             else
                                 verification = false;
@@ -511,7 +514,7 @@ void Translator::reverseBrzozowski(Automaton automaton, bool ignoreUnobservable,
                 if(verification == false)
                 {
                     mapStatesSet.insert(nombreStatesSet, statesSet);
-                    nombreStatesSet++;
+                    nombreStatesSet+=1;
                     mapStatesSetsTransitionsList.insert(nombreStatesSet, QMultiMap<int, QString>());
                 }
                 //Dans tous les cas, nous récupérons la QMultiMap du states-set que nous traitons afin d'en ajouter la transition
@@ -726,7 +729,6 @@ void Translator::reverseBrzozowski(Automaton automaton, bool ignoreUnobservable,
         else
             regex.prepend("Є+");
     }
-
 }
 
 /*void Translator::reverseBrzozowski(Automaton automaton, bool ignoreUnobservable, bool ignoreUncontrolable)
