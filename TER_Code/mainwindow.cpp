@@ -78,14 +78,18 @@ void MainWindow::toggle_interface(bool b)
     this->fill_automaton_list();
 }
 
+/*
+ * Function to add a state to the interface list of state
+*/
 void MainWindow::add_state_to_list(State s)
 {
     int pos = ui->States_list->rowCount();
     ui->States_list->insertRow(pos);
-
+    //add id and name
     ui->States_list->setItem(pos,0,new QTableWidgetItem(QString::number(s.getId())));
     ui->States_list->setItem(pos,1,new QTableWidgetItem(s.getName()));
     ui->States_list->item(pos,1)->setTextAlignment(Qt::AlignHCenter);
+    //access boolean value and set checkbox state accordingly, flags prevent edition of checkbox text
     ui->States_list->setItem(pos,2,new TableWidgetCheckboxItem(""));
     if(s.getInitial())
     {
@@ -106,15 +110,18 @@ void MainWindow::add_state_to_list(State s)
     ui->States_list->item(pos,3)->setFlags(ui->States_list->item(pos,3)->flags() & (~Qt::ItemIsEditable));
 }
 
+/*
+ * Function to add an event to the interface list of event
+*/
 void MainWindow::add_event_to_list(Event e)
 {
     int pos = ui->Events_list->rowCount();
     ui->Events_list->insertRow(pos);
-
+    //add Id and label
     ui->Events_list->setItem(pos,0,new QTableWidgetItem(QString::number(e.getId())));
     ui->Events_list->setItem(pos,1,new QTableWidgetItem(e.getLabel()));
     ui->Events_list->item(pos,1)->setTextAlignment(Qt::AlignHCenter);
-
+    //access boolean value and set checkbox state accordingly, flags prevent edition of checkbox text
     ui->Events_list->setItem(pos,2,new TableWidgetCheckboxItem(""));
     if(!e.getObservable())
     {
@@ -137,6 +144,9 @@ void MainWindow::add_event_to_list(Event e)
     ui->Events_list->item(pos,3)->setFlags(ui->Events_list->item(pos,3)->flags() & (~Qt::ItemIsEditable));
 }
 
+/*
+ * Function to add a transition to the interface list of transition
+*/
 void MainWindow::add_transition_to_list(Transition t)
 {
     int pos = ui->Transitions_list->rowCount();
@@ -251,11 +261,13 @@ void MainWindow::generateLanguage(Automaton *a)
         "A graph needs at least one accepting state.");
         return;
     }
+    //if user don't want minimized language
     if(!ui->Minimize_Language_check->isChecked())
     {
         translator.brzozowskiMethod(*a, ui->Ignore_Unobservable_check->isChecked(), ui->Ignore_Uncontrolable_check->isChecked());
         qDebug() << "test1";
     }
+    //if 'minimize language' is checked
     else
     {
         translator.reverseBrzozowski(*a, ui->Ignore_Unobservable_check->isChecked(), ui->Ignore_Uncontrolable_check->isChecked());
@@ -274,6 +286,9 @@ void MainWindow::on_Generate_Button_clicked()
     ui->actionSaveRL->setEnabled(true);
 }
 
+/*
+ * clear interface and disable it
+ * */
 void MainWindow::on_actionClose_triggered()
 {
 
@@ -286,13 +301,18 @@ void MainWindow::on_actionClose_triggered()
     ui->actionSaveRL->setEnabled(false);
 }
 
+/*
+ * whenever the user change an element in the state list, modification on the automaton
+*/
 void MainWindow::on_States_list_itemChanged(QTableWidgetItem *item)
 {
     QSignalBlocker states_blocker(ui->States_list);
     State s = automata.get_automaton_at(currentAutomaton)->getState(ui->States_list->item(item->row(),0)->text().toInt());
     QString old = s.getName();
     switch (item->column()) {
+    //if the modifiaction was on the name
     case 1:
+        //check if the name isn't already in use as state or event
         for (int i = 0;i < ui->States_list->rowCount();i++) {
             if(ui->States_list->item(i,1)->text() == item->text() && i != item->row())
             {
@@ -312,7 +332,7 @@ void MainWindow::on_States_list_itemChanged(QTableWidgetItem *item)
             }
         }
         try {
-
+            //set the name
             s.setName(item->text());
             automata.get_automaton_at(currentAutomaton)->getStateList()->replace(s.getId(),s);
         } catch (SetterException &ex) {
@@ -321,6 +341,7 @@ void MainWindow::on_States_list_itemChanged(QTableWidgetItem *item)
             item->setText(automata.get_automaton_at(currentAutomaton)->getState(s.getId()).getName());
             return;
         }
+        //modify all transition using the old name
         for(int i = 0; i < ui->Transitions_list->rowCount();i++)
         {
             if(ui->Transitions_list->item(i,1)->text() == old)
@@ -333,6 +354,7 @@ void MainWindow::on_States_list_itemChanged(QTableWidgetItem *item)
             }
         }
         break;
+        //set booleans by checking checkbox state
     case 2:
         s.setInitial(item->checkState()==Qt::Checked?true:false);
         automata.get_automaton_at(currentAutomaton)->getStateList()->replace(s.getId(),s);
@@ -345,13 +367,18 @@ void MainWindow::on_States_list_itemChanged(QTableWidgetItem *item)
     states_blocker.unblock();
 }
 
+/*
+ * whenever the user change an element in the event list, modification on the automaton
+*/
 void MainWindow::on_Events_list_itemChanged(QTableWidgetItem *item)
 {
     QSignalBlocker events_blocker(ui->Events_list);
     Event e = automata.get_automaton_at(currentAutomaton)->getEvent(ui->Events_list->item(item->row(),0)->text().toInt());
     QString old = e.getLabel();
     switch (item->column()) {
+    //if the label was changed
     case 1:
+        //check if the name isn't already in use  as state or event
         for (int i = 0;i < ui->States_list->rowCount();i++) {
             if(ui->States_list->item(i,1)->text() == item->text())
             {
@@ -370,6 +397,7 @@ void MainWindow::on_Events_list_itemChanged(QTableWidgetItem *item)
                 return;
             }
         }
+        //set label
         try {
             e.setLabel(item->text());
             automata.get_automaton_at(currentAutomaton)->getEventList()->replace(e.getId(),e);
@@ -379,6 +407,7 @@ void MainWindow::on_Events_list_itemChanged(QTableWidgetItem *item)
             item->setText(automata.get_automaton_at(currentAutomaton)->getEvent(e.getId()).getLabel());
             return;
         }
+        //modify transition using the old name
         for(int i = 0; i < ui->Transitions_list->rowCount();i++)
         {
             if(ui->Transitions_list->item(i,3)->text() == old)
@@ -387,6 +416,7 @@ void MainWindow::on_Events_list_itemChanged(QTableWidgetItem *item)
             }
         }
         break;
+        //modify boolean by checking checkbox state
     case 2:
         e.setObservable(item->checkState()==Qt::Checked?true:false);
         automata.get_automaton_at(currentAutomaton)->getEventList()->replace(e.getId(),e);
@@ -399,6 +429,9 @@ void MainWindow::on_Events_list_itemChanged(QTableWidgetItem *item)
     events_blocker.unblock();
 }
 
+/*
+ * whenever the user lmodify an element in the transition list, modification of the automaton
+ */
 void MainWindow::on_Transitions_list_itemChanged(QTableWidgetItem *item)
 {
     QSignalBlocker transition_blocker(ui->Transitions_list);
@@ -409,6 +442,7 @@ void MainWindow::on_Transitions_list_itemChanged(QTableWidgetItem *item)
     Transition t = automata.get_automaton_at(currentAutomaton)->getTransition(ui->Transitions_list->item(item->row(),0)->text().toInt());
     switch (item->column()) {
     case 1:
+        //if the source was modified, check if it exist
         while (i < ui->States_list->rowCount()) {
             if(ui->States_list->item(i,1)->text() == item->text())
             {
@@ -438,6 +472,7 @@ void MainWindow::on_Transitions_list_itemChanged(QTableWidgetItem *item)
         automata.get_automaton_at(currentAutomaton)->getTransitionList()->replace(t.getId(),t);
         break;
     case 2:
+        //check if the destination was modified
         while (i < ui->States_list->rowCount()) {
             if(ui->States_list->item(i,1)->text() == item->text())
             {
@@ -467,6 +502,7 @@ void MainWindow::on_Transitions_list_itemChanged(QTableWidgetItem *item)
         automata.get_automaton_at(currentAutomaton)->getTransitionList()->replace(t.getId(),t);
         break;
     case 3:
+        //if the event was modified
         while (i < ui->Events_list->rowCount()) {
             if(ui->Events_list->item(i,1)->text() == item->text())
             {
@@ -509,6 +545,9 @@ void MainWindow::createAutomaton_finished(Automaton a)
     /*TO DO*/
 }
 
+/*
+ * whenever the user create a state
+ */
 void MainWindow::on_actionStateCreate_triggered()
 {
     Create_state_dialog dialog(*automata.get_automaton_at(currentAutomaton)->getEventList(),*automata.get_automaton_at(currentAutomaton)->getStateList(), this);
@@ -516,6 +555,9 @@ void MainWindow::on_actionStateCreate_triggered()
     dialog.exec();
 }
 
+/*
+ * add the created state into the list and interface
+ */
 void MainWindow::createState_finished(State s)
 {
     QSignalBlocker states_blocker(ui->States_list);
