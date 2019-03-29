@@ -289,6 +289,7 @@ void MainWindow::on_actionClose_triggered()
 void MainWindow::on_States_list_itemChanged(QTableWidgetItem *item)
 {
     QSignalBlocker states_blocker(ui->States_list);
+    QSignalBlocker transition_blocker(ui->Transitions_list);
     State s = automata.get_automaton_at(currentAutomaton)->getState(ui->States_list->item(item->row(),0)->text().toInt());
     QString old = s.getName();
     switch (item->column()) {
@@ -299,6 +300,8 @@ void MainWindow::on_States_list_itemChanged(QTableWidgetItem *item)
                 QMessageBox::information(this, tr("Error"),
                 QString("This name is already in use."));
                 item->setText(automata.get_automaton_at(currentAutomaton)->getState(s.getId()).getName());
+                states_blocker.unblock();
+                transition_blocker.unblock();
                 return;
             }
         }
@@ -308,6 +311,8 @@ void MainWindow::on_States_list_itemChanged(QTableWidgetItem *item)
                 QMessageBox::information(this, tr("Error"),
                 QString("This name is already in use."));
                 item->setText(automata.get_automaton_at(currentAutomaton)->getState(s.getId()).getName());
+                states_blocker.unblock();
+                transition_blocker.unblock();
                 return;
             }
         }
@@ -342,12 +347,14 @@ void MainWindow::on_States_list_itemChanged(QTableWidgetItem *item)
         automata.get_automaton_at(currentAutomaton)->getStateList()->replace(s.getId(),s);
         break;
     }
+    transition_blocker.unblock();
     states_blocker.unblock();
 }
 
 void MainWindow::on_Events_list_itemChanged(QTableWidgetItem *item)
 {
     QSignalBlocker events_blocker(ui->Events_list);
+    QSignalBlocker transition_blocker(ui->Transitions_list);
     Event e = automata.get_automaton_at(currentAutomaton)->getEvent(ui->Events_list->item(item->row(),0)->text().toInt());
     QString old = e.getLabel();
     switch (item->column()) {
@@ -358,6 +365,8 @@ void MainWindow::on_Events_list_itemChanged(QTableWidgetItem *item)
                 QMessageBox::information(this, tr("Error"),
                 QString("This name is already in use."));
                 item->setText(automata.get_automaton_at(currentAutomaton)->getEvent(e.getId()).getLabel());
+                transition_blocker.unblock();
+                events_blocker.unblock();
                 return;
             }
         }
@@ -367,6 +376,8 @@ void MainWindow::on_Events_list_itemChanged(QTableWidgetItem *item)
                 QMessageBox::information(this, tr("Error"),
                 QString("This name is already in use."));
                 item->setText(automata.get_automaton_at(currentAutomaton)->getEvent(e.getId()).getLabel());
+                transition_blocker.unblock();
+                events_blocker.unblock();
                 return;
             }
         }
@@ -388,14 +399,15 @@ void MainWindow::on_Events_list_itemChanged(QTableWidgetItem *item)
         }
         break;
     case 2:
-        e.setObservable(item->checkState()==Qt::Checked?true:false);
+        e.setObservable(item->checkState()==Qt::Checked?false:true);
         automata.get_automaton_at(currentAutomaton)->getEventList()->replace(e.getId(),e);
         break;
     case 3:
-        e.setControlable(item->checkState()==Qt::Checked?true:false);
+        e.setControlable(item->checkState()==Qt::Checked?false:true);
         automata.get_automaton_at(currentAutomaton)->getEventList()->replace(e.getId(),e);
         break;
     }
+    transition_blocker.unblock();
     events_blocker.unblock();
 }
 
