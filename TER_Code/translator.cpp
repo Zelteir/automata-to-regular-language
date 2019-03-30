@@ -479,9 +479,11 @@ void Translator::reverseBrzozowski(Automaton automaton, bool ignoreUnobservable,
             //Nous vérifions les transitions pour voir si un des états du states-set de l'itérateur est destination de la transition et si la transition est du bon mot
             for(j=0; j< automatonTransitionsNumber; j++)
             {
-                //Si la transition est valide, nous ajoutons le sommet de source dans le States-set
-                if(statesSetTempo.contains(automaton.getTransition(j).getDest()) && automaton.getTransition(j).getEvent() == i)
+                //Si la transition est valide, nous ajoutons l'état de source dans le States-set si il n'est pas déjà présent
+                if(statesSetTempo.contains(automaton.getTransition(j).getDest()) && automaton.getTransition(j).getEvent() == i && !statesSet.contains(automaton.getTransition(j).getSource()))
+                {
                     statesSet.append(automaton.getTransition(j).getSource());
+                }
             }
             //Une fois le states-set calculé, nous vérifions si il n'est PAS vide. Dans le cas où il est vide, nous ne faisons rien
             if(!statesSet.isEmpty())
@@ -491,14 +493,15 @@ void Translator::reverseBrzozowski(Automaton automaton, bool ignoreUnobservable,
                 //Dans le cas où le states-set calculé n'est pas vide, nous vérifions si il existe déjà dans notre QMap
                 while(j<mapStatesSet.size() && verification == false)
                 {
+
                     statesSetTempo2 = mapStatesSet[j];
-                    if(statesSetTempo.size() == statesSetTempo2.size()) //Si les 2 states-set sont de même longueur, nous pouvons vérifier si leurs contenus sont identiques (ne pas utiliser l'operateur == qui vérifie l'ordre)
+                    if(statesSet.size() == statesSetTempo2.size()) //Si les 2 states-set sont de même longueur, nous pouvons vérifier si leurs contenus sont identiques (ne pas utiliser l'operateur == qui vérifie l'ordre)
                     {
                         verification = true;
                         k = 0;
-                        while(k < statesSetTempo.size() && verification == true)
+                        while(k < statesSet.size() && verification == true)
                         {
-                            if(statesSetTempo2.contains(statesSetTempo.at(k)))
+                            if(statesSetTempo2.contains(statesSet.at(k)))
                                 k++;
                             else
                                 verification = false;
@@ -511,14 +514,14 @@ void Translator::reverseBrzozowski(Automaton automaton, bool ignoreUnobservable,
                 if(verification == false)
                 {
                     mapStatesSet.insert(nombreStatesSet, statesSet);
-                    nombreStatesSet++;
+                    nombreStatesSet+=1;
                     mapStatesSetsTransitionsList.insert(nombreStatesSet, QMultiMap<int, QString>());
                 }
                 //Dans tous les cas, nous récupérons la QMultiMap du states-set que nous traitons afin d'en ajouter la transition
                 traitementMultiMap = mapStatesSetsTransitionsList.take(compteurMap);
 
                 //Cependant, nous devons vérifier si le mot doit être ignoré
-                if((ignoreUnobservable == true && automaton.getEvent(i).getControlable() == false) || (ignoreUncontrolable == true && automaton.getEvent(i).getObservable() == false))
+                if((ignoreUncontrolable == true && automaton.getEvent(i).getControlable() == false) || (ignoreUnobservable  == true && automaton.getEvent(i).getObservable() == false))
                     traitementMultiMap.insert(j, "");
                 else
                     traitementMultiMap.insert(j, automaton.getEvent(i).getLabel());
@@ -726,253 +729,4 @@ void Translator::reverseBrzozowski(Automaton automaton, bool ignoreUnobservable,
         else
             regex.prepend("Є+");
     }
-
 }
-
-/*void Translator::reverseBrzozowski(Automaton automaton, bool ignoreUnobservable, bool ignoreUncontrolable)
-{
-    int automatonStatesNumber = automaton.getStateList()->size();
-    int automatonEventsNumber = automaton.getEventList()->size();
-    int automatonTransitionsNumber = automaton.getTransitionList()->size();
-    int indiceInit, i, j;
-    QVector<int> statesSet, initState, statesSetTempo;
-    QMap<QVector<int>, QMultiMap<QVector<int>, QString>> expressionMap;
-    QMap<QVector<int>, QMultiMap<QVector<int>, QString>>::iterator iterator, iterator2;
-    QMultiMap<QVector<int>, QString> temporaryMap, temporaryMap2;
-    QString expression, tmp;
-    bool verifParenthesis;
-
-    //Etape 0 : récupération du states-set d'initialisation : l'ensemble des états acceptants
-    for (i = 0; i < automatonStatesNumber; i++)
-    {
-        if(automaton.getState(i).getAccepting())
-            statesSet.append(i);
-    }
-
-    //Ajout du states-set dans la QMap initiale pour le 1er traitement
-    expressionMap.insert(statesSet, QMultiMap<QVector<int>, QString>());
-    //Etape 1 : Création de nouveaux states-sets à partir des précédents créés jusqu'à ne plus pouvoir
-    iterator = expressionMap.begin();
-    while(iterator != expressionMap.end())
-    {
-        //Pour chaque MOT possible, nous calculons les states-set allant avec le states-set actuel
-        for(i=0;i<automatonEventsNumber;i++)
-        {
-            statesSet.clear();
-            //Nous vérifions les transitions pour voir si un des états du states-set de l'itérateur est destination de la transition et si la transition est du bon mot
-            for(j=0; j< automatonTransitionsNumber; j++)
-            {
-                //Si la transition est valide, nous ajoutons la valeur dans le States-set
-                if(iterator.key().contains(automaton.getTransition(j).getSource()) && automaton.getTransition(i).getEvent() == j)
-                    statesSet.append(j);
-            }
-
-            //Une fois le states-set calculé, nous vérifions si il n'est PAS vide
-            if(!statesSet.isEmpty())
-            {
-                //Puis nous si il existe déjà dans la QMap. Si non, nous l'ajoutons. Dans tous les cas, nous ajoutons la clé/valeur dans le states-set de l'itérateur
-                if(!expressionMap.contains(statesSet))
-                {
-                    expressionMap.insert(statesSet, QMultiMap<QVector<int>, QString>());
-                    //Nous sommes obligés de faire une copie, ne pouvant pas manipuler directement (Comme le states-set est nouveau, il n'est pas déjà présent dans la map, ce qui nous fait gagner du temps à la vérification)
-                    temporaryMap = expressionMap[iterator.key()];
-                    //Cependant, nous devons vérifier si le mot doit être ignoré
-                    if((ignoreUnobservable == true && automaton.getEvent(i).getControlable() == false) || (ignoreUncontrolable == true && automaton.getEvent(i).getObservable() == false))
-                        temporaryMap.insert(statesSet, "");
-                    else
-                        temporaryMap.insert(statesSet, automaton.getEvent(i).getLabel());
-                    expressionMap[iterator.key()] = temporaryMap;
-                }
-                else //Dans le cas où le states-set existe déjà, nous ajouterons la transition dans la map si la clé n'y était pas avant ou nous ajoutons le mot à la chaine pré-existante si besoin
-                {
-                    temporaryMap = expressionMap[iterator.key()];
-                    //Dans le cas où la clé existe, nous n'ajoutons le mot si il n'est pas ignoré
-                    if(temporaryMap.contains(statesSet) && !((ignoreUnobservable == true && automaton.getEvent(i).getControlable() == false) || (ignoreUncontrolable == true && automaton.getEvent(i).getObservable() == false)))
-                    {
-                        tmp = temporaryMap.take(statesSet);
-                        if(tmp.size() != 0)
-                        {
-                            if(!tmp.contains("("))//Nous ajoutons les parenthèses au besoin
-                                tmp.prepend("(");
-                            else
-                                tmp.remove(")");
-                            tmp.append("+");
-                            tmp.append(automaton.getEvent(i).getLabel());
-                            tmp.append(")");
-                        }
-                        else
-                            tmp.append(automaton.getEvent(i).getLabel());
-                        temporaryMap.insert(statesSet, tmp);
-                    }else
-                    {
-                        //Cependant, nous devons vérifier si le mot doit être ignoré
-                        if((ignoreUnobservable == true && automaton.getEvent(i).getControlable() == false) || (ignoreUncontrolable == true && automaton.getEvent(i).getObservable() == false))
-                            temporaryMap.insert(statesSet, "");
-                        else
-                            temporaryMap.insert(statesSet, automaton.getEvent(i).getLabel());
-                    }
-                    expressionMap[iterator.key()] = temporaryMap;
-                }
-            }
-        }
-        iterator++;
-    }
-
-    //Etape 1.1 : Pour chaque ensemble de la QMap, si elle contient l'état initial, nous ajoutons une chaine vide ayant pour clé un QVector contenant uniquement -1
-    for (i = 0; i < automatonStatesNumber; i++)
-    {
-        if(automaton.getState(i).getInitial())
-            indiceInit = i;
-    }
-
-    initState.append(-1);
-    iterator = expressionMap.begin();
-    while(iterator != expressionMap.end())
-    {
-        //Nous sommes obligés de faire une copie, ne pouvant pas manipuler directement
-        temporaryMap = expressionMap[iterator.key()];
-
-        //Ajout de la chaine vide si contient l'état initial
-        if(iterator.key().contains(indiceInit))
-            temporaryMap.insert(initState, "");
-
-        expressionMap[iterator.key()] = temporaryMap;
-        iterator++;
-    }
-
-    //Etape 2 : Solving. Nous partons du dernier élément de la QMap jusqu'à revenir au début, et faire un traitement
-    iterator = expressionMap.end();
-    iterator--;
-    //Nous traiterons la dernière expression en une étape particulière
-    while(iterator != expressionMap.begin())
-    {
-        //Durant l'étape 1, nous avons déjà concaténé les chaines, nous n'avons donc plus qu'à récupérer les contenus des maps nécessaires étant déjà traitées
-        temporaryMap = expressionMap[iterator.key()];
-        for(iterator2 = iterator; iterator2 != expressionMap.end(); iterator2++)
-        {
-            //Si la clé du states-set déjà traité est présent, nous effectuons le traitement sur celle-ci
-            if(temporaryMap.contains(iterator2.key()))
-            {
-                expression = temporaryMap.take(iterator2.key());
-                temporaryMap2 = expressionMap[iterator2.key()];
-                foreach(statesSetTempo, temporaryMap2.keys()) //A VERIFIER
-                {
-                    tmp = temporaryMap2.value(statesSetTempo);
-                    tmp.append(expression);
-                    temporaryMap.insert(statesSetTempo, tmp);
-                }
-            }
-        }
-
-        //Une fois les traitements effectués, nous effectuons à nouveau les rassemblements d'expressions par clé au besoin
-        foreach(statesSetTempo, temporaryMap.keys())
-        {
-            if(temporaryMap.count(statesSetTempo) > 2)
-            {
-                verifParenthesis = false; //Servira à ajouter au besoin des parenthèses
-                expression = temporaryMap.take(statesSetTempo);
-                while(temporaryMap.contains(statesSetTempo))
-                {
-                    tmp = temporaryMap.take(statesSetTempo);
-                    if(expression.size() == 0)
-                        expression.append(tmp);
-                    else if(tmp.size() != 0)
-                    {
-                        verifParenthesis = true;
-                        expression.append("+");
-                        expression.append(tmp);
-                    }
-                }
-
-                if(verifParenthesis)
-                {
-                    expression.prepend("(");
-                    expression.append(")");
-                }
-            }
-        }
-
-        //Une fois les rassemblements effectués, nous appliquons les effets de boucles via la fonction star si nécessaire
-        if(temporaryMap.contains(iterator.key()))
-        {
-            expression = star(temporaryMap.take(iterator.key()));
-            foreach(statesSetTempo, temporaryMap.keys()) //A VERIFIER
-            {
-                tmp = temporaryMap.take(statesSetTempo);
-                tmp.append(expression);
-                temporaryMap.insert(statesSetTempo, tmp);
-            }
-        }
-
-        //Une fois les sous-étapes précédentes appliquées, nous remettons la "temporaryMap" en tant que nouvelle valeur à la position de l'itérateur, puis nous passons à la valeur précédente
-        expressionMap[iterator.key()] = temporaryMap;
-        iterator--;
-    }
-
-    //Etape 3 : Solving final. Les précédents states-set étant traités, nous pouvons modifier le states-set ne contenant que les états finaux pour obtenir l'expression finale.
-    //Cette expression sera obtenue que lorsqu'il ne restera qu'une seule clé dans la map : le QVecteur n'ayant que la clé -1
-    temporaryMap = expressionMap.first();
-    while(temporaryMap.count() != 1)
-    {
-        //La procédure de solving se fait de la même manière que précédemment
-        for(iterator = expressionMap.begin(); iterator != expressionMap.end(); iterator++)
-        {
-            //Si la clé du states-set déjà traité est présent, nous effectuons le traitement sur celle-ci
-            if(temporaryMap.contains(iterator.key()))
-            {
-                expression = temporaryMap.take(iterator.key());
-                temporaryMap2 = expressionMap[iterator.key()];
-                foreach(statesSetTempo, temporaryMap2.keys()) //A VERIFIER
-                {
-                    tmp = temporaryMap2.value(statesSetTempo);
-                    tmp.append(expression);
-                    temporaryMap.insert(statesSetTempo, tmp);
-                }
-            }
-        }
-
-        //Une fois les traitements effectués, nous effectuons à nouveau les rassemblements d'expressions par clé au besoin
-        foreach(statesSetTempo, temporaryMap.keys())
-        {
-            if(temporaryMap.count(statesSetTempo) > 2)
-            {
-                verifParenthesis = false; //Servira à ajouter au besoin des parenthèses
-                expression = temporaryMap.take(statesSetTempo);
-                while(temporaryMap.contains(statesSetTempo))
-                {
-                    tmp = temporaryMap.take(statesSetTempo);
-                    if(expression.size() == 0)
-                        expression.append(tmp);
-                    else if(tmp.size() != 0)
-                    {
-                        verifParenthesis = true;
-                        expression.append("+");
-                        expression.append(tmp);
-                    }
-                }
-
-                if(verifParenthesis)
-                {
-                    expression.prepend("(");
-                    expression.append(")");
-                }
-            }
-        }
-
-        //Une fois les rassemblements effectués, nous appliquons les effets de boucles via la fonction star si nécessaire
-        if(temporaryMap.contains(iterator.key()))
-        {
-            expression = star(temporaryMap.take(iterator.key()));
-            foreach(statesSetTempo, temporaryMap.keys()) //A VERIFIER
-            {
-                tmp = temporaryMap.take(statesSetTempo);
-                tmp.append(expression);
-                temporaryMap.insert(statesSetTempo, tmp);
-            }
-        }
-    }
-
-    //Une fois qu'il ne reste plus qu'une clé, nous devrions obtenir notre regex final
-    regex = temporaryMap.value(initState);
-}
-*/
