@@ -76,7 +76,8 @@ void MainWindow::toggle_interface(bool b)
      * TO DO
      * Other things to toggle
     */
-    this->fill_automaton_list();
+    if(b)
+        this->fill_automaton_list();
 }
 
 /*
