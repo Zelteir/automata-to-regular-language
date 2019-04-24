@@ -404,9 +404,9 @@ void Translator::brzozowskiMethod(Automaton automaton, bool ignoreUnobservable, 
             if(automaton.getState(i).getInitial())
             {
                 if(finalRegex.isEmpty())
-                    finalRegex = "Є";
+                    finalRegex = "$";
                 else
-                    finalRegex.prepend("Є+");
+                    finalRegex.prepend("$+");
             }
 
             //Complétion par les autres transitions
@@ -540,6 +540,7 @@ void Translator::reverseBrzozowski(Automaton automaton, bool ignoreUnobservable,
     {
         if(automaton.getState(i).getInitial())
             indiceInit = i;
+        i++;
     }
     //Puis, double traitement des MultiMap : réduction des expressions par clé, ajout de la cle -1 dans la MultiMap si l'etat initial est inclus dans le States-set
     for(compteurMap=0; compteurMap < mapStatesSet.size(); compteurMap++)
@@ -726,8 +727,8 @@ void Translator::reverseBrzozowski(Automaton automaton, bool ignoreUnobservable,
     if(automaton.getState(indiceInit).getAccepting())
     {
         if(regex.isEmpty())
-            regex = "Є";
+            regex = "$";
         else
-            regex.prepend("Є+");
+            regex.prepend("$+");
     }
 }
