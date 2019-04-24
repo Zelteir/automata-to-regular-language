@@ -2,6 +2,7 @@
 #define TRANSLATOR_HPP
 
 #include <QString>
+#include <memory>
 #include "automaton.hpp"
 
 class Translator
@@ -12,9 +13,11 @@ class Translator
         Translator();
         QString getRegex() {return regex;}
         QString star(QString);
+        QVector<std::shared_ptr<QString>> starV2(QVector<std::shared_ptr<QString>>);
         void brzozowskiMethod(Automaton);
         void brzozowskiMethod(Automaton, bool, bool);
         void reverseBrzozowski(Automaton, bool, bool);
+        void brzozowskiMethodV2(Automaton, bool, bool);
 };
 
 #endif // TRANSLATOR_HPP

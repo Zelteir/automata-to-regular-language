@@ -296,7 +296,7 @@ void MainWindow::generateLanguage(Automaton *a)
     //if user don't want minimized language
     if(!ui->Minimize_Language_check->isChecked())
     {
-        translator.brzozowskiMethod(*a, ui->Ignore_Unobservable_check->isChecked(), ui->Ignore_Uncontrolable_check->isChecked());
+        translator.brzozowskiMethodV2(*a, ui->Ignore_Unobservable_check->isChecked(), ui->Ignore_Uncontrolable_check->isChecked());
     }
     //if 'minimize language' is checked
     else
