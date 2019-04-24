@@ -26,6 +26,7 @@ QString Translator::star(QString text)
                 compteur++;
             else if (text[i] == ')')
                 compteur--;
+            i++;
         }
         if (compteur == 0)
             s = "(" + text + ")*";
