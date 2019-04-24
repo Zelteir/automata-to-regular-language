@@ -71,6 +71,7 @@ void MainWindow::toggle_interface(bool b)
     ui->actionSaveAutomaton->setEnabled(b);
     ui->actionGenerate_all_languages->setEnabled(b);
     ui->Minimize_Language_check->setEnabled(b);
+    ui->actionAvoid_language_ambiguity->setEnabled(b);
     /*
      * TO DO
      * Other things to toggle
@@ -163,11 +164,13 @@ void MainWindow::add_transition_to_list(Transition t)
 */
 void MainWindow::fill_interface()
 {
+    clear_interface();
+
     /*BLock signals to avoid calling 'on_item_changed' functions*/
     QSignalBlocker states_blocker(ui->States_list);
     QSignalBlocker events_blocker(ui->Events_list);
     QSignalBlocker transitions_blocker(ui->Transitions_list);
-    clear_interface();
+
     /*fill states table with name, initial and accepted information*/
     for(State s: *(automata.get_automaton_at(currentAutomaton)->getStateList()))
     {
@@ -194,9 +197,16 @@ void MainWindow::fill_interface()
 */
 void MainWindow::fill_automaton_list()
 {
+    int i = 0;
     clear_automaton_list();
+    QSignalBlocker automatons_blocker(ui->Automatons_list);
     for(Automaton tmp : *this->automata.get_automatons())
+    {
         ui->Automatons_list->addItem(tmp.getName());
+        ui->Automatons_list->item(i)->setFlags(ui->Automatons_list->item(i)->flags() | Qt::ItemIsEditable);
+        i++;
+    }
+    automatons_blocker.unblock();
     ui->Automatons_list->setCurrentRow(0);
 }
 
@@ -205,6 +215,9 @@ void MainWindow::fill_automaton_list()
 */
 void MainWindow::clear_interface()
 {
+    QSignalBlocker states_blocker(ui->States_list);
+    QSignalBlocker events_blocker(ui->Events_list);
+    QSignalBlocker transitions_blocker(ui->Transitions_list);
     ui->Events_list->clearContents();
     ui->Events_list->setRowCount(0);
     ui->States_list->clearContents();
@@ -212,6 +225,9 @@ void MainWindow::clear_interface()
     ui->Transitions_list->clearContents();
     ui->Transitions_list->setRowCount(0);
     ui->Generated_Regular_Language->clear();
+    states_blocker.unblock();
+    events_blocker.unblock();
+    transitions_blocker.unblock();
 }
 
 /*
@@ -219,7 +235,9 @@ void MainWindow::clear_interface()
 */
 void MainWindow::clear_automaton_list()
 {
+    QSignalBlocker automatons_blocker(ui->Automatons_list);
     ui->Automatons_list->clear();
+    automatons_blocker.unblock();
 }
 
 /*
@@ -231,7 +249,7 @@ void MainWindow::on_Automatons_list_itemSelectionChanged()
     if(automata.get_automaton_at(currentAutomaton)->getGeneratedLanguage().isEmpty())
         ui->actionSaveRL->setEnabled(false);
     else
-        ui->actionSaveRL->setEnabled(false);
+        ui->actionSaveRL->setEnabled(true);
     fill_interface();
 }
 
@@ -261,19 +279,52 @@ void MainWindow::generateLanguage(Automaton *a)
         "A graph needs at least one accepting state.");
         return;
     }
+    QList<Event> backEventList;
+    backEventList = *a->getEventList();
+    if(ui->actionAvoid_language_ambiguity->isChecked())
+    {
+        QList<Event> tmpEventList;
+        for(Event e : *a->getEventList())
+        {
+            e.setLabel(e.getLabel()+".");
+            tmpEventList.append(e);
+        }
+        a->setEventList(tmpEventList);
+    }
+
     //if user don't want minimized language
     if(!ui->Minimize_Language_check->isChecked())
     {
         translator.brzozowskiMethod(*a, ui->Ignore_Unobservable_check->isChecked(), ui->Ignore_Uncontrolable_check->isChecked());
-        qDebug() << "test1";
     }
     //if 'minimize language' is checked
     else
     {
         translator.reverseBrzozowski(*a, ui->Ignore_Unobservable_check->isChecked(), ui->Ignore_Uncontrolable_check->isChecked());
-        qDebug() << "test2";
     }
-    a->setGeneratedLanguage(translator.getRegex());
+
+    if(ui->actionAvoid_language_ambiguity->isChecked())
+    {
+        int i = 0;
+        QString tmpString = translator.getRegex();
+        a->setEventList(backEventList);
+        while (i < tmpString.length()) {
+            if(tmpString.at(i) == '.')
+            {
+                if(i == 0 || i == tmpString.length()-1)
+                    tmpString.remove(i,1);
+                else if(tmpString.at(i+1) == '(' || tmpString.at(i+1) == ')' || tmpString.at(i+1) == '+' || tmpString.at(i+1) == '*')
+                    tmpString.remove(i,1);
+                else
+                    i++;
+            }
+            else
+                i++;
+        }
+        a->setGeneratedLanguage(tmpString);
+    }
+    else
+        a->setGeneratedLanguage(translator.getRegex());
 }
 
 /*
@@ -282,7 +333,7 @@ void MainWindow::generateLanguage(Automaton *a)
 void MainWindow::on_Generate_Button_clicked()
 {
     generateLanguage(automata.get_automaton_at(currentAutomaton));
-    ui->Generated_Regular_Language->setPlainText(translator.getRegex());
+    ui->Generated_Regular_Language->setPlainText(automata.get_automaton_at(currentAutomaton)->getGeneratedLanguage());
     ui->actionSaveRL->setEnabled(true);
 }
 
@@ -300,6 +351,26 @@ void MainWindow::on_actionClose_triggered()
     ui->Transitions_list->setRowCount(0);
     ui->actionSaveRL->setEnabled(false);
 }
+
+void MainWindow::on_Automatons_list_itemChanged(QListWidgetItem *item)
+{
+    QSignalBlocker automatons_blocker(ui->Automatons_list);
+    Automaton a = *automata.get_automaton_at(currentAutomaton);
+    QString old = a.getName();
+    for (int i = 0;i < ui->Automatons_list->count();i++) {
+        if(ui->Automatons_list->item(i)->text() == item->text() && i != ui->Automatons_list->currentRow())
+        {
+            QMessageBox::information(this, tr("Error"),
+            QString("This name is already in use."));
+            item->setText(old);
+            automatons_blocker.unblock();
+            return;
+        }
+    }
+    automata.get_automaton_at(currentAutomaton)->setName(item->text());
+    automatons_blocker.unblock();
+}
+
 
 /*
  * whenever the user change an element in the state list, modification on the automaton
@@ -319,7 +390,7 @@ void MainWindow::on_States_list_itemChanged(QTableWidgetItem *item)
             {
                 QMessageBox::information(this, tr("Error"),
                 QString("This name is already in use."));
-                item->setText(automata.get_automaton_at(currentAutomaton)->getState(s.getId()).getName());
+                item->setText(old);
                 states_blocker.unblock();
                 transition_blocker.unblock();
                 return;
@@ -330,7 +401,7 @@ void MainWindow::on_States_list_itemChanged(QTableWidgetItem *item)
             {
                 QMessageBox::information(this, tr("Error"),
                 QString("This name is already in use."));
-                item->setText(automata.get_automaton_at(currentAutomaton)->getState(s.getId()).getName());
+                item->setText(old);
                 states_blocker.unblock();
                 transition_blocker.unblock();
                 return;
@@ -391,7 +462,7 @@ void MainWindow::on_Events_list_itemChanged(QTableWidgetItem *item)
             {
                 QMessageBox::information(this, tr("Error"),
                 QString("This name is already in use."));
-                item->setText(automata.get_automaton_at(currentAutomaton)->getEvent(e.getId()).getLabel());
+                item->setText(old);
                 transition_blocker.unblock();
                 events_blocker.unblock();
                 return;
@@ -402,7 +473,7 @@ void MainWindow::on_Events_list_itemChanged(QTableWidgetItem *item)
             {
                 QMessageBox::information(this, tr("Error"),
                 QString("This name is already in use."));
-                item->setText(automata.get_automaton_at(currentAutomaton)->getEvent(e.getId()).getLabel());
+                item->setText(old);
                 transition_blocker.unblock();
                 events_blocker.unblock();
                 return;
@@ -670,3 +741,4 @@ void MainWindow::on_actionGenerate_all_languages_triggered()
     file.close();
     QMessageBox::information(this, tr("Save sucessful"),"All regular expressions saved sucessfuly.");
 }
+

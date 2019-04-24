@@ -99,10 +99,12 @@ class Automaton{
     public:
         Automaton(QDomNode);
         QString getName() {return name;}
+        void setName(QString s) {name = s;}
         QString getType() {return type;}
         QList<Event> *getEventList(){return &eventList;}
         QList<State> *getStateList(){return &stateList;}
         QList<Transition> *getTransitionList(){return &transitionList;}
+        void setEventList(QList<Event> events) {eventList = events;}
         State getState(int i){return stateList[i];}
         Event getEvent(int i){return eventList[i];}
         Transition getTransition(int i){return transitionList[i];}

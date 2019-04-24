@@ -1,6 +1,7 @@
 #ifndef MAINWINDOW_HPP
 #define MAINWINDOW_HPP
 
+#include <QListWidget>
 #include <QMainWindow>
 #include <QTableWidgetItem>
 #include "automata.hpp"
@@ -26,6 +27,8 @@ private slots:
     void on_Generate_Button_clicked();
 
     void on_actionClose_triggered();
+
+    void on_Automatons_list_itemChanged(QListWidgetItem *item);
 
     void on_States_list_itemChanged(QTableWidgetItem *item);
 

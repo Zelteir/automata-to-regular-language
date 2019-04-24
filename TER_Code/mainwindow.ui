@@ -46,8 +46,8 @@
             <verstretch>0</verstretch>
            </sizepolicy>
           </property>
-          <property name="cursor" stdset="0">
-           <cursorShape>ArrowCursor</cursorShape>
+          <property name="editTriggers">
+           <set>QAbstractItemView::DoubleClicked</set>
           </property>
          </widget>
         </item>
@@ -66,6 +66,9 @@
           <horstretch>0</horstretch>
           <verstretch>2</verstretch>
          </sizepolicy>
+        </property>
+        <property name="orientation">
+         <enum>Qt::Horizontal</enum>
         </property>
         <property name="childrenCollapsible">
          <bool>false</bool>
@@ -353,6 +356,7 @@
      <string>Tool</string>
     </property>
     <addaction name="actionGenerate_all_languages"/>
+    <addaction name="actionAvoid_language_ambiguity"/>
    </widget>
    <addaction name="menuFichier"/>
    <addaction name="menuEdit"/>
@@ -533,6 +537,14 @@
    </property>
    <property name="toolTip">
     <string>Delete a Transition</string>
+   </property>
+  </action>
+  <action name="actionAvoid_language_ambiguity">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <property name="text">
+    <string>Avoid language ambiguity</string>
    </property>
   </action>
  </widget>

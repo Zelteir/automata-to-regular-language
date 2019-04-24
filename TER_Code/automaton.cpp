@@ -10,11 +10,11 @@ Event::Event(QDomElement element)
     bool observable;
     bool controlable;*/
 
-    id = element.attribute("id","-1").toInt();
+    id = idEvent++;
     label = element.attribute("label","");
     observable = element.attribute("observable","true")==QString("true");
     controlable = element.attribute("controlable","true")==QString("true");
-    idEvent++;
+
 }
 
 void Event::setLabel(QString l)
@@ -45,11 +45,11 @@ State::State(QDomElement element)
     bool initial;
     bool accepting;*/
 
-    id = element.attribute("id","-1").toInt();
+    id = idState++;
     name = element.attribute("name","");
     initial = element.attribute("initial","false")==QString("true");
     accepting = element.attribute("accepting","false")==QString("true");
-    idState++;
+
 }
 
 void State::setName(QString n)
