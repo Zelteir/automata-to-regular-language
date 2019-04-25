@@ -24,10 +24,15 @@ MainWindow::MainWindow(QWidget *parent) :
     ui->Transitions_list->horizontalHeader()->setSectionResizeMode(2, QHeaderView::Stretch );
     ui->Transitions_list->horizontalHeader()->setSectionResizeMode(3, QHeaderView::Stretch );
     ui->Transitions_list->hideColumn(0);
+    method = new QActionGroup(this);
+    ui->actionBrzozowski->setActionGroup(method);
+    ui->actionBrzozowski_V2->setActionGroup(method);
+    method->setExclusive(true);
 }
 
 MainWindow::~MainWindow()
 {
+    delete method;
     delete ui;
 }
 
@@ -72,6 +77,7 @@ void MainWindow::toggle_interface(bool b)
     ui->actionGenerate_all_languages->setEnabled(b);
     ui->Minimize_Language_check->setEnabled(b);
     ui->actionAvoid_language_ambiguity->setEnabled(b);
+    ui->menuConversion_method->setEnabled(b);
     /*
      * TO DO
      * Other things to toggle
@@ -294,7 +300,11 @@ void MainWindow::generateLanguage(Automaton *a)
     }
 
     //if user don't want minimized language
-    if(!ui->Minimize_Language_check->isChecked())
+    if(!ui->Minimize_Language_check->isChecked() && ui->actionBrzozowski->isChecked())
+    {
+        translator.brzozowskiMethod(*a, ui->Ignore_Unobservable_check->isChecked(), ui->Ignore_Uncontrolable_check->isChecked());
+    }
+    else if(!ui->Minimize_Language_check->isChecked() && ui->actionBrzozowski_V2->isChecked())
     {
         translator.brzozowskiMethodV2(*a, ui->Ignore_Unobservable_check->isChecked(), ui->Ignore_Uncontrolable_check->isChecked());
     }

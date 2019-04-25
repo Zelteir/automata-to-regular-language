@@ -838,8 +838,7 @@ void Translator::brzozowskiMethodV2(Automaton automaton, bool ignoreUnobservable
             //Transition Unique (si aucune transition n'existe pour le moment avec cette clé)
             if(!expressionList[t.getDest()].contains(t.getSource()))
             {
-                expressionList[t.getDest()].insert(t.getSource(), QVector<std::shared_ptr<QString>>());
-                expressionList[t.getDest()].first().append(arrayEventPtr[t.getEvent()]);
+                expressionList[t.getDest()].insert(t.getSource(), QVector<std::shared_ptr<QString>>({arrayEventPtr[t.getEvent()]}));
             }
             else
             {
@@ -957,8 +956,6 @@ void Translator::brzozowskiMethodV2(Automaton automaton, bool ignoreUnobservable
                                     //Expression qui a injecter dans l'état j
                                     tmp2 = expressionsTempo2[m];
                                     tmp2.append(tmp);
-
-
                                     //Nous insérons ainsi l'expression dans l'état, donnant la possibilité d'une multiple transition pour un même état (clé déjà existante)
                                     (expressionList[j]).insert(l, tmp2);
                                 }
@@ -1189,7 +1186,7 @@ void Translator::brzozowskiMethodV2(Automaton automaton, bool ignoreUnobservable
                         if(finalRegex.size() == 0)
                         {
                             for(k = 0; k < valeurs[j].size();k++)
-                                finalRegex = *valeurs[k][j];
+                                finalRegex.append(*valeurs[j][k]);
                         }
                         else //Sinon, nous ajoutons l'expression dans le final regex
                         {

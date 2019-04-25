@@ -4,6 +4,7 @@
 #include <QListWidget>
 #include <QMainWindow>
 #include <QTableWidgetItem>
+#include <QActionGroup>
 #include "automata.hpp"
 #include "translator.hpp"
 
@@ -63,6 +64,7 @@ private:
     Automata automata;
     Translator translator;
     int currentAutomaton;
+    QActionGroup *method;
     void toggle_interface(bool b);
     void fill_interface();
     void fill_automaton_list();
