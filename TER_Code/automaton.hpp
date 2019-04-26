@@ -20,15 +20,14 @@ class SetterException : public QException
 
 class Event{
     private:
-        static int idEvent;
         int id;
         QString label;
         bool observable; //true==observable
         bool controlable; //true==controlable
    public:
         Event(){id = -1; label = ""; observable = true; controlable = true;}
-        Event(QDomElement);
-        Event(QString label,bool observable,bool controlable) : id(idEvent++),label(label),observable(observable),controlable(controlable){}
+        Event(int idEvent, QDomElement);
+        Event(int idEvent, QString label,bool observable,bool controlable) : id(idEvent),label(label),observable(observable),controlable(controlable){}
 
         int getId() {return id;}
         QString getLabel() {return label;}
@@ -42,7 +41,6 @@ class Event{
 
 class State{
     private:
-        static int idState;
         int id;
         QString name;
         bool initial;
@@ -50,8 +48,8 @@ class State{
 
     public:
         State(){id = -1; name = ""; initial = false; accepting = false;}
-        State(QDomElement);
-        State(QString name,bool initial,bool accepting) : id(idState++),name(name),initial(initial),accepting(accepting){}
+        State(int idState, QDomElement);
+        State(int idState, QString name,bool initial,bool accepting) : id(idState),name(name),initial(initial),accepting(accepting){}
 
         int getId() {return id;}
         QString getName() {return name;}
@@ -65,15 +63,14 @@ class State{
 
 class Transition{
     private:
-        static int idTransition;
         int id;
         int source;
         int dest;
         int event;
     public:
         Transition() {id = -1; source = -1; dest = -1; event = -1;}
-        Transition(QDomElement);
-        Transition(int source,int dest,int event) : id(idTransition++),source(source),dest(dest),event(event){}
+        Transition(int idTransition, QDomElement);
+        Transition(int idTransition, int source,int dest,int event) : id(idTransition),source(source),dest(dest),event(event){}
 
         int getSource() {return source;}
         int getDest() {return dest;}
@@ -89,11 +86,14 @@ class Transition{
 
 class Automaton{
     private:
+        int idTransition = 0;
+        int idEvent = 0;
+        int idState = 0;
         QString name;
         QString type;
-        QList<Event> eventList;
-        QList<State> stateList;
-        QList<Transition> transitionList;
+        QMap<int, Event> eventList;
+        QMap<int, State> stateList;
+        QMap<int, Transition> transitionList;
         QString generatedLanguage;
 
     public:
@@ -101,16 +101,22 @@ class Automaton{
         QString getName() {return name;}
         void setName(QString s) {name = s;}
         QString getType() {return type;}
-        QList<Event> *getEventList(){return &eventList;}
-        QList<State> *getStateList(){return &stateList;}
-        QList<Transition> *getTransitionList(){return &transitionList;}
-        void setEventList(QList<Event> events) {eventList = events;}
+        QMap<int, Event> *getEventList(){return &eventList;}
+        QMap<int, State> *getStateList(){return &stateList;}
+        QMap<int, Transition> *getTransitionList(){return &transitionList;}
+        void setEventList(QMap<int, Event> events) {eventList = events;}
         State getState(int i){return stateList[i];}
         Event getEvent(int i){return eventList[i];}
         Transition getTransition(int i){return transitionList[i];}
         void toSupremica(QXmlStreamWriter *stream);
         QString getGeneratedLanguage() {return generatedLanguage;}
         void setGeneratedLanguage(QString language) {generatedLanguage = language;}
+        int getIdTransition() {return idTransition;}
+        int getIdState() {return idState;}
+        int getIdEvent() {return idEvent;}
+        void incrTransition() {idTransition++;}
+        void incrEvent() {idEvent++;}
+        void incrState() {idState++;}
 };
 
 #endif // AUTOMATON_HPP

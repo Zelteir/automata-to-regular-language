@@ -5,11 +5,11 @@
 #include <QDebug>
 #include <QSignalBlocker>
 #include <QXmlStreamWriter>
+#include <QElapsedTimer>
 #include "create_state_dialog.hpp"
 #include "create_event_dialog.hpp"
 #include "create_transition_dialog.hpp"
-
-TableWidgetCheckboxItem::TableWidgetCheckboxItem(const QString &text, int type) : QTableWidgetItem(text, type){}
+#include "delete_transition_dialog.hpp"
 
 MainWindow::MainWindow(QWidget *parent) :
     QMainWindow(parent),
@@ -78,6 +78,8 @@ void MainWindow::toggle_interface(bool b)
     ui->Minimize_Language_check->setEnabled(b);
     ui->actionAvoid_language_ambiguity->setEnabled(b);
     ui->menuConversion_method->setEnabled(b);
+    ui->menuDelete->setEnabled(b);
+    ui->actionTransitionDelete->setEnabled(b);
     /*
      * TO DO
      * Other things to toggle
@@ -98,7 +100,7 @@ void MainWindow::add_state_to_list(State s)
     ui->States_list->setItem(pos,1,new QTableWidgetItem(s.getName()));
     ui->States_list->item(pos,1)->setTextAlignment(Qt::AlignHCenter);
     //access boolean value and set checkbox state accordingly, flags prevent edition of checkbox text
-    ui->States_list->setItem(pos,2,new TableWidgetCheckboxItem(""));
+    ui->States_list->setItem(pos,2,new Table_Widget_Checkbox_Item(""));
     if(s.getInitial())
     {
         ui->States_list->item(pos,2)->setCheckState(Qt::Checked);
@@ -106,8 +108,8 @@ void MainWindow::add_state_to_list(State s)
     else {
         ui->States_list->item(pos,2)->setCheckState(Qt::Unchecked);
     }
-    ui->States_list->item(pos,2)->setFlags(ui->States_list->item(pos,2)->flags() & (~Qt::ItemIsEditable));
-    ui->States_list->setItem(pos,3,new TableWidgetCheckboxItem(""));
+    ui->States_list->item(pos,2)->setFlags(ui->States_list->item(pos,2)->flags() & (~Qt::ItemIsEditable) & (~Qt::ItemIsUserCheckable));
+    ui->States_list->setItem(pos,3,new Table_Widget_Checkbox_Item(""));
     if(s.getAccepting())
     {
         ui->States_list->item(pos,3)->setCheckState(Qt::Checked);
@@ -115,7 +117,7 @@ void MainWindow::add_state_to_list(State s)
     else {
         ui->States_list->item(pos,3)->setCheckState(Qt::Unchecked);
     }
-    ui->States_list->item(pos,3)->setFlags(ui->States_list->item(pos,3)->flags() & (~Qt::ItemIsEditable));
+    ui->States_list->item(pos,3)->setFlags(ui->States_list->item(pos,3)->flags() & (~Qt::ItemIsEditable) & (~Qt::ItemIsUserCheckable));
 }
 
 /*
@@ -130,7 +132,7 @@ void MainWindow::add_event_to_list(Event e)
     ui->Events_list->setItem(pos,1,new QTableWidgetItem(e.getLabel()));
     ui->Events_list->item(pos,1)->setTextAlignment(Qt::AlignHCenter);
     //access boolean value and set checkbox state accordingly, flags prevent edition of checkbox text
-    ui->Events_list->setItem(pos,2,new TableWidgetCheckboxItem(""));
+    ui->Events_list->setItem(pos,2,new Table_Widget_Checkbox_Item(""));
     if(!e.getObservable())
     {
         ui->Events_list->item(pos,2)->setCheckState(Qt::Checked);
@@ -139,8 +141,8 @@ void MainWindow::add_event_to_list(Event e)
     {
         ui->Events_list->item(pos,2)->setCheckState(Qt::Unchecked);
     }
-    ui->Events_list->item(pos,2)->setFlags(ui->Events_list->item(pos,2)->flags() & (~Qt::ItemIsEditable));
-    ui->Events_list->setItem(pos,3,new TableWidgetCheckboxItem(""));
+    ui->Events_list->item(pos,2)->setFlags(ui->Events_list->item(pos,2)->flags() & (~Qt::ItemIsEditable) & (~Qt::ItemIsUserCheckable));
+    ui->Events_list->setItem(pos,3,new Table_Widget_Checkbox_Item(""));
     if(!e.getControlable())
     {
         ui->Events_list->item(pos,3)->setCheckState(Qt::Checked);
@@ -149,7 +151,7 @@ void MainWindow::add_event_to_list(Event e)
     {
         ui->Events_list->item(pos,3)->setCheckState(Qt::Unchecked);
     }
-    ui->Events_list->item(pos,3)->setFlags(ui->Events_list->item(pos,3)->flags() & (~Qt::ItemIsEditable));
+    ui->Events_list->item(pos,3)->setFlags(ui->Events_list->item(pos,3)->flags() & (~Qt::ItemIsEditable) & (~Qt::ItemIsUserCheckable));
 }
 
 /*
@@ -161,9 +163,9 @@ void MainWindow::add_transition_to_list(Transition t)
     ui->Transitions_list->insertRow(pos);
 
     ui->Transitions_list->setItem(pos,0, new QTableWidgetItem(QString::number(t.getId())));
-    ui->Transitions_list->setItem(pos,1, new QTableWidgetItem(automata.get_automaton_at(currentAutomaton)->getState(t.getSource()).getName()));
-    ui->Transitions_list->setItem(pos,2, new QTableWidgetItem(automata.get_automaton_at(currentAutomaton)->getState(t.getDest()).getName()));
-    ui->Transitions_list->setItem(pos,3, new QTableWidgetItem(automata.get_automaton_at(currentAutomaton)->getEvent(t.getEvent()).getLabel()));
+    ui->Transitions_list->setItem(pos,1, new QTableWidgetItem(currentAutomaton->getState(t.getSource()).getName()));
+    ui->Transitions_list->setItem(pos,2, new QTableWidgetItem(currentAutomaton->getState(t.getDest()).getName()));
+    ui->Transitions_list->setItem(pos,3, new QTableWidgetItem(currentAutomaton->getEvent(t.getEvent()).getLabel()));
 }
 
 /*
@@ -179,24 +181,24 @@ void MainWindow::fill_interface()
     QSignalBlocker transitions_blocker(ui->Transitions_list);
 
     /*fill states table with name, initial and accepted information*/
-    for(State s: *(automata.get_automaton_at(currentAutomaton)->getStateList()))
+    for(State s: *(currentAutomaton->getStateList()))
     {
         add_state_to_list(s);
     }
     /*fill events table with name, observable and controlable information*/
-    for(Event e : *(automata.get_automaton_at(currentAutomaton)->getEventList()))
+    for(Event e : *(currentAutomaton->getEventList()))
     {
         add_event_to_list(e);
     }
     /*fill transition table with origin, destination and event information*/
-    for(Transition t : *(automata.get_automaton_at(currentAutomaton)->getTransitionList()))
+    for(Transition t : *(currentAutomaton->getTransitionList()))
     {
         add_transition_to_list(t);
     }
     states_blocker.unblock();
     events_blocker.unblock();
     transitions_blocker.unblock();
-    ui->Generated_Regular_Language->setPlainText(automata.get_automaton_at(currentAutomaton)->getGeneratedLanguage());
+    ui->Generated_Regular_Language->setPlainText(currentAutomaton->getGeneratedLanguage());
 }
 
 /*
@@ -252,8 +254,8 @@ void MainWindow::clear_automaton_list()
 */
 void MainWindow::on_Automatons_list_itemSelectionChanged()
 {
-    currentAutomaton = ui->Automatons_list->currentRow();
-    if(automata.get_automaton_at(currentAutomaton)->getGeneratedLanguage().isEmpty())
+    currentAutomaton = automata.get_automaton_at(ui->Automatons_list->currentRow());
+    if(currentAutomaton->getGeneratedLanguage().isEmpty())
         ui->actionSaveRL->setEnabled(false);
     else
         ui->actionSaveRL->setEnabled(true);
@@ -286,32 +288,39 @@ void MainWindow::generateLanguage(Automaton *a)
         "A graph needs at least one accepting state.");
         return;
     }
-    QList<Event> backEventList;
+    QMap<int, Event> backEventList;
     backEventList = *a->getEventList();
     if(ui->actionAvoid_language_ambiguity->isChecked())
     {
-        QList<Event> tmpEventList;
+        QMap<int, Event> tmpEventList;
         for(Event e : *a->getEventList())
         {
             e.setLabel(e.getLabel()+".");
-            tmpEventList.append(e);
+            //tmpEventList.append(e);
+            tmpEventList.insert(e.getId(),e);
         }
         a->setEventList(tmpEventList);
     }
-
+    QElapsedTimer timer;
     //if user don't want minimized language
     if(!ui->Minimize_Language_check->isChecked() && ui->actionBrzozowski->isChecked())
     {
+        timer.start();
         translator.brzozowskiMethod(*a, ui->Ignore_Unobservable_check->isChecked(), ui->Ignore_Uncontrolable_check->isChecked());
+        qDebug() << "Brzozowski" << timer.nsecsElapsed();
     }
     else if(!ui->Minimize_Language_check->isChecked() && ui->actionBrzozowski_V2->isChecked())
     {
+        timer.start();
         translator.brzozowskiMethodV2(*a, ui->Ignore_Unobservable_check->isChecked(), ui->Ignore_Uncontrolable_check->isChecked());
+        qDebug() << "Brzozowski V2" << timer.nsecsElapsed();
     }
     //if 'minimize language' is checked
     else
     {
+        timer.start();
         translator.reverseBrzozowski(*a, ui->Ignore_Unobservable_check->isChecked(), ui->Ignore_Uncontrolable_check->isChecked());
+        qDebug() << "Reverse Brzozowski" << timer.nsecsElapsed();
     }
 
     if(ui->actionAvoid_language_ambiguity->isChecked())
@@ -343,8 +352,8 @@ void MainWindow::generateLanguage(Automaton *a)
 */
 void MainWindow::on_Generate_Button_clicked()
 {
-    generateLanguage(automata.get_automaton_at(currentAutomaton));
-    ui->Generated_Regular_Language->setPlainText(automata.get_automaton_at(currentAutomaton)->getGeneratedLanguage());
+    generateLanguage(currentAutomaton);
+    ui->Generated_Regular_Language->setPlainText(currentAutomaton->getGeneratedLanguage());
     ui->actionSaveRL->setEnabled(true);
 }
 
@@ -366,7 +375,7 @@ void MainWindow::on_actionClose_triggered()
 void MainWindow::on_Automatons_list_itemChanged(QListWidgetItem *item)
 {
     QSignalBlocker automatons_blocker(ui->Automatons_list);
-    Automaton a = *automata.get_automaton_at(currentAutomaton);
+    Automaton a = *currentAutomaton;
     QString old = a.getName();
     for (int i = 0;i < ui->Automatons_list->count();i++) {
         if(ui->Automatons_list->item(i)->text() == item->text() && i != ui->Automatons_list->currentRow())
@@ -378,7 +387,7 @@ void MainWindow::on_Automatons_list_itemChanged(QListWidgetItem *item)
             return;
         }
     }
-    automata.get_automaton_at(currentAutomaton)->setName(item->text());
+    currentAutomaton->setName(item->text());
     automatons_blocker.unblock();
 }
 
@@ -390,17 +399,16 @@ void MainWindow::on_States_list_itemChanged(QTableWidgetItem *item)
 {
     QSignalBlocker states_blocker(ui->States_list);
     QSignalBlocker transition_blocker(ui->Transitions_list);
-    State s = automata.get_automaton_at(currentAutomaton)->getState(ui->States_list->item(item->row(),0)->text().toInt());
+    State s = currentAutomaton->getState(ui->States_list->item(item->row(),0)->text().toInt());
     QString old = s.getName();
-    switch (item->column()) {
-    //if the modifiaction was on the name
-    case 1:
+    if (item->column() == 1) {
+        //if the modifiaction was on the name
         //check if the name isn't already in use as state or event
         for (int i = 0;i < ui->States_list->rowCount();i++) {
             if(ui->States_list->item(i,1)->text() == item->text() && i != item->row())
             {
                 QMessageBox::information(this, tr("Error"),
-                QString("This name is already in use."));
+                                         QString("This name is already in use."));
                 item->setText(old);
                 states_blocker.unblock();
                 transition_blocker.unblock();
@@ -411,7 +419,7 @@ void MainWindow::on_States_list_itemChanged(QTableWidgetItem *item)
             if(ui->Events_list->item(i,1)->text() == item->text())
             {
                 QMessageBox::information(this, tr("Error"),
-                QString("This name is already in use."));
+                                         QString("This name is already in use."));
                 item->setText(old);
                 states_blocker.unblock();
                 transition_blocker.unblock();
@@ -421,11 +429,11 @@ void MainWindow::on_States_list_itemChanged(QTableWidgetItem *item)
         try {
             //set the name
             s.setName(item->text());
-            automata.get_automaton_at(currentAutomaton)->getStateList()->replace(s.getId(),s);
+            currentAutomaton->getStateList()->insert(s.getId(),s);
         } catch (SetterException &ex) {
             QMessageBox::information(this, tr("Error"),
-            ex.getMsg());
-            item->setText(automata.get_automaton_at(currentAutomaton)->getState(s.getId()).getName());
+                                     ex.getMsg());
+            item->setText(currentAutomaton->getState(s.getId()).getName());
             return;
         }
         //modify all transition using the old name
@@ -440,16 +448,6 @@ void MainWindow::on_States_list_itemChanged(QTableWidgetItem *item)
                 ui->Transitions_list->item(i,2)->setText(item->text());
             }
         }
-        break;
-        //set booleans by checking checkbox state
-    case 2:
-        s.setInitial(item->checkState()==Qt::Checked?true:false);
-        automata.get_automaton_at(currentAutomaton)->getStateList()->replace(s.getId(),s);
-        break;
-    case 3:
-        s.setAccepting(item->checkState()==Qt::Checked?true:false);
-        automata.get_automaton_at(currentAutomaton)->getStateList()->replace(s.getId(),s);
-        break;
     }
     transition_blocker.unblock();
     states_blocker.unblock();
@@ -462,12 +460,11 @@ void MainWindow::on_Events_list_itemChanged(QTableWidgetItem *item)
 {
     QSignalBlocker events_blocker(ui->Events_list);
     QSignalBlocker transition_blocker(ui->Transitions_list);
-    Event e = automata.get_automaton_at(currentAutomaton)->getEvent(ui->Events_list->item(item->row(),0)->text().toInt());
+    Event e = currentAutomaton->getEvent(ui->Events_list->item(item->row(),0)->text().toInt());
     QString old = e.getLabel();
-    switch (item->column()) {
+    if (item->column() == 1) {
     //if the label was changed
-    case 1:
-        //check if the name isn't already in use  as state or event
+    //check if the name isn't already in use  as state or event
         for (int i = 0;i < ui->States_list->rowCount();i++) {
             if(ui->States_list->item(i,1)->text() == item->text())
             {
@@ -493,11 +490,11 @@ void MainWindow::on_Events_list_itemChanged(QTableWidgetItem *item)
         //set label
         try {
             e.setLabel(item->text());
-            automata.get_automaton_at(currentAutomaton)->getEventList()->replace(e.getId(),e);
+            currentAutomaton->getEventList()->insert(e.getId(),e);
         } catch (SetterException &ex) {
             QMessageBox::information(this, tr("Error"),
             ex.getMsg());
-            item->setText(automata.get_automaton_at(currentAutomaton)->getEvent(e.getId()).getLabel());
+            item->setText(currentAutomaton->getEvent(e.getId()).getLabel());
             return;
         }
         //modify transition using the old name
@@ -508,16 +505,6 @@ void MainWindow::on_Events_list_itemChanged(QTableWidgetItem *item)
                 ui->Transitions_list->item(i,3)->setText(item->text());
             }
         }
-        break;
-        //modify boolean by checking checkbox state
-    case 2:
-        e.setObservable(item->checkState()==Qt::Checked?false:true);
-        automata.get_automaton_at(currentAutomaton)->getEventList()->replace(e.getId(),e);
-        break;
-    case 3:
-        e.setControlable(item->checkState()==Qt::Checked?false:true);
-        automata.get_automaton_at(currentAutomaton)->getEventList()->replace(e.getId(),e);
-        break;
     }
     transition_blocker.unblock();
     events_blocker.unblock();
@@ -533,7 +520,7 @@ void MainWindow::on_Transitions_list_itemChanged(QTableWidgetItem *item)
     int d = -1;
     int e = -1;
     int i = 0;
-    Transition t = automata.get_automaton_at(currentAutomaton)->getTransition(ui->Transitions_list->item(item->row(),0)->text().toInt());
+    Transition t = currentAutomaton->getTransition(ui->Transitions_list->item(item->row(),0)->text().toInt());
     switch (item->column()) {
     case 1:
         //if the source was modified, check if it exist
@@ -549,21 +536,21 @@ void MainWindow::on_Transitions_list_itemChanged(QTableWidgetItem *item)
         {
             QMessageBox::information(this, tr("Error"),
             QString("This state does not exist."));
-            item->setText(automata.get_automaton_at(currentAutomaton)->getState(automata.get_automaton_at(currentAutomaton)->getTransition(t.getId()).getSource()).getName());
+            item->setText(currentAutomaton->getState(currentAutomaton->getTransition(t.getId()).getSource()).getName());
             return;
         }
         t.setSource(s);
-        for(Transition tmp : *automata.get_automaton_at(currentAutomaton)->getTransitionList())
+        for(Transition tmp : *currentAutomaton->getTransitionList())
         {
             if(t == tmp)
             {
                 QMessageBox::information(this, tr("Error"),
                 QString("This transition already exist."));
-                item->setText(automata.get_automaton_at(currentAutomaton)->getState(automata.get_automaton_at(currentAutomaton)->getTransition(t.getId()).getSource()).getName());
+                item->setText(currentAutomaton->getState(currentAutomaton->getTransition(t.getId()).getSource()).getName());
                 return;
             }
         }
-        automata.get_automaton_at(currentAutomaton)->getTransitionList()->replace(t.getId(),t);
+        currentAutomaton->getTransitionList()->insert(t.getId(),t);
         break;
     case 2:
         //check if the destination was modified
@@ -579,21 +566,21 @@ void MainWindow::on_Transitions_list_itemChanged(QTableWidgetItem *item)
         {
             QMessageBox::information(this, tr("Error"),
             QString("This state does not exist."));
-            item->setText(automata.get_automaton_at(currentAutomaton)->getState(automata.get_automaton_at(currentAutomaton)->getTransition(t.getId()).getDest()).getName());
+            item->setText(currentAutomaton->getState(currentAutomaton->getTransition(t.getId()).getDest()).getName());
             return;
         }
         t.setDest(d);
-        for(Transition tmp : *automata.get_automaton_at(currentAutomaton)->getTransitionList())
+        for(Transition tmp : *currentAutomaton->getTransitionList())
         {
             if(t == tmp)
             {
                 QMessageBox::information(this, tr("Error"),
                 QString("This transition already exist."));
-                item->setText(automata.get_automaton_at(currentAutomaton)->getState(automata.get_automaton_at(currentAutomaton)->getTransition(t.getId()).getDest()).getName());
+                item->setText(currentAutomaton->getState(currentAutomaton->getTransition(t.getId()).getDest()).getName());
                 return;
             }
         }
-        automata.get_automaton_at(currentAutomaton)->getTransitionList()->replace(t.getId(),t);
+        currentAutomaton->getTransitionList()->insert(t.getId(),t);
         break;
     case 3:
         //if the event was modified
@@ -609,21 +596,21 @@ void MainWindow::on_Transitions_list_itemChanged(QTableWidgetItem *item)
         {
             QMessageBox::information(this, tr("Error"),
             QString("This event does not exist."));
-            item->setText(automata.get_automaton_at(currentAutomaton)->getEvent(automata.get_automaton_at(currentAutomaton)->getTransition(t.getId()).getEvent()).getLabel());
+            item->setText(currentAutomaton->getEvent(currentAutomaton->getTransition(t.getId()).getEvent()).getLabel());
             return;
         }
         t.setEvent(e);
-        for(Transition tmp : *automata.get_automaton_at(currentAutomaton)->getTransitionList())
+        for(Transition tmp : *currentAutomaton->getTransitionList())
         {
             if(t == tmp)
             {
                 QMessageBox::information(this, tr("Error"),
                 QString("This transition already exist."));
-                item->setText(automata.get_automaton_at(currentAutomaton)->getEvent(automata.get_automaton_at(currentAutomaton)->getTransition(t.getId()).getEvent()).getLabel());
+                item->setText(currentAutomaton->getEvent(currentAutomaton->getTransition(t.getId()).getEvent()).getLabel());
                 return;
             }
         }
-        automata.get_automaton_at(currentAutomaton)->getTransitionList()->replace(t.getId(),t);
+        currentAutomaton->getTransitionList()->insert(t.getId(),t);
         break;
     }
     transition_blocker.unblock();
@@ -644,7 +631,7 @@ void MainWindow::createAutomaton_finished(Automaton a)
  */
 void MainWindow::on_actionStateCreate_triggered()
 {
-    Create_state_dialog dialog(*automata.get_automaton_at(currentAutomaton)->getEventList(),*automata.get_automaton_at(currentAutomaton)->getStateList(), this);
+    Create_state_dialog dialog(currentAutomaton->getIdState(), *currentAutomaton->getEventList(),*currentAutomaton->getStateList(), this);
     connect(&dialog, SIGNAL(creation_state(State)), this, SLOT(createState_finished(State)));
     dialog.exec();
 }
@@ -655,14 +642,15 @@ void MainWindow::on_actionStateCreate_triggered()
 void MainWindow::createState_finished(State s)
 {
     QSignalBlocker states_blocker(ui->States_list);
-    automata.get_automaton_at(ui->Automatons_list->currentRow())->getStateList()->append(s);
+    currentAutomaton->getStateList()->insert(s.getId(),s);
+    currentAutomaton->incrState();
     add_state_to_list(s);
     states_blocker.unblock();
 }
 
 void MainWindow::on_actionEventCreate_triggered()
 {
-    Create_event_dialog dialog(*automata.get_automaton_at(currentAutomaton)->getEventList(),*automata.get_automaton_at(currentAutomaton)->getStateList(), this);
+    Create_event_dialog dialog(currentAutomaton->getIdEvent(), *currentAutomaton->getEventList(),*currentAutomaton->getStateList(), this);
     connect(&dialog, SIGNAL(creation_event(Event)), this, SLOT(createEvent_finished(Event)));
     dialog.exec();
 }
@@ -670,14 +658,15 @@ void MainWindow::on_actionEventCreate_triggered()
 void MainWindow::createEvent_finished(Event e)
 {
     QSignalBlocker events_blocker(ui->Events_list);
-    automata.get_automaton_at(ui->Automatons_list->currentRow())->getEventList()->append(e);
+    currentAutomaton->getEventList()->insert(e.getId(),e);
+    currentAutomaton->incrEvent();
     add_event_to_list(e);
     events_blocker.unblock();
 }
 
 void MainWindow::on_actionTransitionCreate_triggered()
 {
-    Create_transition_dialog *dialog = new Create_transition_dialog(*automata.get_automaton_at(currentAutomaton)->getEventList(),*automata.get_automaton_at(currentAutomaton)->getStateList(),*automata.get_automaton_at(currentAutomaton)->getTransitionList(), this);
+    Create_transition_dialog *dialog = new Create_transition_dialog(currentAutomaton->getIdTransition(),*currentAutomaton->getEventList(),*currentAutomaton->getStateList(),*currentAutomaton->getTransitionList(), this);
     connect(dialog, SIGNAL(creation_transition(Transition)), this, SLOT(createTransition_finished(Transition)));
     dialog->exec();
     delete dialog;
@@ -686,7 +675,8 @@ void MainWindow::on_actionTransitionCreate_triggered()
 void MainWindow::createTransition_finished(Transition t)
 {
     QSignalBlocker transition_blocker(ui->Transitions_list);
-    automata.get_automaton_at(ui->Automatons_list->currentRow())->getTransitionList()->append(t);
+    currentAutomaton->getTransitionList()->insert(t.getId(),t);
+    currentAutomaton->incrTransition();
     add_transition_to_list(t);
     transition_blocker.unblock();
 }
@@ -753,3 +743,92 @@ void MainWindow::on_actionGenerate_all_languages_triggered()
     QMessageBox::information(this, tr("Save sucessful"),"All regular expressions saved sucessfuly.");
 }
 
+/*TO DO*/
+void MainWindow::on_actionStateDelete_triggered()
+{
+
+}
+
+/*TO DO*/
+void MainWindow::on_actionEventDelete_triggered()
+{
+
+}
+
+void MainWindow::on_actionTransitionDelete_triggered()
+{
+    Delete_transition_dialog dialog(*currentAutomaton->getEventList(), *currentAutomaton->getStateList(), *currentAutomaton->getTransitionList(), this);
+    connect(&dialog, SIGNAL(delete_transition(QList<int>)), this, SLOT(deleteTransition_finished(QList<int>)));
+    dialog.exec();
+}
+
+/*TO DO*/
+void MainWindow::deleteTransition_finished(QList<int> deleteList)
+{
+    int tmp = 0;
+    for(int i : deleteList)
+    {
+        currentAutomaton->getTransitionList()->remove(i);
+        while (tmp < ui->Transitions_list->rowCount())
+        {
+            if(ui->Transitions_list->item(tmp,0)->text().toInt() == i)
+            {
+                ui->Transitions_list->removeRow(tmp);
+                break;
+            }
+            tmp++;
+        }
+    }
+}
+
+
+
+void MainWindow::on_States_list_cellClicked(int row, int column)
+{
+    int id;
+    bool state;
+    State s;
+    if(column == 2)
+    {
+        id = ui->States_list->item(row,0)->text().toInt();
+        s = currentAutomaton->getState(id);
+        state = ui->States_list->item(row,column)->checkState();
+        s.setInitial(!state);
+        ui->States_list->item(row,column)->setCheckState((state)?Qt::Unchecked:Qt::Checked);
+        currentAutomaton->getStateList()->insert(id, s);
+    }
+    else if(column == 3)
+    {
+        id = ui->States_list->item(row,0)->text().toInt();
+        s = currentAutomaton->getState(id);
+        state = ui->States_list->item(row,column)->checkState();
+        s.setAccepting(!state);
+        ui->States_list->item(row,column)->setCheckState((state)?Qt::Unchecked:Qt::Checked);
+        currentAutomaton->getStateList()->insert(id, s);
+    }
+}
+
+void MainWindow::on_Events_list_cellClicked(int row, int column)
+{
+    int id;
+    bool state;
+    Event e;
+    if(column == 2)
+    {
+        id = ui->Events_list->item(row,0)->text().toInt();
+        e = currentAutomaton->getEvent(id);
+        state = ui->Events_list->item(row,column)->checkState();
+        e.setObservable(state);
+        ui->Events_list->item(row,column)->setCheckState((state)?Qt::Unchecked:Qt::Checked);
+        currentAutomaton->getEventList()->insert(id,e);
+    }
+    else if(column == 3)
+    {
+        id = ui->Events_list->item(row,0)->text().toInt();
+        e = currentAutomaton->getEvent(id);
+        state = ui->Events_list->item(row,column)->checkState();
+        e.setControlable(state);
+        ui->Events_list->item(row,column)->setCheckState((state)?Qt::Unchecked:Qt::Checked);
+        currentAutomaton->getEventList()->insert(id,e);
+    }
+}

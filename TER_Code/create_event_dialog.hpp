@@ -13,11 +13,10 @@ class Create_event_dialog : public QDialog
     Q_OBJECT
 
 public:
-    explicit Create_event_dialog(QList<Event> eventList, QList<State> stateList, QWidget *parent = nullptr);
+    explicit Create_event_dialog(int idEvent, QMap<int, Event> eventList, QMap<int, State> stateList, QWidget *parent = nullptr);
     ~Create_event_dialog();
 
 private slots:
-
     void Create_event_dialog_accept_clicked();
 
 signals:
@@ -25,8 +24,9 @@ signals:
 
 private:
     Ui::Create_event_dialog *ui;
-    QList<Event> eventList;
-    QList<State> stateList;
+    QMap<int, Event> eventList;
+    QMap<int, State> stateList;
+    int idEvent;
 };
 
 #endif // CREATE_EVENT_DIALOG_HPP

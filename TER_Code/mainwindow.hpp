@@ -7,6 +7,7 @@
 #include <QActionGroup>
 #include "automata.hpp"
 #include "translator.hpp"
+#include "table_widget_checkbox_item.hpp"
 
 namespace Ui {
 class MainWindow;
@@ -59,11 +60,23 @@ private slots:
 
     void on_actionGenerate_all_languages_triggered();
 
+    void on_actionStateDelete_triggered();
+
+    void on_actionEventDelete_triggered();
+
+    void on_actionTransitionDelete_triggered();
+
+    void deleteTransition_finished(QList<int>);
+
+    void on_States_list_cellClicked(int row, int column);
+
+    void on_Events_list_cellClicked(int row, int column);
+
 private:
     Ui::MainWindow *ui;
     Automata automata;
     Translator translator;
-    int currentAutomaton;
+    Automaton *currentAutomaton;
     QActionGroup *method;
     void toggle_interface(bool b);
     void fill_interface();
@@ -76,13 +89,4 @@ private:
     void generateLanguage(Automaton *a);
 };
 
-class TableWidgetCheckboxItem: public QTableWidgetItem
-{
-    public:
-    TableWidgetCheckboxItem(const QString &text, int type = Type);
-    bool operator< (const QTableWidgetItem &other) const
-    {
-        return (this->checkState() > other.checkState());
-    }
-};
 #endif // MAINWINDOW_HPP

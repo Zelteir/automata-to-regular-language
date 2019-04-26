@@ -25,10 +25,12 @@ DEFINES += QT_DEPRECATED_WARNINGS
 CONFIG += c++14
 
 SOURCES += \
+    delete_transition_dialog.cpp \
         main.cpp \
         mainwindow.cpp \
     automata.cpp \
     automaton.cpp \
+    table_widget_checkbox_item.cpp \
     type_choice.cpp \
     translator.cpp \
     create_state_dialog.cpp \
@@ -36,9 +38,11 @@ SOURCES += \
     create_transition_dialog.cpp
 
 HEADERS += \
+    delete_transition_dialog.hpp \
         mainwindow.hpp \
     automata.hpp \
     automaton.hpp \
+    table_widget_checkbox_item.hpp \
     type_choice.hpp \
     translator.hpp \
     create_state_dialog.hpp \
@@ -46,6 +50,7 @@ HEADERS += \
     create_transition_dialog.hpp
 
 FORMS += \
+    delete_transition_dialog.ui \
         mainwindow.ui \
     type_choice.ui \
     create_state_dialog.ui \

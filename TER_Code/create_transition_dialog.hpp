@@ -14,11 +14,10 @@ class Create_transition_dialog : public QDialog
     Q_OBJECT
 
 public:
-    explicit Create_transition_dialog(QList<Event> eventList, QList<State> stateList, QList<Transition> transitionList, QWidget *parent = nullptr);
+    explicit Create_transition_dialog(int idTransition, QMap<int, Event> eventList, QMap<int, State> stateList, QMap<int, Transition> transitionList, QWidget *parent = nullptr);
     ~Create_transition_dialog();
 
 private slots:
-
     void Create_transition_dialog_accept_clicked();
 
 signals:
@@ -26,13 +25,14 @@ signals:
 
 private:
     Ui::Create_transition_dialog *ui;
-    QList<Event> eventList;
-    QList<State> stateList;
-    QList<Transition> transitionList;
+    QMap<int, Event> eventList;
+    QMap<int, State> stateList;
+    QMap<int, Transition> transitionList;
     QStringList eventNameList;
     QStringList stateNameList;
     QCompleter *eventCompleter;
     QCompleter *stateCompleter;
+    int idTransition;
 };
 
 #endif // CREATE_TRANSITION_DIALOG_HPP

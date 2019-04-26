@@ -1205,3 +1205,8 @@ void Translator::brzozowskiMethodV2(Automaton automaton, bool ignoreUnobservable
     regex = finalRegex;
 }
 
+void Translator::reduction(Automaton)
+{
+
+}
+

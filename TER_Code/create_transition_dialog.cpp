@@ -2,12 +2,13 @@
 #include "ui_create_transition_dialog.h"
 #include <QDebug>
 
-Create_transition_dialog::Create_transition_dialog(QList<Event> eventList, QList<State> stateList, QList<Transition> transitionList, QWidget *parent) :
+Create_transition_dialog::Create_transition_dialog(int idTransition, QMap<int, Event> eventList, QMap<int, State> stateList, QMap<int, Transition> transitionList, QWidget *parent) :
     QDialog(parent),
     ui(new Ui::Create_transition_dialog),
     eventList(eventList),
     stateList(stateList),
-    transitionList(transitionList)
+    transitionList(transitionList),
+    idTransition(idTransition)
 {
     ui->setupUi(this);
     QObject::connect(ui->buttonBox, SIGNAL(accepted()), this, SLOT(Create_transition_dialog_accept_clicked()));
@@ -74,6 +75,6 @@ void Create_transition_dialog::Create_transition_dialog_accept_clicked()
         }
     }
     /*create transition*/
-    emit creation_transition(Transition(idSource, idDest, idEvent));
+    emit creation_transition(Transition(idTransition, idSource, idDest, idEvent));
     emit accept();
 }

@@ -1,14 +1,15 @@
 #include "create_state_dialog.hpp"
 #include "ui_create_state_dialog.h"
 
-Create_state_dialog::Create_state_dialog(QList<Event> eventList, QList<State> stateList, QWidget *parent) :
+Create_state_dialog::Create_state_dialog(int idState, QMap<int, Event> eventList, QMap<int, State> stateList, QWidget *parent) :
     QDialog(parent),
-    ui(new Ui::Create_state_dialog)
+    ui(new Ui::Create_state_dialog),
+    eventList(eventList),
+    stateList(stateList),
+    idState(idState)
 {
     ui->setupUi(this);
     QObject::connect(ui->buttonBox, SIGNAL(accepted()), this, SLOT(Create_state_dialog_accept_clicked()));
-    this->eventList = eventList;
-    this->stateList = stateList;
 }
 
 Create_state_dialog::~Create_state_dialog()
@@ -39,7 +40,7 @@ void Create_state_dialog::Create_state_dialog_accept_clicked()
             return;
         }
     }
-    State s(ui->edit_name->text(),ui->checkBox_initial->isChecked(),ui->checkBox_accepting->isChecked());
+    State s(idState, ui->edit_name->text(),ui->checkBox_initial->isChecked(),ui->checkBox_accepting->isChecked());
     emit creation_state(s);
     emit accept();
 }

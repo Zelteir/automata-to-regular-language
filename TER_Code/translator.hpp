@@ -14,10 +14,10 @@ class Translator
         QString getRegex() {return regex;}
         QString star(QString);
         QVector<std::shared_ptr<QString>> starV2(QVector<std::shared_ptr<QString>>);
-        void brzozowskiMethod(Automaton);
         void brzozowskiMethod(Automaton, bool, bool);
         void reverseBrzozowski(Automaton, bool, bool);
         void brzozowskiMethodV2(Automaton, bool, bool);
+        void reduction(Automaton);
 };
 
 #endif // TRANSLATOR_HPP

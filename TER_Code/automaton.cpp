@@ -1,16 +1,14 @@
 #include "automaton.hpp"
 #include <QDebug>
 
-int Event::idEvent = 0;
-
-Event::Event(QDomElement element)
+Event::Event(int idEvent, QDomElement element)
 {
     /*int id;
     QString label;
     bool observable;
     bool controlable;*/
 
-    id = idEvent++;
+    id = idEvent;
     label = element.attribute("label","");
     observable = element.attribute("observable","true")==QString("true");
     controlable = element.attribute("controlable","true")==QString("true");
@@ -36,16 +34,14 @@ void Event::toSupremica(QXmlStreamWriter *stream)
     stream->writeEndElement();
 }
 
-int State::idState = 0;
-
-State::State(QDomElement element)
+State::State(int idState, QDomElement element)
 {
     /*int id;
     QString name;
     bool initial;
     bool accepting;*/
 
-    id = idState++;
+    id = idState;
     name = element.attribute("name","");
     initial = element.attribute("initial","false")==QString("true");
     accepting = element.attribute("accepting","false")==QString("true");
@@ -70,14 +66,13 @@ void State::toSupremica(QXmlStreamWriter *stream)
     stream->writeEndElement();
 }
 
-int Transition::idTransition = 0;
-
-Transition::Transition(QDomElement element) : id(idTransition++)
+Transition::Transition(int idTransition, QDomElement element)
 {
    /* int source;
     int dest;
     int event;*/
 
+    id = idTransition;
     source = element.attribute("source","-1").toInt();
     dest = element.attribute("dest","-1").toInt();
     event = element.attribute("event","-1").toInt();
@@ -109,18 +104,20 @@ Automaton::Automaton(QDomNode node)
     QDomElement childElement = node.firstChildElement("Events");
     for(element = childElement.firstChildElement("Event");!element.isNull();element = element.nextSiblingElement())
     {
-        eventList.append(Event(element));
+        eventList.insert(idEvent, Event(idEvent, element));
+        idEvent++;
     }
-
     childElement = node.firstChildElement("States");
     for(element = childElement.firstChildElement("State");!element.isNull();element = element.nextSiblingElement())
     {
-        stateList.append(State(element));
+        stateList.insert(idState, State(idState, element));
+        idState++;
     }
     childElement = node.firstChildElement("Transitions");
     for(element = childElement.firstChildElement("Transition");!element.isNull();element = element.nextSiblingElement())
     {
-        transitionList.append(Transition(element));
+        transitionList.insert(idTransition, Transition(idTransition, element));
+        idTransition++;
     }
 }
 
