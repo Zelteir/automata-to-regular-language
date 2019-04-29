@@ -62,7 +62,11 @@ private slots:
 
     void on_actionStateDelete_triggered();
 
+    void deleteState_finished(QList<int> deleteList);
+
     void on_actionEventDelete_triggered();
+
+    void deleteEvent_finished(QList<int> deleteList);
 
     void on_actionTransitionDelete_triggered();
 

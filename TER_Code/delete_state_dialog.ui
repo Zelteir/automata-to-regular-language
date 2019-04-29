@@ -1,13 +1,13 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <ui version="4.0">
- <class>Delete_transition_dialog</class>
- <widget class="QDialog" name="Delete_transition_dialog">
+ <class>Delete_state_dialog</class>
+ <widget class="QDialog" name="Delete_state_dialog">
   <property name="geometry">
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>395</width>
-    <height>501</height>
+    <width>400</width>
+    <height>300</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -17,21 +17,12 @@
    <item>
     <widget class="QLabel" name="label">
      <property name="text">
-      <string>Select transitions to be deleted.</string>
+      <string>Select states to be deleted.</string>
      </property>
     </widget>
    </item>
    <item>
-    <widget class="QTableWidget" name="transitions_list">
-     <property name="editTriggers">
-      <set>QAbstractItemView::NoEditTriggers</set>
-     </property>
-     <property name="sortingEnabled">
-      <bool>true</bool>
-     </property>
-     <attribute name="verticalHeaderVisible">
-      <bool>false</bool>
-     </attribute>
+    <widget class="QTableWidget" name="state_list">
      <column>
       <property name="text">
        <string>Id</string>
@@ -39,17 +30,7 @@
      </column>
      <column>
       <property name="text">
-       <string>Source</string>
-      </property>
-     </column>
-     <column>
-      <property name="text">
-       <string>Dest</string>
-      </property>
-     </column>
-     <column>
-      <property name="text">
-       <string>Event</string>
+       <string>Name</string>
       </property>
      </column>
      <column>
@@ -76,7 +57,7 @@
   <connection>
    <sender>buttonBox</sender>
    <signal>rejected()</signal>
-   <receiver>Delete_transition_dialog</receiver>
+   <receiver>Delete_state_dialog</receiver>
    <slot>reject()</slot>
    <hints>
     <hint type="sourcelabel">

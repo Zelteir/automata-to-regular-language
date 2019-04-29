@@ -58,7 +58,7 @@ void Translator::brzozowskiMethod(Automaton automaton, bool ignoreUnobservable, 
     //-1 pour "l'état initial", donnera au final les expressions finies
     for (i = 0; i < automatonStatesNumber; i++)
     {
-        if(automaton.getState(i).getInitial())
+        if(automaton.getStateList()->contains(i) && automaton.getState(i).getInitial())
             expressionList[i].insert(-1, "");
         traitement.insert(i, false);
         traitementTempo.insert(i, false);
@@ -68,27 +68,30 @@ void Translator::brzozowskiMethod(Automaton automaton, bool ignoreUnobservable, 
     //Ensuite, ajout de toutes les transitions dans les multiMaps (par défaut, un état transite de plusieurs manières sur un autre, nous mettons tous ces mots sur une même expression)
     for(i = 0; i < automaton.getTransitionList()->size(); i++)
     {
-        t = automaton.getTransition(i);
-        //Si la transition fait partie de ce que nous ignorons, nous ajoutons la transition avec une chaine vide (pas le mot vide!)
-        if((automaton.getEvent(t.getEvent()).getObservable() == false && ignoreUnobservable==true) || (automaton.getEvent(t.getEvent()).getControlable() == false && ignoreUncontrolable==true))
+        if(automaton.getTransitionList()->contains(i))
         {
-            //Nous ajoutons l'existance de la transition sur une chaine vide UNIQUEMENT si elle n'existe déjà pas, afin d'autoriser une transition par défaut
-            if(!expressionList[t.getDest()].contains(t.getSource()))
-                expressionList[t.getDest()].insert(t.getSource(), "");
-        }
-        else
-        {
-            //Transition Unique (si aucune transition n'existe pour le moment avec cette clé)
-            if(!expressionList[t.getDest()].contains(t.getSource()))
-                expressionList[t.getDest()].insert(t.getSource(), automaton.getEvent(t.getEvent()).getLabel());
+            t = automaton.getTransition(i);
+            //Si la transition fait partie de ce que nous ignorons, nous ajoutons la transition avec une chaine vide (pas le mot vide!)
+            if((automaton.getEvent(t.getEvent()).getObservable() == false && ignoreUnobservable==true) || (automaton.getEvent(t.getEvent()).getControlable() == false && ignoreUncontrolable==true))
+            {
+                //Nous ajoutons l'existance de la transition sur une chaine vide UNIQUEMENT si elle n'existe déjà pas, afin d'autoriser une transition par défaut
+                if(!expressionList[t.getDest()].contains(t.getSource()))
+                    expressionList[t.getDest()].insert(t.getSource(), "");
+            }
             else
             {
-                //Transition Multiple (si la clé existe déjà, nous rajoutons le nouveau mot dans l'expression. Les parenthèses seront rajoutées après toute la lecture.)
-                tmp = (expressionList[t.getDest()]).take(t.getSource());
-                if(tmp != "")   //Dans le cas où la transition vide existait, nous n'ajoutons PAS le +, car il y aura une transition visible dans ce cas et nous ne souhaitons pas de + inutilement
-                    tmp.append("+");
-                tmp.append(automaton.getEvent(t.getEvent()).getLabel());
-                (expressionList[t.getDest()]).insert(t.getSource(), tmp);
+                //Transition Unique (si aucune transition n'existe pour le moment avec cette clé)
+                if(!expressionList[t.getDest()].contains(t.getSource()))
+                    expressionList[t.getDest()].insert(t.getSource(), automaton.getEvent(t.getEvent()).getLabel());
+                else
+                {
+                    //Transition Multiple (si la clé existe déjà, nous rajoutons le nouveau mot dans l'expression. Les parenthèses seront rajoutées après toute la lecture.)
+                    tmp = (expressionList[t.getDest()]).take(t.getSource());
+                    if(tmp != "")   //Dans le cas où la transition vide existait, nous n'ajoutons PAS le +, car il y aura une transition visible dans ce cas et nous ne souhaitons pas de + inutilement
+                        tmp.append("+");
+                    tmp.append(automaton.getEvent(t.getEvent()).getLabel());
+                    (expressionList[t.getDest()]).insert(t.getSource(), tmp);
+                }
             }
         }
     }
@@ -125,7 +128,7 @@ void Translator::brzozowskiMethod(Automaton automaton, bool ignoreUnobservable, 
     //Etape 2.1 : suppression des états non-finaux (identique à 2.2)
     for (i = 0; i < automatonStatesNumber; i++)
     {
-        if(!automaton.getState(i).getAccepting())
+        if(automaton.getStateList()->contains(i) && !automaton.getState(i).getAccepting())
         {
             //Si il existe au moins une transition d'un état à lui-même
             if(expressionList[i].contains(i))
@@ -237,7 +240,7 @@ void Translator::brzozowskiMethod(Automaton automaton, bool ignoreUnobservable, 
     //Etape 2.2 : suppression des états finaux (similaire mais ne diffère en ne complétant que les autres états finaux)
     for (i = 0; i < automatonStatesNumber; i++)
     {
-        if(automaton.getState(i).getAccepting())
+        if(automaton.getStateList()->contains(i) && automaton.getState(i).getAccepting())
         {
             //Si il existe au moins une transition d'un état à lui-même
             if(expressionList[i].contains(i))
@@ -287,7 +290,7 @@ void Translator::brzozowskiMethod(Automaton automaton, bool ignoreUnobservable, 
             for(j = i+1; j < automatonStatesNumber; j++)
             {
                 //Inutile sur l'état lui-même ET si l'état le nécessite (excluant donc les états traités et les non-acceptants)
-                if(traitement[j] == false && automaton.getState(j).getAccepting() && expressionList[j].contains(i))
+                if(automaton.getStateList()->contains(j) && traitement[j] == false && automaton.getState(j).getAccepting() && expressionList[j].contains(i))
                 {
                     //Nous traiterons chaque expression
                     expressionsTempo1 = (expressionList[j]).values(i);
@@ -351,7 +354,7 @@ void Translator::brzozowskiMethod(Automaton automaton, bool ignoreUnobservable, 
     for(i=automatonStatesNumber-2; i>-1; i--)
     {
         //Le cas n'est à traiter que pour les états acceptants
-        if(automaton.getState(i).getAccepting())
+        if(automaton.getStateList()->contains(i) && automaton.getState(i).getAccepting())
         {
             //Si le cas est valide nous récupérons les expressions à partir des sommets déjà traités
             for (j=automatonStatesNumber-1; j>i ; j--)
@@ -400,7 +403,7 @@ void Translator::brzozowskiMethod(Automaton automaton, bool ignoreUnobservable, 
     QString finalRegex;
     for (i = 0; i < automatonStatesNumber; i++)
     {
-        if(automaton.getState(i).getAccepting())
+        if(automaton.getStateList()->contains(i) && automaton.getState(i).getAccepting())
         {
             //Dans le cas où l'état initial est aussi acceptant, nous ajoutons le mot vide
             if(automaton.getState(i).getInitial())
@@ -459,7 +462,7 @@ void Translator::reverseBrzozowski(Automaton automaton, bool ignoreUnobservable,
     //Etape 0 : récupération du states-set d'initialisation : l'ensemble des états acceptants
     for (i = 0; i < automatonStatesNumber; i++)
     {
-        if(automaton.getState(i).getAccepting())
+        if(automaton.getStateList()->contains(i) && automaton.getState(i).getAccepting())
             statesSet.append(i);
     }
 
@@ -478,58 +481,61 @@ void Translator::reverseBrzozowski(Automaton automaton, bool ignoreUnobservable,
         //Pour chaque MOT possible, nous calculons les states-set allant avec le states-set actuel
         for(i=0;i<automatonEventsNumber;i++)
         {
-            statesSet.clear();
-            //Nous vérifions les transitions pour voir si un des états du states-set de l'itérateur est destination de la transition et si la transition est du bon mot
-            for(j=0; j< automatonTransitionsNumber; j++)
+            if(automaton.getStateList()->contains(i))
             {
-                //Si la transition est valide, nous ajoutons l'état de source dans le States-set si il n'est pas déjà présent
-                if(statesSetTempo.contains(automaton.getTransition(j).getDest()) && automaton.getTransition(j).getEvent() == i && !statesSet.contains(automaton.getTransition(j).getSource()))
+                statesSet.clear();
+                //Nous vérifions les transitions pour voir si un des états du states-set de l'itérateur est destination de la transition et si la transition est du bon mot
+                for(j=0; j< automatonTransitionsNumber; j++)
                 {
-                    statesSet.append(automaton.getTransition(j).getSource());
-                }
-            }
-            //Une fois le states-set calculé, nous vérifions si il n'est PAS vide. Dans le cas où il est vide, nous ne faisons rien
-            if(!statesSet.isEmpty())
-            {
-                j = 0;
-                verification = false;
-                //Dans le cas où le states-set calculé n'est pas vide, nous vérifions si il existe déjà dans notre QMap
-                while(j<mapStatesSet.size() && verification == false)
-                {
-
-                    statesSetTempo2 = mapStatesSet[j];
-                    if(statesSet.size() == statesSetTempo2.size()) //Si les 2 states-set sont de même longueur, nous pouvons vérifier si leurs contenus sont identiques (ne pas utiliser l'operateur == qui vérifie l'ordre)
+                    //Si la transition est valide, nous ajoutons l'état de source dans le States-set si il n'est pas déjà présent
+                    if(automaton.getTransitionList()->contains(j) && statesSetTempo.contains(automaton.getTransition(j).getDest()) && automaton.getTransition(j).getEvent() == i && !statesSet.contains(automaton.getTransition(j).getSource()))
                     {
-                        verification = true;
-                        k = 0;
-                        while(k < statesSet.size() && verification == true)
-                        {
-                            if(statesSetTempo2.contains(statesSet.at(k)))
-                                k++;
-                            else
-                                verification = false;
-                        }
+                        statesSet.append(automaton.getTransition(j).getSource());
                     }
-                    if(verification == false)
-                        j++;
                 }
-                //Si le states-set n'existe pas, nous le creons dans le QVector ainsi que sa QMap
-                if(verification == false)
+                //Une fois le states-set calculé, nous vérifions si il n'est PAS vide. Dans le cas où il est vide, nous ne faisons rien
+                if(!statesSet.isEmpty())
                 {
-                    mapStatesSet.insert(nombreStatesSet, statesSet);
-                    nombreStatesSet+=1;
-                    mapStatesSetsTransitionsList.insert(nombreStatesSet, QMultiMap<int, QString>());
-                }
-                //Dans tous les cas, nous récupérons la QMultiMap du states-set que nous traitons afin d'en ajouter la transition
-                traitementMultiMap = mapStatesSetsTransitionsList.take(compteurMap);
+                    j = 0;
+                    verification = false;
+                    //Dans le cas où le states-set calculé n'est pas vide, nous vérifions si il existe déjà dans notre QMap
+                    while(j<mapStatesSet.size() && verification == false)
+                    {
+                        statesSetTempo2 = mapStatesSet[j];
+                        if(statesSet.size() == statesSetTempo2.size()) //Si les 2 states-set sont de même longueur, nous pouvons vérifier si leurs contenus sont identiques (ne pas utiliser l'operateur == qui vérifie l'ordre)
+                        {
+                            verification = true;
+                            k = 0;
+                            while(k < statesSet.size() && verification == true)
+                            {
+                                if(statesSetTempo2.contains(statesSet.at(k)))
+                                    k++;
+                                else
+                                    verification = false;
+                            }
+                        }
+                        if(verification == false)
+                            j++;
 
-                //Cependant, nous devons vérifier si le mot doit être ignoré
-                if((ignoreUncontrolable == true && automaton.getEvent(i).getControlable() == false) || (ignoreUnobservable  == true && automaton.getEvent(i).getObservable() == false))
-                    traitementMultiMap.insert(j, "");
-                else
-                    traitementMultiMap.insert(j, automaton.getEvent(i).getLabel());
-                //Une fois la transition ajoutée, nous remettons la MultiMap dans la Map
-                mapStatesSetsTransitionsList.insert(compteurMap, traitementMultiMap);
+                    }
+                    //Si le states-set n'existe pas, nous le creons dans le QVector ainsi que sa QMap
+                    if(verification == false)
+                    {
+                        mapStatesSet.insert(nombreStatesSet, statesSet);
+                        nombreStatesSet+=1;
+                        mapStatesSetsTransitionsList.insert(nombreStatesSet, QMultiMap<int, QString>());
+                    }
+                    //Dans tous les cas, nous récupérons la QMultiMap du states-set que nous traitons afin d'en ajouter la transition
+                    traitementMultiMap = mapStatesSetsTransitionsList.take(compteurMap);
+
+                    //Cependant, nous devons vérifier si le mot doit être ignoré
+                    if((ignoreUncontrolable == true && automaton.getEvent(i).getControlable() == false) || (ignoreUnobservable  == true && automaton.getEvent(i).getObservable() == false))
+                        traitementMultiMap.insert(j, "");
+                    else
+                        traitementMultiMap.insert(j, automaton.getEvent(i).getLabel());
+                    //Une fois la transition ajoutée, nous remettons la MultiMap dans la Map
+                    mapStatesSetsTransitionsList.insert(compteurMap, traitementMultiMap);
+                }
             }
         }
         compteurMap++;
@@ -540,7 +546,7 @@ void Translator::reverseBrzozowski(Automaton automaton, bool ignoreUnobservable,
     indiceInit = -1;
     while(i < automatonStatesNumber && indiceInit == -1)
     {
-        if(automaton.getState(i).getInitial())
+        if(automaton.getStateList()->contains(i) && automaton.getState(i).getInitial())
             indiceInit = i;
         i++;
     }
@@ -553,30 +559,33 @@ void Translator::reverseBrzozowski(Automaton automaton, bool ignoreUnobservable,
         //Pour chaque cle, nous reduisons au maximum afin de n'avoir plus qu'une cle, en gérant les parenthèses pour les traitements futurs
         foreach(i, traitementMultiMap.keys())
         {
-            if(traitementMultiMap.count(i)>1)
+            if(automaton.getStateList()->contains(i))
             {
-                expression = traitementMultiMap.take(i);
-                while(traitementMultiMap.count(i)!=0)  //Tant que nous avons une expression a simplifier
+                if(traitementMultiMap.count(i)>1)
                 {
-                    tmp = traitementMultiMap.take(i);
-                    if(tmp.length() != 0)
+                    expression = traitementMultiMap.take(i);
+                    while(traitementMultiMap.count(i)!=0)  //Tant que nous avons une expression a simplifier
                     {
-                        if(expression.length() == 0)
-                            expression = tmp;
-                        else //Dans le cas où les 2 expressions sont non nulles
+                        tmp = traitementMultiMap.take(i);
+                        if(tmp.length() != 0)
                         {
-                            if(!expression.contains("("))//Nous ajoutons les parenthèses au besoin
-                                expression.prepend("(");
-                            else
-                                expression.remove(")");
-                            expression.append("+");
-                            expression.append(automaton.getEvent(i).getLabel());
-                            expression.append(")");
+                            if(expression.length() == 0)
+                                expression = tmp;
+                            else //Dans le cas où les 2 expressions sont non nulles
+                            {
+                                if(!expression.contains("("))//Nous ajoutons les parenthèses au besoin
+                                    expression.prepend("(");
+                                else
+                                    expression.remove(")");
+                                expression.append("+");
+                                expression.append(automaton.getEvent(i).getLabel());
+                                expression.append(")");
+                            }
                         }
                     }
+                    //Nous réinsérons la nouvelle expression ainsi calculée
+                    traitementMultiMap.insert(i, expression);
                 }
-                //Nous réinsérons la nouvelle expression ainsi calculée
-                traitementMultiMap.insert(i, expression);
             }
         }
 
@@ -726,7 +735,7 @@ void Translator::reverseBrzozowski(Automaton automaton, bool ignoreUnobservable,
     //Une fois qu'il ne reste plus qu'une clé, nous devrions obtenir notre regex final
     regex = traitementMultiMap.value(-1);
     //Avant de quitter la fonction, nous vérifions si le mot vide est accessible : est-ce que l'etat initial est aussi acceptant?
-    if(automaton.getState(indiceInit).getAccepting())
+    if(automaton.getStateList()->contains(indiceInit) && automaton.getState(indiceInit).getAccepting())
     {
         if(regex.isEmpty())
             regex = "$";
@@ -804,18 +813,19 @@ void Translator::brzozowskiMethodV2(Automaton automaton, bool ignoreUnobservable
     QList<QVector<std::shared_ptr<QString>>> expressionsTempo1, expressionsTempo2;
     QVector<std::shared_ptr<QString>> tmp, tmp2;
     QList<bool> traitementTempo;
-    QVector<std::shared_ptr<QString>> arrayEventPtr (automaton.getEventList()->size());
+    QMap<int, std::shared_ptr<QString>> arrayEventPtr;
 
     for(i = 0; i < automaton.getEventList()->size(); i++)
     {
-        arrayEventPtr[i] = std::make_shared<QString>(automaton.getEvent(i).getLabel());
+        if(automaton.getEventList()->contains(i))
+            arrayEventPtr.insert(i, std::make_shared<QString>(automaton.getEvent(i).getLabel()));
     }
 
     //Etape 1 : Initialisation des expressions et du traitement à faux
     //-1 pour "l'état initial", donnera au final les expressions finies
     for (i = 0; i < automatonStatesNumber; i++)
     {
-        if(automaton.getState(i).getInitial())
+        if(automaton.getStateList()->contains(i) && automaton.getState(i).getInitial())
             expressionList[i].insert(-1, QVector<std::shared_ptr<QString>>());
         traitement.insert(i, false);
         traitementTempo.insert(i, false);
@@ -825,29 +835,32 @@ void Translator::brzozowskiMethodV2(Automaton automaton, bool ignoreUnobservable
     //Ensuite, ajout de toutes les transitions dans les multiMaps (par défaut, un état transite de plusieurs manières sur un autre, nous mettons tous ces mots sur une même expression)
     for(i = 0; i < automaton.getTransitionList()->size(); i++)
     {
-        t = automaton.getTransition(i);
-        //Si la transition fait partie de ce que nous ignorons, nous ajoutons la transition avec une chaine vide (pas le mot vide!)
-        if((automaton.getEvent(t.getEvent()).getObservable() == false && ignoreUnobservable==true) || (automaton.getEvent(t.getEvent()).getControlable() == false && ignoreUncontrolable==true))
+        if(automaton.getTransitionList()->contains(i))
         {
-            //Nous ajoutons l'existance de la transition sur une chaine vide UNIQUEMENT si elle n'existe déjà pas, afin d'autoriser une transition par défaut
-            if(!expressionList[t.getDest()].contains(t.getSource()))
-                expressionList[t.getDest()].insert(t.getSource(), QVector<std::shared_ptr<QString>>());
-        }
-        else
-        {
-            //Transition Unique (si aucune transition n'existe pour le moment avec cette clé)
-            if(!expressionList[t.getDest()].contains(t.getSource()))
+            t = automaton.getTransition(i);
+            //Si la transition fait partie de ce que nous ignorons, nous ajoutons la transition avec une chaine vide (pas le mot vide!)
+            if((automaton.getEvent(t.getEvent()).getObservable() == false && ignoreUnobservable==true) || (automaton.getEvent(t.getEvent()).getControlable() == false && ignoreUncontrolable==true))
             {
-                expressionList[t.getDest()].insert(t.getSource(), QVector<std::shared_ptr<QString>>({arrayEventPtr[t.getEvent()]}));
+                //Nous ajoutons l'existance de la transition sur une chaine vide UNIQUEMENT si elle n'existe déjà pas, afin d'autoriser une transition par défaut
+                if(!expressionList[t.getDest()].contains(t.getSource()))
+                    expressionList[t.getDest()].insert(t.getSource(), QVector<std::shared_ptr<QString>>());
             }
             else
             {
-                //Transition Multiple (si la clé existe déjà, nous rajoutons le nouveau mot dans l'expression. Les parenthèses seront rajoutées après toute la lecture.)
-                tmp = (expressionList[t.getDest()]).take(t.getSource());
-                if(tmp.size()>0)   //Dans le cas où la transition vide existait, nous n'ajoutons PAS le +, car il y aura une transition visible dans ce cas et nous ne souhaitons pas de + inutilement
-                    tmp.append(plusPtr);
-                tmp.append(arrayEventPtr[t.getEvent()]);
-                (expressionList[t.getDest()]).insert(t.getSource(), tmp);
+                //Transition Unique (si aucune transition n'existe pour le moment avec cette clé)
+                if(!expressionList[t.getDest()].contains(t.getSource()))
+                {
+                    expressionList[t.getDest()].insert(t.getSource(), QVector<std::shared_ptr<QString>>({arrayEventPtr[t.getEvent()]}));
+                }
+                else
+                {
+                    //Transition Multiple (si la clé existe déjà, nous rajoutons le nouveau mot dans l'expression. Les parenthèses seront rajoutées après toute la lecture.)
+                    tmp = (expressionList[t.getDest()]).take(t.getSource());
+                    if(tmp.size()>0)   //Dans le cas où la transition vide existait, nous n'ajoutons PAS le +, car il y aura une transition visible dans ce cas et nous ne souhaitons pas de + inutilement
+                        tmp.append(plusPtr);
+                    tmp.append(arrayEventPtr[t.getEvent()]);
+                    (expressionList[t.getDest()]).insert(t.getSource(), tmp);
+                }
             }
         }
     }
@@ -884,7 +897,7 @@ void Translator::brzozowskiMethodV2(Automaton automaton, bool ignoreUnobservable
     //Etape 2.1 : suppression des états non-finaux (identique à 2.2)
     for (i = 0; i < automatonStatesNumber; i++)
     {
-        if(!automaton.getState(i).getAccepting())
+        if(automaton.getStateList()->contains(i) && !automaton.getState(i).getAccepting())
         {
             //Si il existe au moins une transition d'un état à lui-même
             if(expressionList[i].contains(i))
@@ -995,7 +1008,7 @@ void Translator::brzozowskiMethodV2(Automaton automaton, bool ignoreUnobservable
     //Etape 2.2 : suppression des états finaux (similaire mais ne diffère en ne complétant que les autres états finaux)
     for (i = 0; i < automatonStatesNumber; i++)
     {
-        if(automaton.getState(i).getAccepting())
+        if(automaton.getStateList()->contains(i) && automaton.getState(i).getAccepting())
         {
             //Si il existe au moins une transition d'un état à lui-même
             if(expressionList[i].contains(i))
@@ -1045,7 +1058,7 @@ void Translator::brzozowskiMethodV2(Automaton automaton, bool ignoreUnobservable
             for(j = i+1; j < automatonStatesNumber; j++)
             {
                 //Inutile sur l'état lui-même ET si l'état le nécessite (excluant donc les états traités et les non-acceptants)
-                if(traitement[j] == false && automaton.getState(j).getAccepting() && expressionList[j].contains(i))
+                if(automaton.getStateList()->contains(j) && traitement[j] == false && automaton.getState(j).getAccepting() && expressionList[j].contains(i))
                 {
                     //Nous traiterons chaque expression
                     expressionsTempo1 = (expressionList[j]).values(i);
@@ -1109,7 +1122,7 @@ void Translator::brzozowskiMethodV2(Automaton automaton, bool ignoreUnobservable
     for(i=automatonStatesNumber-2; i>-1; i--)
     {
         //Le cas n'est à traiter que pour les états acceptants
-        if(automaton.getState(i).getAccepting())
+        if(automaton.getStateList()->contains(i) && automaton.getState(i).getAccepting())
         {
             //Si le cas est valide nous récupérons les expressions à partir des sommets déjà traités
             for (j=automatonStatesNumber-1; j>i ; j--)
@@ -1159,7 +1172,7 @@ void Translator::brzozowskiMethodV2(Automaton automaton, bool ignoreUnobservable
     QList<QVector<std::shared_ptr<QString>>> valeurs;
     for (i = 0; i < automatonStatesNumber; i++)
     {
-        if(automaton.getState(i).getAccepting())
+        if(automaton.getStateList()->contains(i) && automaton.getState(i).getAccepting())
         {
             //Dans le cas où l'état initial est aussi acceptant, nous ajoutons le mot vide
             if(automaton.getState(i).getInitial())

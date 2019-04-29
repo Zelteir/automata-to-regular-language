@@ -20,7 +20,7 @@ public:
 private slots:
     void on_buttonBox_accepted();
 
-    void on_Transitions_list_cellClicked(int row, int column);
+    void on_transitions_list_cellClicked(int row, int column);
 
 signals:
     void delete_transition(QList<int>);
