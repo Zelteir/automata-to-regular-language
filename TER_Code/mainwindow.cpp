@@ -84,6 +84,12 @@ void MainWindow::toggle_interface(bool b)
     ui->actionTransitionDelete->setEnabled(b);
     ui->actionStateDelete->setEnabled(b);
     ui->actionEventDelete->setEnabled(b);
+    ui->addEvent_button->setEnabled(b);
+    ui->addState_button->setEnabled(b);
+    ui->addTransition_button->setEnabled(b);
+    ui->deleteEvent_button->setEnabled(b);
+    ui->deleteState_button->setEnabled(b);
+    ui->deleteTransition_button->setEnabled(b);
     /*
      * TO DO
      * Other things to toggle
@@ -305,26 +311,17 @@ void MainWindow::generateLanguage(Automaton *a)
         }
         a->setEventList(tmpEventList);
     }
-    QElapsedTimer timer;
-    //if user don't want minimized language
-    if(!ui->Minimize_Language_check->isChecked() && ui->actionBrzozowski->isChecked())
+    if(ui->actionBrzozowski->isChecked())
     {
-        timer.start();
         translator.brzozowskiMethod(*a, ui->Ignore_Unobservable_check->isChecked(), ui->Ignore_Uncontrolable_check->isChecked());
-        qDebug() << "Brzozowski" << timer.nsecsElapsed();
     }
-    else if(!ui->Minimize_Language_check->isChecked() && ui->actionBrzozowski_V2->isChecked())
+    else if(ui->actionBrzozowski_V2->isChecked())
     {
-        timer.start();
         translator.brzozowskiMethodV2(*a, ui->Ignore_Unobservable_check->isChecked(), ui->Ignore_Uncontrolable_check->isChecked());
-        qDebug() << "Brzozowski V2" << timer.nsecsElapsed();
     }
-    //if 'minimize language' is checked
-    else
+    else if(ui->actionReverse_Brzozowski->isChecked())
     {
-        timer.start();
         translator.reverseBrzozowski(*a, ui->Ignore_Unobservable_check->isChecked(), ui->Ignore_Uncontrolable_check->isChecked());
-        qDebug() << "Reverse Brzozowski" << timer.nsecsElapsed();
     }
 
     if(ui->actionAvoid_language_ambiguity->isChecked())
@@ -747,7 +744,6 @@ void MainWindow::on_actionGenerate_all_languages_triggered()
     QMessageBox::information(this, tr("Save sucessful"),"All regular expressions saved sucessfuly.");
 }
 
-/*TO DO*/
 void MainWindow::on_actionStateDelete_triggered()
 {
     Delete_state_dialog dialog(*currentAutomaton->getStateList(), this);
@@ -755,7 +751,6 @@ void MainWindow::on_actionStateDelete_triggered()
     dialog.exec();
 }
 
-/**TO DO*/
 void MainWindow::deleteState_finished(QList<int> deleteList)
 {
     int tmp;
@@ -788,7 +783,6 @@ void MainWindow::deleteState_finished(QList<int> deleteList)
     }
 }
 
-/*TO DO*/
 void MainWindow::on_actionEventDelete_triggered()
 {
     Delete_event_dialog dialog(*currentAutomaton->getEventList(), this);
@@ -796,7 +790,6 @@ void MainWindow::on_actionEventDelete_triggered()
     dialog.exec();
 }
 
-/*TO DO*/
 void MainWindow::deleteEvent_finished(QList<int> deleteList)
 {
     int tmp;
@@ -905,4 +898,23 @@ void MainWindow::on_Events_list_cellClicked(int row, int column)
         ui->Events_list->item(row,column)->setCheckState((state)?Qt::Unchecked:Qt::Checked);
         currentAutomaton->getEventList()->insert(id,e);
     }
+}
+
+void MainWindow::on_deleteState_button_clicked()
+{
+    int id = ui->States_list->item(ui->States_list->currentRow(),0)->text().toInt();
+    deleteState_finished(QList<int>({id}));
+
+}
+
+void MainWindow::on_deleteEvent_button_clicked()
+{
+    int id = ui->Events_list->item(ui->Events_list->currentRow(),0)->text().toInt();
+    deleteEvent_finished(QList<int>({id}));
+}
+
+void MainWindow::on_deleteTransition_button_clicked()
+{
+    int id = ui->Transitions_list->item(ui->Transitions_list->currentRow(),0)->text().toInt();
+    deleteTransition_finished(QList<int>({id}));
 }

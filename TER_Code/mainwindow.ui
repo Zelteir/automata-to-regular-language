@@ -127,6 +127,38 @@
             </column>
            </widget>
           </item>
+          <item>
+           <layout class="QHBoxLayout" name="horizontalLayout_3">
+            <item>
+             <widget class="QPushButton" name="addState_button">
+              <property name="enabled">
+               <bool>false</bool>
+              </property>
+              <property name="text">
+               <string/>
+              </property>
+              <property name="icon">
+               <iconset>
+                <normaloff>../iconfinder_icon-plus-round_211877.png</normaloff>../iconfinder_icon-plus-round_211877.png</iconset>
+              </property>
+             </widget>
+            </item>
+            <item>
+             <widget class="QPushButton" name="deleteState_button">
+              <property name="enabled">
+               <bool>false</bool>
+              </property>
+              <property name="text">
+               <string/>
+              </property>
+              <property name="icon">
+               <iconset>
+                <normaloff>../iconfinder_icon-minus-round_211863.png</normaloff>../iconfinder_icon-minus-round_211863.png</iconset>
+              </property>
+             </widget>
+            </item>
+           </layout>
+          </item>
          </layout>
         </widget>
         <widget class="QWidget" name="layoutWidget">
@@ -183,6 +215,38 @@
             </column>
            </widget>
           </item>
+          <item>
+           <layout class="QHBoxLayout" name="horizontalLayout_4">
+            <item>
+             <widget class="QPushButton" name="addEvent_button">
+              <property name="enabled">
+               <bool>false</bool>
+              </property>
+              <property name="text">
+               <string/>
+              </property>
+              <property name="icon">
+               <iconset>
+                <normaloff>../iconfinder_icon-plus-round_211877.png</normaloff>../iconfinder_icon-plus-round_211877.png</iconset>
+              </property>
+             </widget>
+            </item>
+            <item>
+             <widget class="QPushButton" name="deleteEvent_button">
+              <property name="enabled">
+               <bool>false</bool>
+              </property>
+              <property name="text">
+               <string/>
+              </property>
+              <property name="icon">
+               <iconset>
+                <normaloff>../iconfinder_icon-minus-round_211863.png</normaloff>../iconfinder_icon-minus-round_211863.png</iconset>
+              </property>
+             </widget>
+            </item>
+           </layout>
+          </item>
          </layout>
         </widget>
         <widget class="QWidget" name="layoutWidget">
@@ -232,6 +296,38 @@
              </property>
             </column>
            </widget>
+          </item>
+          <item>
+           <layout class="QHBoxLayout" name="horizontalLayout_5">
+            <item>
+             <widget class="QPushButton" name="addTransition_button">
+              <property name="enabled">
+               <bool>false</bool>
+              </property>
+              <property name="text">
+               <string/>
+              </property>
+              <property name="icon">
+               <iconset>
+                <normaloff>../iconfinder_icon-plus-round_211877.png</normaloff>../iconfinder_icon-plus-round_211877.png</iconset>
+              </property>
+             </widget>
+            </item>
+            <item>
+             <widget class="QPushButton" name="deleteTransition_button">
+              <property name="enabled">
+               <bool>false</bool>
+              </property>
+              <property name="text">
+               <string/>
+              </property>
+              <property name="icon">
+               <iconset>
+                <normaloff>../iconfinder_icon-minus-round_211863.png</normaloff>../iconfinder_icon-minus-round_211863.png</iconset>
+              </property>
+             </widget>
+            </item>
+           </layout>
           </item>
          </layout>
         </widget>
@@ -364,6 +460,7 @@
      </property>
      <addaction name="actionBrzozowski"/>
      <addaction name="actionBrzozowski_V2"/>
+     <addaction name="actionReverse_Brzozowski"/>
     </widget>
     <addaction name="actionGenerate_all_languages"/>
     <addaction name="actionAvoid_language_ambiguity"/>
@@ -580,6 +677,14 @@
     <string>Brzozowski V2</string>
    </property>
   </action>
+  <action name="actionReverse_Brzozowski">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <property name="text">
+    <string>Reverse Brzozowski</string>
+   </property>
+  </action>
  </widget>
  <layoutdefault spacing="6" margin="11"/>
  <resources/>
@@ -597,6 +702,54 @@
     <hint type="destinationlabel">
      <x>417</x>
      <y>250</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>addState_button</sender>
+   <signal>clicked()</signal>
+   <receiver>actionStateCreate</receiver>
+   <slot>trigger()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>266</x>
+     <y>228</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>417</x>
+     <y>250</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>addEvent_button</sender>
+   <signal>clicked()</signal>
+   <receiver>actionEventCreate</receiver>
+   <slot>trigger()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>471</x>
+     <y>228</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>-1</x>
+     <y>-1</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>addTransition_button</sender>
+   <signal>clicked()</signal>
+   <receiver>actionTransitionCreate</receiver>
+   <slot>trigger()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>675</x>
+     <y>228</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>-1</x>
+     <y>-1</y>
     </hint>
    </hints>
   </connection>

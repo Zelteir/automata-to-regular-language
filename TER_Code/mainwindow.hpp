@@ -76,6 +76,12 @@ private slots:
 
     void on_Events_list_cellClicked(int row, int column);
 
+    void on_deleteState_button_clicked();
+
+    void on_deleteEvent_button_clicked();
+
+    void on_deleteTransition_button_clicked();
+
 private:
     Ui::MainWindow *ui;
     Automata automata;
