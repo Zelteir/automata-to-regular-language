@@ -105,9 +105,9 @@ class Automaton{
         QMap<int, State> *getStateList(){return &stateList;}
         QMap<int, Transition> *getTransitionList(){return &transitionList;}
         void setEventList(QMap<int, Event> events) {eventList = events;}
-        State getState(int i){return stateList[i];}
-        Event getEvent(int i){return eventList[i];}
-        Transition getTransition(int i){return transitionList[i];}
+        State getState(int i){return stateList.value(i);}
+        Event getEvent(int i){return eventList.value(i);}
+        Transition getTransition(int i){return transitionList.value(i);}
         void toSupremica(QXmlStreamWriter *stream);
         QString getGeneratedLanguage() {return generatedLanguage;}
         void setGeneratedLanguage(QString language) {generatedLanguage = language;}

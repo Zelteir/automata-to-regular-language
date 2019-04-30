@@ -24,17 +24,17 @@ void Create_event_dialog::Create_event_dialog_accept_clicked()
         ui->label_alert->setText(QString("Event must have a name."));
         return;
     }
-    for(int i = 0; i < eventList.size();i++)
+    for(Event tmpEvent : eventList)
     {
-        if(ui->edit_name->text() == eventList[i].getLabel())
+        if(ui->edit_name->text() == tmpEvent.getLabel())
         {
             ui->label_alert->setText(QString("Name already in use."));
             return;
         }
     }
-    for(int i = 0; i < stateList.size();i++)
+    for(State tmpState : stateList)
     {
-        if(ui->edit_name->text() == stateList[i].getName())
+        if(ui->edit_name->text() == tmpState.getName())
         {
             ui->label_alert->setText(QString("Name already in use."));
             return;

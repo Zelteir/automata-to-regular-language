@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <ui version="4.0">
- <class>Delete_state_dialog</class>
- <widget class="QDialog" name="Delete_state_dialog">
+ <class>Delete_event_dialog</class>
+ <widget class="QDialog" name="Delete_event_dialog">
   <property name="geometry">
    <rect>
     <x>0</x>
@@ -17,18 +17,12 @@
    <item>
     <widget class="QLabel" name="label">
      <property name="text">
-      <string>Select states to be deleted.</string>
+      <string>Select events to delete.</string>
      </property>
     </widget>
    </item>
    <item>
-    <widget class="QTableWidget" name="state_list">
-     <property name="editTriggers">
-      <set>QAbstractItemView::NoEditTriggers</set>
-     </property>
-     <attribute name="verticalHeaderVisible">
-      <bool>false</bool>
-     </attribute>
+    <widget class="QTableWidget" name="event_list">
      <column>
       <property name="text">
        <string>Id</string>
@@ -63,7 +57,7 @@
   <connection>
    <sender>buttonBox</sender>
    <signal>rejected()</signal>
-   <receiver>Delete_state_dialog</receiver>
+   <receiver>Delete_event_dialog</receiver>
    <slot>reject()</slot>
    <hints>
     <hint type="sourcelabel">

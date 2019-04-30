@@ -25,6 +25,7 @@ DEFINES += QT_DEPRECATED_WARNINGS
 CONFIG += c++14
 
 SOURCES += \
+    delete_event_dialog.cpp \
     delete_state_dialog.cpp \
     delete_transition_dialog.cpp \
         main.cpp \
@@ -39,6 +40,7 @@ SOURCES += \
     create_transition_dialog.cpp
 
 HEADERS += \
+    delete_event_dialog.hpp \
     delete_state_dialog.hpp \
     delete_transition_dialog.hpp \
         mainwindow.hpp \
@@ -52,6 +54,7 @@ HEADERS += \
     create_transition_dialog.hpp
 
 FORMS += \
+    delete_event_dialog.ui \
     delete_state_dialog.ui \
     delete_transition_dialog.ui \
         mainwindow.ui \

@@ -481,7 +481,7 @@ void Translator::reverseBrzozowski(Automaton automaton, bool ignoreUnobservable,
         //Pour chaque MOT possible, nous calculons les states-set allant avec le states-set actuel
         for(i=0;i<automatonEventsNumber;i++)
         {
-            if(automaton.getStateList()->contains(i))
+            if(automaton.getEventList()->contains(i))
             {
                 statesSet.clear();
                 //Nous vérifions les transitions pour voir si un des états du states-set de l'itérateur est destination de la transition et si la transition est du bon mot
@@ -850,7 +850,7 @@ void Translator::brzozowskiMethodV2(Automaton automaton, bool ignoreUnobservable
                 //Transition Unique (si aucune transition n'existe pour le moment avec cette clé)
                 if(!expressionList[t.getDest()].contains(t.getSource()))
                 {
-                    expressionList[t.getDest()].insert(t.getSource(), QVector<std::shared_ptr<QString>>({arrayEventPtr[t.getEvent()]}));
+                    expressionList[t.getDest()].insert(t.getSource(), QVector<std::shared_ptr<QString>>({arrayEventPtr.value(t.getEvent())}));
                 }
                 else
                 {
@@ -858,7 +858,7 @@ void Translator::brzozowskiMethodV2(Automaton automaton, bool ignoreUnobservable
                     tmp = (expressionList[t.getDest()]).take(t.getSource());
                     if(tmp.size()>0)   //Dans le cas où la transition vide existait, nous n'ajoutons PAS le +, car il y aura une transition visible dans ce cas et nous ne souhaitons pas de + inutilement
                         tmp.append(plusPtr);
-                    tmp.append(arrayEventPtr[t.getEvent()]);
+                    tmp.append(arrayEventPtr.value(t.getEvent()));
                     (expressionList[t.getDest()]).insert(t.getSource(), tmp);
                 }
             }

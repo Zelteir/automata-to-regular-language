@@ -34,9 +34,9 @@ Create_transition_dialog::~Create_transition_dialog()
 
 void Create_transition_dialog::Create_transition_dialog_accept_clicked()
 {
-    int idSource;
-    int idDest;
-    int idEvent;
+    State idSource;
+    State idDest;
+    Event idEvent;
     if(ui->edit_source->text().isEmpty() || ui->edit_dest->text().isEmpty() || ui->edit_event->text().isEmpty())
     {
         ui->label_alert->setText(QString("All fields must be filled."));
@@ -60,12 +60,33 @@ void Create_transition_dialog::Create_transition_dialog_accept_clicked()
 
     /*check if transition already exist*/
     Transition t;
-    idSource = stateList[stateNameList.indexOf(ui->edit_source->text())].getId();
-    t.setSource(idSource);
-    idDest = stateList[stateNameList.indexOf(ui->edit_dest->text())].getId();
-    t.setDest(idDest);
-    idEvent = eventList[eventNameList.indexOf(ui->edit_event->text())].getId();
-    t.setEvent(idEvent);
+    for(Event tmpEvent : eventList)
+    {
+        if(ui->edit_event->text() == tmpEvent.getLabel())
+        {
+            idEvent = tmpEvent;
+            t.setEvent(idEvent.getId());
+            break;
+        }
+    }
+    for(State tmpState : stateList)
+    {
+        if(ui->edit_dest->text() == tmpState.getName())
+        {
+            idDest = tmpState;
+            t.setDest(idDest.getId());
+            break;
+        }
+    }
+    for(State tmpState : stateList)
+    {
+        if(ui->edit_source->text() == tmpState.getName())
+        {
+            idSource = tmpState;
+            t.setSource(idSource.getId());
+            break;
+        }
+    }
     for(Transition transition : transitionList)
     {
         if(t == transition)
@@ -75,6 +96,6 @@ void Create_transition_dialog::Create_transition_dialog_accept_clicked()
         }
     }
     /*create transition*/
-    emit creation_transition(Transition(idTransition, idSource, idDest, idEvent));
+    emit creation_transition(Transition(idTransition, idSource.getId(), idDest.getId(), idEvent.getId()));
     emit accept();
 }

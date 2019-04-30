@@ -162,7 +162,7 @@
             </column>
             <column>
              <property name="text">
-              <string>Label</string>
+              <string>Name</string>
              </property>
             </column>
             <column>

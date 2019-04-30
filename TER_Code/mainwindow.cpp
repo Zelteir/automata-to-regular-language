@@ -11,6 +11,7 @@
 #include "create_transition_dialog.hpp"
 #include "delete_transition_dialog.hpp"
 #include "delete_state_dialog.hpp"
+#include "delete_event_dialog.hpp"
 
 MainWindow::MainWindow(QWidget *parent) :
     QMainWindow(parent),
@@ -82,6 +83,7 @@ void MainWindow::toggle_interface(bool b)
     ui->menuDelete->setEnabled(b);
     ui->actionTransitionDelete->setEnabled(b);
     ui->actionStateDelete->setEnabled(b);
+    ui->actionEventDelete->setEnabled(b);
     /*
      * TO DO
      * Other things to toggle
@@ -789,13 +791,42 @@ void MainWindow::deleteState_finished(QList<int> deleteList)
 /*TO DO*/
 void MainWindow::on_actionEventDelete_triggered()
 {
-
+    Delete_event_dialog dialog(*currentAutomaton->getEventList(), this);
+    connect(&dialog, SIGNAL(delete_event(QList<int>)), this, SLOT(deleteEvent_finished(QList<int>)));
+    dialog.exec();
 }
 
 /*TO DO*/
 void MainWindow::deleteEvent_finished(QList<int> deleteList)
 {
-
+    int tmp;
+    QString tmpString;
+    for(int i : deleteList)
+    {
+        currentAutomaton->getEventList()->remove(i);
+        tmp = 0;
+        while (tmp < ui->Events_list->rowCount())
+        {
+            if(ui->Events_list->item(tmp,0)->text().toInt() == i)
+            {
+                tmpString = ui->Events_list->item(tmp,1)->text();
+                ui->Events_list->removeRow(tmp);
+                break;
+            }
+            tmp++;
+        }
+        tmp = 0;
+        while (tmp < ui->Transitions_list->rowCount())
+        {
+            if(ui->Transitions_list->item(tmp,3)->text() == tmpString)
+            {
+                currentAutomaton->getTransitionList()->remove(ui->Transitions_list->item(tmp,0)->text().toInt());
+                ui->Transitions_list->removeRow(tmp);
+            }
+            else
+                tmp++;
+        }
+    }
 }
 
 /*Calls the delete_transition_dialog*/
