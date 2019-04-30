@@ -86,6 +86,7 @@ class Transition{
 
 class Automaton{
     private:
+        int id;
         int idTransition = 0;
         int idEvent = 0;
         int idState = 0;
@@ -97,7 +98,10 @@ class Automaton{
         QString generatedLanguage;
 
     public:
-        Automaton(QDomNode);
+        Automaton(int, QDomNode);
+        Automaton(int, QString);
+        Automaton() {id = 0; name = "";}
+        int getId() {return id;}
         QString getName() {return name;}
         void setName(QString s) {name = s;}
         QString getType() {return type;}

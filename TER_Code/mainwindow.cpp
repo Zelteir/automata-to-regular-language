@@ -6,6 +6,7 @@
 #include <QSignalBlocker>
 #include <QXmlStreamWriter>
 #include <QElapsedTimer>
+#include "create_automaton_dialog.hpp"
 #include "create_state_dialog.hpp"
 #include "create_event_dialog.hpp"
 #include "create_transition_dialog.hpp"
@@ -90,6 +91,8 @@ void MainWindow::toggle_interface(bool b)
     ui->deleteEvent_button->setEnabled(b);
     ui->deleteState_button->setEnabled(b);
     ui->deleteTransition_button->setEnabled(b);
+    ui->actionAutomatonCreate->setEnabled(b);
+    ui->actionAutomatonDelete->setEnabled(b);
     /*
      * TO DO
      * Other things to toggle
@@ -619,12 +622,18 @@ void MainWindow::on_Transitions_list_itemChanged(QTableWidgetItem *item)
 
 void MainWindow::on_actionAutomatonCreate_triggered()
 {
-    /*TO DO*/
+    Create_automaton_dialog dialog(automata.getIdAutomaton(), *automata.get_automatons(), this);
+    connect(&dialog, SIGNAL(creation_automaton(Automaton)), this, SLOT(createAutomaton_finished(Automaton)));
+    dialog.exec();
 }
 
 void MainWindow::createAutomaton_finished(Automaton a)
 {
-    /*TO DO*/
+    QSignalBlocker automaton_blocker(ui->Automatons_list);
+    automata.get_automatons()->insert(a.getId(),a);
+    automata.idAutomatonIncr();
+    ui->Automatons_list->addItem(a.getName());
+    automaton_blocker.unblock();
 }
 
 /*

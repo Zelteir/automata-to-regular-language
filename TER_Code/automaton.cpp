@@ -95,7 +95,8 @@ void Transition::toSupremica(QXmlStreamWriter *stream)
     stream->writeEndElement();
 }
 
-Automaton::Automaton(QDomNode node)
+Automaton::Automaton(int id, QDomNode node) :
+    id(id)
 {
     name = node.attributes().namedItem("name").nodeValue();
     type = node.attributes().namedItem("type").nodeValue();
@@ -121,6 +122,11 @@ Automaton::Automaton(QDomNode node)
     }
 }
 
+Automaton::Automaton(int id,QString name) :
+    id(id),
+    name(name)
+{}
+
 void Automaton::toSupremica(QXmlStreamWriter *stream)
 {
     stream->writeStartElement("Automaton");
@@ -145,8 +151,3 @@ QString SetterException::getMsg()
 {
     return msg;
 }
-
-/*TO DO
- * QStringList get_name_list()
- * for events & states
-*/

@@ -11,13 +11,16 @@
 
 class Automata{
     private:
-        QList<Automaton> automatonList;
+        QMap<int, Automaton> automatonList;
         QString name;
+        int idAutomaton = 0;
 
     public:
+        int getIdAutomaton() {return idAutomaton;}
+        void idAutomatonIncr() {idAutomaton++;}
         bool fromSupremica(QString fileName);
         void toSupremica(QXmlStreamWriter *stream);
-        QList<Automaton> *get_automatons();
+        QMap<int, Automaton> *get_automatons();
         Automaton *get_automaton_at(int i);
 };
 

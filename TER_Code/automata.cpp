@@ -39,7 +39,8 @@ bool Automata::fromSupremica(QString fileName)
     automatonList.clear();
     for(i = 0; i < list.size(); i++)
     {
-        automatonList.append(Automaton(list.item(i)));
+        automatonList.insert(idAutomaton, Automaton(idAutomaton, list.item(i)));
+        idAutomatonIncr();
     }
 
     return true;
@@ -57,7 +58,7 @@ void Automata::toSupremica(QXmlStreamWriter *stream)
 /*
  * Return la liste des automatons contenu dans l'automata
 */
-QList<Automaton> *Automata::get_automatons()
+QMap<int, Automaton> *Automata::get_automatons()
 {
     return &(this->automatonList);
 }
