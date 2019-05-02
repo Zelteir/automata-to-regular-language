@@ -19,6 +19,7 @@ MainWindow::MainWindow(QWidget *parent) :
     ui(new Ui::MainWindow)
 {
     ui->setupUi(this);
+    ui->Automatons_list->hideColumn(0);
     ui->Events_list->horizontalHeader()->setSectionResizeMode(1, QHeaderView::Stretch );
     ui->Events_list->hideColumn(0);
     ui->States_list->horizontalHeader()->setSectionResizeMode(1, QHeaderView::Stretch );
@@ -224,12 +225,13 @@ void MainWindow::fill_automaton_list()
     QSignalBlocker automatons_blocker(ui->Automatons_list);
     for(Automaton tmp : *this->automata.get_automatons())
     {
-        ui->Automatons_list->addItem(tmp.getName());
-        ui->Automatons_list->item(i)->setFlags(ui->Automatons_list->item(i)->flags() | Qt::ItemIsEditable);
+        ui->Automatons_list->insertRow(i);
+        ui->Automatons_list->setItem(i,1, new QTableWidgetItem(tmp.getName()));
+        ui->Automatons_list->item(i,1)->setFlags(ui->Automatons_list->item(i,1)->flags() | Qt::ItemIsEditable);
         i++;
     }
     automatons_blocker.unblock();
-    ui->Automatons_list->setCurrentRow(0);
+    ui->Automatons_list->setCurrentCell(0,1);
 }
 
 /*
@@ -267,7 +269,7 @@ void MainWindow::clear_automaton_list()
 */
 void MainWindow::on_Automatons_list_itemSelectionChanged()
 {
-    currentAutomaton = automata.get_automaton_at(ui->Automatons_list->currentRow());
+    currentAutomaton = automata.get_automaton_at(ui->Automatons_list->item(ui->Automatons_list->currentRow(), 0)->text().toInt());
     if(currentAutomaton->getGeneratedLanguage().isEmpty())
         ui->actionSaveRL->setEnabled(false);
     else
@@ -381,8 +383,8 @@ void MainWindow::on_Automatons_list_itemChanged(QListWidgetItem *item)
     QSignalBlocker automatons_blocker(ui->Automatons_list);
     Automaton a = *currentAutomaton;
     QString old = a.getName();
-    for (int i = 0;i < ui->Automatons_list->count();i++) {
-        if(ui->Automatons_list->item(i)->text() == item->text() && i != ui->Automatons_list->currentRow())
+    for (int i = 0;i < ui->Automatons_list->rowCount();i++) {
+        if(ui->Automatons_list->item(i,1)->text() == item->text() && i != ui->Automatons_list->currentRow())
         {
             QMessageBox::information(this, tr("Error"),
             QString("This name is already in use."));
@@ -632,7 +634,9 @@ void MainWindow::createAutomaton_finished(Automaton a)
     QSignalBlocker automaton_blocker(ui->Automatons_list);
     automata.get_automatons()->insert(a.getId(),a);
     automata.idAutomatonIncr();
-    ui->Automatons_list->addItem(a.getName());
+    ui->Automatons_list->insertRow(ui->Automatons_list->rowCount());
+    ui->Automatons_list->setItem(ui->Automatons_list->rowCount() - 1, 0, new QTableWidgetItem(a.getId()));
+    ui->Automatons_list->setItem(ui->Automatons_list->rowCount() - 1, 1, new QTableWidgetItem(a.getName()));
     automaton_blocker.unblock();
 }
 

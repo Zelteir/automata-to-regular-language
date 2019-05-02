@@ -36,7 +36,7 @@
          </widget>
         </item>
         <item>
-         <widget class="QListWidget" name="Automatons_list">
+         <widget class="QTableWidget" name="Automatons_list">
           <property name="enabled">
            <bool>false</bool>
           </property>
@@ -49,6 +49,22 @@
           <property name="editTriggers">
            <set>QAbstractItemView::DoubleClicked</set>
           </property>
+          <attribute name="horizontalHeaderVisible">
+           <bool>false</bool>
+          </attribute>
+          <attribute name="verticalHeaderVisible">
+           <bool>false</bool>
+          </attribute>
+          <column>
+           <property name="text">
+            <string>Id</string>
+           </property>
+          </column>
+          <column>
+           <property name="text">
+            <string>Name</string>
+           </property>
+          </column>
          </widget>
         </item>
        </layout>
@@ -716,8 +732,8 @@
      <y>228</y>
     </hint>
     <hint type="destinationlabel">
-     <x>417</x>
-     <y>250</y>
+     <x>-1</x>
+     <y>-1</y>
     </hint>
    </hints>
   </connection>

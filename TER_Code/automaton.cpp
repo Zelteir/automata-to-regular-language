@@ -125,7 +125,9 @@ Automaton::Automaton(int id, QDomNode node) :
 Automaton::Automaton(int id,QString name) :
     id(id),
     name(name)
-{}
+{
+    type = QString("Specification");
+}
 
 void Automaton::toSupremica(QXmlStreamWriter *stream)
 {
