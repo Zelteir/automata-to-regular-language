@@ -98,7 +98,7 @@ class Automaton{
         QString generatedLanguage;
 
     public:
-        Automaton(int, QDomNode);
+        void fromSupremica(int, QDomNode);
         Automaton(int, QString);
         Automaton() {id = 0; name = "";}
         int getId() {return id;}
@@ -121,6 +121,8 @@ class Automaton{
         void incrTransition() {idTransition++;}
         void incrEvent() {idEvent++;}
         void incrState() {idState++;}
+        void toSedma(QXmlStreamWriter *stream);
+        void fromSedma(QString);
 };
 
 #endif // AUTOMATON_HPP

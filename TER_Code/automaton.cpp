@@ -95,9 +95,9 @@ void Transition::toSupremica(QXmlStreamWriter *stream)
     stream->writeEndElement();
 }
 
-Automaton::Automaton(int id, QDomNode node) :
-    id(id)
+void Automaton::fromSupremica(int id, QDomNode node)
 {
+    this->id = id;
     name = node.attributes().namedItem("name").nodeValue();
     type = node.attributes().namedItem("type").nodeValue();
 
@@ -147,6 +147,18 @@ void Automaton::toSupremica(QXmlStreamWriter *stream)
         t.toSupremica(stream);
     stream->writeEndElement();
     stream->writeEndElement();
+}
+
+/*TO DO*/
+void Automaton::toSedma(QXmlStreamWriter *stream)
+{
+
+}
+
+/*TO DO*/
+void Automaton::fromSedma(QString)
+{
+
 }
 
 QString SetterException::getMsg()

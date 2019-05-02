@@ -37,9 +37,11 @@ bool Automata::fromSupremica(QString fileName)
     //Creation of an automaton object for each automaton
     int i;
     automatonList.clear();
+    QVector<Automaton> aList(list.size());
     for(i = 0; i < list.size(); i++)
     {
-        automatonList.insert(idAutomaton, Automaton(idAutomaton, list.item(i)));
+        aList[i].fromSupremica(idAutomaton, list.item(i));
+        automatonList.insert(idAutomaton, aList[i]);
         idAutomatonIncr();
     }
 
@@ -71,3 +73,27 @@ Automaton *Automata::get_automaton_at(int i)
     return &(this->automatonList[i]);
 }
 
+/*TO DO*/
+bool Automata::fromSedma(QString fileName)
+{
+    QFile file(fileName);
+    QString line;
+    if(!file.open(QIODevice::ReadOnly)){
+        QMessageBox::information(NULL, "Unable to open the file!",file.errorString());
+        return false;
+    }
+
+    Automaton a;
+    a.fromSedma(QString(file.readAll()));
+    automatonList.clear();
+    automatonList.insert(idAutomaton, a);
+    idAutomatonIncr();
+
+    return true;
+}
+
+/*TO DO*/
+void Automata::toSedma(QXmlStreamWriter *stream)
+{
+
+}

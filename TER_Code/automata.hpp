@@ -22,6 +22,8 @@ class Automata{
         void toSupremica(QXmlStreamWriter *stream);
         QMap<int, Automaton> *get_automatons();
         Automaton *get_automaton_at(int i);
+        bool fromSedma(QString fileName);
+        void toSedma(QXmlStreamWriter *stream);
 };
 
 #endif // AUTOMATA_HPP
