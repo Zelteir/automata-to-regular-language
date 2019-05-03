@@ -20,6 +20,7 @@ MainWindow::MainWindow(QWidget *parent) :
 {
     ui->setupUi(this);
     ui->Automatons_list->hideColumn(0);
+    ui->Automatons_list->horizontalHeader()->setSectionResizeMode(1, QHeaderView::Stretch );
     ui->Events_list->horizontalHeader()->setSectionResizeMode(1, QHeaderView::Stretch );
     ui->Events_list->hideColumn(0);
     ui->States_list->horizontalHeader()->setSectionResizeMode(1, QHeaderView::Stretch );
@@ -94,6 +95,8 @@ void MainWindow::toggle_interface(bool b)
     ui->deleteTransition_button->setEnabled(b);
     ui->actionAutomatonCreate->setEnabled(b);
     ui->actionAutomatonDelete->setEnabled(b);
+    ui->addAutomaton_button->setEnabled(b);
+    ui->deleteAutomaton_button->setEnabled(b);
     /*
      * TO DO
      * Other things to toggle
@@ -199,16 +202,19 @@ void MainWindow::fill_interface()
     {
         add_state_to_list(s);
     }
+    ui->States_list->setCurrentCell(0,1);
     /*fill events table with name, observable and controlable information*/
     for(Event e : *(currentAutomaton->getEventList()))
     {
         add_event_to_list(e);
     }
+    ui->Events_list->setCurrentCell(0,1);
     /*fill transition table with origin, destination and event information*/
     for(Transition t : *(currentAutomaton->getTransitionList()))
     {
         add_transition_to_list(t);
     }
+    ui->Transitions_list->setCurrentCell(0,1);
     states_blocker.unblock();
     events_blocker.unblock();
     transitions_blocker.unblock();
@@ -226,6 +232,7 @@ void MainWindow::fill_automaton_list()
     for(Automaton tmp : *this->automata.get_automatons())
     {
         ui->Automatons_list->insertRow(i);
+        ui->Automatons_list->setItem(i,0, new QTableWidgetItem(QString::number(tmp.getId())));
         ui->Automatons_list->setItem(i,1, new QTableWidgetItem(tmp.getName()));
         ui->Automatons_list->item(i,1)->setFlags(ui->Automatons_list->item(i,1)->flags() | Qt::ItemIsEditable);
         i++;
@@ -260,7 +267,8 @@ void MainWindow::clear_interface()
 void MainWindow::clear_automaton_list()
 {
     QSignalBlocker automatons_blocker(ui->Automatons_list);
-    ui->Automatons_list->clear();
+    ui->Automatons_list->clearContents();
+    ui->Automatons_list->setRowCount(0);
     automatons_blocker.unblock();
 }
 
@@ -269,12 +277,19 @@ void MainWindow::clear_automaton_list()
 */
 void MainWindow::on_Automatons_list_itemSelectionChanged()
 {
-    currentAutomaton = automata.get_automaton_at(ui->Automatons_list->item(ui->Automatons_list->currentRow(), 0)->text().toInt());
-    if(currentAutomaton->getGeneratedLanguage().isEmpty())
-        ui->actionSaveRL->setEnabled(false);
-    else
-        ui->actionSaveRL->setEnabled(true);
-    fill_interface();
+    if(ui->Automatons_list->rowCount() == 0)
+    {
+        clear_interface();
+        toggle_interface(false);
+    }
+    else {
+        currentAutomaton = automata.get_automaton_at(ui->Automatons_list->item(ui->Automatons_list->currentRow(), 0)->text().toInt());
+        if(currentAutomaton->getGeneratedLanguage().isEmpty())
+            ui->actionSaveRL->setEnabled(false);
+        else
+            ui->actionSaveRL->setEnabled(true);
+        fill_interface();
+    }
 }
 
 void MainWindow::generateLanguage(Automaton *a)
@@ -378,7 +393,7 @@ void MainWindow::on_actionClose_triggered()
     ui->actionSaveRL->setEnabled(false);
 }
 
-void MainWindow::on_Automatons_list_itemChanged(QListWidgetItem *item)
+void MainWindow::on_Automatons_list_itemChanged(QTableWidgetItem *item)
 {
     QSignalBlocker automatons_blocker(ui->Automatons_list);
     Automaton a = *currentAutomaton;
@@ -794,6 +809,8 @@ void MainWindow::deleteState_finished(QList<int> deleteList)
                 tmp++;
         }
     }
+    if(ui->States_list->rowCount() == 0)
+        ui->deleteState_button->setEnabled(false);
 }
 
 void MainWindow::on_actionEventDelete_triggered()
@@ -833,6 +850,8 @@ void MainWindow::deleteEvent_finished(QList<int> deleteList)
                 tmp++;
         }
     }
+    if(ui->Events_list->rowCount() == 0)
+        ui->deleteEvent_button->setEnabled(false);
 }
 
 /*Calls the delete_transition_dialog*/
@@ -861,6 +880,8 @@ void MainWindow::deleteTransition_finished(QList<int> deleteList)
             tmp++;
         }
     }
+    if(ui->Transitions_list->rowCount() == 0)
+        ui->deleteTransition_button->setEnabled(false);
 }
 
 void MainWindow::on_States_list_cellClicked(int row, int column)
@@ -930,4 +951,48 @@ void MainWindow::on_deleteTransition_button_clicked()
 {
     int id = ui->Transitions_list->item(ui->Transitions_list->currentRow(),0)->text().toInt();
     deleteTransition_finished(QList<int>({id}));
+}
+
+/*TO DO*/
+void MainWindow::on_actionAutomatonDelete_triggered()
+{
+
+}
+
+void MainWindow::deleteAutomaton_finished(QList<int> deleteList)
+{
+    int tmp;
+    int pos = ui->Automatons_list->currentRow();
+    QSignalBlocker automaton_blocker(ui->Automatons_list);
+    for(int i : deleteList)
+    {
+        automata.get_automatons()->remove(i);
+        tmp = 0;
+        while (tmp < ui->Automatons_list->rowCount())
+        {
+            if(ui->Automatons_list->item(tmp,0)->text().toInt() == i)
+            {
+                ui->Automatons_list->removeRow(tmp);
+                break;
+            }
+            tmp++;
+        }
+    }
+    automaton_blocker.unblock();
+    if(ui->Automatons_list->rowCount() > 0)
+    {
+        if(deleteList.contains(pos))
+            ui->Automatons_list->setCurrentCell(0,1);
+    }
+    else
+    {
+        ui->deleteAutomaton_button->setEnabled(false);
+        emit(on_Automatons_list_itemSelectionChanged());
+    }
+}
+
+void MainWindow::on_deleteAutomaton_button_clicked()
+{
+    int id = ui->Automatons_list->item(ui->Automatons_list->currentRow(),0)->text().toInt();
+    deleteAutomaton_finished(QList<int>({id}));
 }

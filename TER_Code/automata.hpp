@@ -24,6 +24,7 @@ class Automata{
         Automaton *get_automaton_at(int i);
         bool fromSedma(QString fileName);
         void toSedma(QXmlStreamWriter *stream);
+        void resetId() {idAutomaton = 0;}
 };
 
 #endif // AUTOMATA_HPP

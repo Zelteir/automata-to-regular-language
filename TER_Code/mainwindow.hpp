@@ -30,7 +30,7 @@ private slots:
 
     void on_actionClose_triggered();
 
-    void on_Automatons_list_itemChanged(QListWidgetItem *item);
+    void on_Automatons_list_itemChanged(QTableWidgetItem *item);
 
     void on_States_list_itemChanged(QTableWidgetItem *item);
 
@@ -81,6 +81,12 @@ private slots:
     void on_deleteEvent_button_clicked();
 
     void on_deleteTransition_button_clicked();
+
+    void on_actionAutomatonDelete_triggered();
+
+    void deleteAutomaton_finished(QList<int> deleteList);
+
+    void on_deleteAutomaton_button_clicked();
 
 private:
     Ui::MainWindow *ui;

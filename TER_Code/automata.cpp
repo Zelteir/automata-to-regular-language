@@ -28,6 +28,8 @@ bool Automata::fromSupremica(QString fileName)
         return false;
     }
 
+    resetId();
+
     QDomElement node = doc.firstChildElement();
     name = node.attributes().namedItem("name").nodeValue();
 

@@ -67,6 +67,38 @@
           </column>
          </widget>
         </item>
+        <item>
+         <layout class="QHBoxLayout" name="horizontalLayout_6">
+          <item>
+           <widget class="QPushButton" name="addAutomaton_button">
+            <property name="enabled">
+             <bool>false</bool>
+            </property>
+            <property name="text">
+             <string/>
+            </property>
+            <property name="icon">
+             <iconset>
+              <normaloff>../iconfinder_icon-plus-round_211877.png</normaloff>../iconfinder_icon-plus-round_211877.png</iconset>
+            </property>
+           </widget>
+          </item>
+          <item>
+           <widget class="QPushButton" name="deleteAutomaton_button">
+            <property name="enabled">
+             <bool>false</bool>
+            </property>
+            <property name="text">
+             <string/>
+            </property>
+            <property name="icon">
+             <iconset>
+              <normaloff>../iconfinder_icon-minus-round_211863.png</normaloff>../iconfinder_icon-minus-round_211863.png</iconset>
+            </property>
+           </widget>
+          </item>
+         </layout>
+        </item>
        </layout>
       </widget>
       <widget class="QSplitter" name="splitter_2">
@@ -762,6 +794,22 @@
     <hint type="sourcelabel">
      <x>675</x>
      <y>228</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>-1</x>
+     <y>-1</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>addAutomaton_button</sender>
+   <signal>clicked()</signal>
+   <receiver>actionAutomatonCreate</receiver>
+   <slot>trigger()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>59</x>
+     <y>455</y>
     </hint>
     <hint type="destinationlabel">
      <x>-1</x>
