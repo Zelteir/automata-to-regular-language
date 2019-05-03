@@ -970,7 +970,7 @@ void MainWindow::on_Events_list_cellClicked(int row, int column)
 
 void MainWindow::on_deleteState_button_clicked()
 {
-    if(ui->States_list->currentItem() == NULL)
+    if(ui->States_list->currentItem() == nullptr)
         ui->States_list->setCurrentCell(0,1);
     int id = ui->States_list->item(ui->States_list->currentRow(),0)->text().toInt();
     deleteState_finished(QList<int>({id}));
@@ -978,7 +978,7 @@ void MainWindow::on_deleteState_button_clicked()
 
 void MainWindow::on_deleteEvent_button_clicked()
 {
-    if(ui->Events_list->currentItem() == NULL)
+    if(ui->Events_list->currentItem() == nullptr)
         ui->Events_list->setCurrentCell(0,1);
     int id = ui->Events_list->item(ui->Events_list->currentRow(),0)->text().toInt();
     deleteEvent_finished(QList<int>({id}));
@@ -986,7 +986,7 @@ void MainWindow::on_deleteEvent_button_clicked()
 
 void MainWindow::on_deleteTransition_button_clicked()
 {
-    if(ui->Transitions_list->currentItem() == NULL)
+    if(ui->Transitions_list->currentItem() == nullptr)
         ui->Transitions_list->setCurrentCell(0,1);
     int id = ui->Transitions_list->item(ui->Transitions_list->currentRow(),0)->text().toInt();
     deleteTransition_finished(QList<int>({id}));

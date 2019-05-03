@@ -42,7 +42,7 @@ QString Translator::star(QString text)
 
 void Translator::brzozowskiMethod(Automaton automaton, bool ignoreUnobservable, bool ignoreUncontrolable)
 {
-    int automatonStatesNumber = automaton.getStateList()->size();
+    int automatonStatesNumber = automaton.getIdState();
     //Vecteur : liste selon les états RECEVEURS
     //QMultiMap : int : numéro de l'état qui donnera son expression, QString : l'expression qu'il recevra
     QVector<QMultiMap<int, QString>> expressionList(automatonStatesNumber);
@@ -58,15 +58,18 @@ void Translator::brzozowskiMethod(Automaton automaton, bool ignoreUnobservable, 
     //-1 pour "l'état initial", donnera au final les expressions finies
     for (i = 0; i < automatonStatesNumber; i++)
     {
-        if(automaton.getStateList()->contains(i) && automaton.getState(i).getInitial())
-            expressionList[i].insert(-1, "");
-        traitement.insert(i, false);
-        traitementTempo.insert(i, false);
+        if(automaton.getStateList()->contains(i))
+        {
+            if (automaton.getState(i).getInitial())
+                expressionList[i].insert(-1, "");
+            traitement.insert(i, false);
+            traitementTempo.insert(i, false);
+        }
     }
     traitementTempo.insert(automatonStatesNumber, false);
 
     //Ensuite, ajout de toutes les transitions dans les multiMaps (par défaut, un état transite de plusieurs manières sur un autre, nous mettons tous ces mots sur une même expression)
-    for(i = 0; i < automaton.getTransitionList()->size(); i++)
+    for(i = 0; i < automaton.getIdTransition(); i++)
     {
         if(automaton.getTransitionList()->contains(i))
         {
@@ -447,9 +450,9 @@ void Translator::brzozowskiMethod(Automaton automaton, bool ignoreUnobservable, 
 
 void Translator::reverseBrzozowski(Automaton automaton, bool ignoreUnobservable, bool ignoreUncontrolable)
 {
-    int automatonStatesNumber = automaton.getStateList()->size();
-    int automatonEventsNumber = automaton.getEventList()->size();
-    int automatonTransitionsNumber = automaton.getTransitionList()->size();
+    int automatonStatesNumber = automaton.getIdState();
+    int automatonEventsNumber = automaton.getIdEvent();
+    int automatonTransitionsNumber = automaton.getIdTransition();
     int nombreStatesSet = 0, indiceInit;
     int i, j, k, compteurMap;
     QMap<int, QVector<int>> mapStatesSet;
@@ -803,7 +806,7 @@ QVector<std::shared_ptr<QString>> Translator::starV2(QVector<std::shared_ptr<QSt
 
 void Translator::brzozowskiMethodV2(Automaton automaton, bool ignoreUnobservable, bool ignoreUncontrolable)
 {
-    int automatonStatesNumber = automaton.getStateList()->size();
+    int automatonStatesNumber = automaton.getIdState();
     //Vecteur : liste selon les états RECEVEURS
     //QMultiMap : int : numéro de l'état qui donnera son expression, QString : l'expression qu'il recevra
     QVector<QMultiMap<int, QVector<std::shared_ptr<QString>>>> expressionList(automatonStatesNumber);
@@ -815,7 +818,7 @@ void Translator::brzozowskiMethodV2(Automaton automaton, bool ignoreUnobservable
     QList<bool> traitementTempo;
     QMap<int, std::shared_ptr<QString>> arrayEventPtr;
 
-    for(i = 0; i < automaton.getEventList()->size(); i++)
+    for(i = 0; i < automaton.getIdEvent(); i++)
     {
         if(automaton.getEventList()->contains(i))
             arrayEventPtr.insert(i, std::make_shared<QString>(automaton.getEvent(i).getLabel()));
@@ -825,15 +828,18 @@ void Translator::brzozowskiMethodV2(Automaton automaton, bool ignoreUnobservable
     //-1 pour "l'état initial", donnera au final les expressions finies
     for (i = 0; i < automatonStatesNumber; i++)
     {
-        if(automaton.getStateList()->contains(i) && automaton.getState(i).getInitial())
-            expressionList[i].insert(-1, QVector<std::shared_ptr<QString>>());
-        traitement.insert(i, false);
-        traitementTempo.insert(i, false);
+        if(automaton.getStateList()->contains(i))
+        {
+            if(automaton.getState(i).getInitial())
+                expressionList[i].insert(-1, QVector<std::shared_ptr<QString>>());
+            traitement.insert(i, false);
+            traitementTempo.insert(i, false);
+        }
     }
     traitementTempo.insert(automatonStatesNumber, false);
 
     //Ensuite, ajout de toutes les transitions dans les multiMaps (par défaut, un état transite de plusieurs manières sur un autre, nous mettons tous ces mots sur une même expression)
-    for(i = 0; i < automaton.getTransitionList()->size(); i++)
+    for(i = 0; i < automaton.getIdTransition(); i++)
     {
         if(automaton.getTransitionList()->contains(i))
         {
