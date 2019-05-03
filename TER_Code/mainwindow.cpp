@@ -13,6 +13,7 @@
 #include "delete_transition_dialog.hpp"
 #include "delete_state_dialog.hpp"
 #include "delete_event_dialog.hpp"
+#include "delete_automaton_dialog.hpp"
 
 MainWindow::MainWindow(QWidget *parent) :
     QMainWindow(parent),
@@ -32,6 +33,7 @@ MainWindow::MainWindow(QWidget *parent) :
     method = new QActionGroup(this);
     ui->actionBrzozowski->setActionGroup(method);
     ui->actionBrzozowski_V2->setActionGroup(method);
+    ui->actionReverse_Brzozowski->setActionGroup(method);
     method->setExclusive(true);
 }
 
@@ -202,19 +204,41 @@ void MainWindow::fill_interface()
     {
         add_state_to_list(s);
     }
-    ui->States_list->setCurrentCell(0,1);
+    if(ui->States_list->rowCount() > 0)
+    {
+        ui->States_list->setCurrentCell(0,1);
+        ui->deleteState_button->setEnabled(true);
+    }
+    else
+        ui->deleteState_button->setEnabled(false);
+    ui->addState_button->setEnabled(true);
     /*fill events table with name, observable and controlable information*/
     for(Event e : *(currentAutomaton->getEventList()))
     {
         add_event_to_list(e);
     }
-    ui->Events_list->setCurrentCell(0,1);
+    if(ui->Events_list->rowCount() > 0)
+    {
+        ui->Events_list->setCurrentCell(0,1);
+        ui->deleteEvent_button->setEnabled(true);
+    }
+    else
+        ui->deleteEvent_button->setEnabled(false);
+    ui->addEvent_button->setEnabled(true);
     /*fill transition table with origin, destination and event information*/
     for(Transition t : *(currentAutomaton->getTransitionList()))
     {
         add_transition_to_list(t);
     }
-    ui->Transitions_list->setCurrentCell(0,1);
+    if(ui->Transitions_list->rowCount() > 0)
+    {
+        ui->Transitions_list->setCurrentCell(0,1);
+        ui->deleteTransition_button->setEnabled(true);
+
+    }
+    else
+        ui->deleteTransition_button->setEnabled(false);
+    ui->addTransition_button->setEnabled(true);
     states_blocker.unblock();
     events_blocker.unblock();
     transitions_blocker.unblock();
@@ -280,7 +304,6 @@ void MainWindow::on_Automatons_list_itemSelectionChanged()
     if(ui->Automatons_list->rowCount() == 0)
     {
         clear_interface();
-        toggle_interface(false);
     }
     else {
         currentAutomaton = automata.get_automaton_at(ui->Automatons_list->item(ui->Automatons_list->currentRow(), 0)->text().toInt());
@@ -650,9 +673,11 @@ void MainWindow::createAutomaton_finished(Automaton a)
     automata.get_automatons()->insert(a.getId(),a);
     automata.idAutomatonIncr();
     ui->Automatons_list->insertRow(ui->Automatons_list->rowCount());
-    ui->Automatons_list->setItem(ui->Automatons_list->rowCount() - 1, 0, new QTableWidgetItem(a.getId()));
+    ui->Automatons_list->setItem(ui->Automatons_list->rowCount() - 1, 0, new QTableWidgetItem(QString::number(a.getId())));
     ui->Automatons_list->setItem(ui->Automatons_list->rowCount() - 1, 1, new QTableWidgetItem(a.getName()));
     automaton_blocker.unblock();
+    if(ui->Automatons_list->rowCount() == 1)
+        ui->Automatons_list->setCurrentCell(0,1);
 }
 
 /*
@@ -675,6 +700,8 @@ void MainWindow::createState_finished(State s)
     currentAutomaton->incrState();
     add_state_to_list(s);
     states_blocker.unblock();
+    if(ui->States_list->rowCount() == 1)
+        ui->deleteState_button->setEnabled(true);
 }
 
 void MainWindow::on_actionEventCreate_triggered()
@@ -691,6 +718,8 @@ void MainWindow::createEvent_finished(Event e)
     currentAutomaton->incrEvent();
     add_event_to_list(e);
     events_blocker.unblock();
+    if(ui->Events_list->rowCount() == 1)
+        ui->deleteEvent_button->setEnabled(true);
 }
 
 void MainWindow::on_actionTransitionCreate_triggered()
@@ -708,6 +737,8 @@ void MainWindow::createTransition_finished(Transition t)
     currentAutomaton->incrTransition();
     add_transition_to_list(t);
     transition_blocker.unblock();
+    if(ui->Transitions_list->rowCount() == 1)
+        ui->deleteTransition_button->setEnabled(true);
 }
 
 void MainWindow::on_actionSaveAutomaton_triggered()
@@ -783,6 +814,7 @@ void MainWindow::deleteState_finished(QList<int> deleteList)
 {
     int tmp;
     QString tmpString;
+    QList<int> delTransitionList;
     for(int i : deleteList)
     {
         currentAutomaton->getStateList()->remove(i);
@@ -802,13 +834,13 @@ void MainWindow::deleteState_finished(QList<int> deleteList)
         {
             if(ui->Transitions_list->item(tmp,1)->text() == tmpString || ui->Transitions_list->item(tmp,2)->text() == tmpString)
             {
-                currentAutomaton->getTransitionList()->remove(ui->Transitions_list->item(tmp,0)->text().toInt());
-                ui->Transitions_list->removeRow(tmp);
+                delTransitionList.append(ui->Transitions_list->item(tmp,0)->text().toInt());
             }
-            else
-                tmp++;
+            tmp++;
         }
     }
+    if(delTransitionList.size() > 0)
+        emit(deleteTransition_finished(delTransitionList));
     if(ui->States_list->rowCount() == 0)
         ui->deleteState_button->setEnabled(false);
 }
@@ -824,6 +856,7 @@ void MainWindow::deleteEvent_finished(QList<int> deleteList)
 {
     int tmp;
     QString tmpString;
+    QList<int> delTransitionList;
     for(int i : deleteList)
     {
         currentAutomaton->getEventList()->remove(i);
@@ -843,13 +876,13 @@ void MainWindow::deleteEvent_finished(QList<int> deleteList)
         {
             if(ui->Transitions_list->item(tmp,3)->text() == tmpString)
             {
-                currentAutomaton->getTransitionList()->remove(ui->Transitions_list->item(tmp,0)->text().toInt());
-                ui->Transitions_list->removeRow(tmp);
+                delTransitionList.append(ui->Transitions_list->item(tmp,0)->text().toInt());
             }
-            else
-                tmp++;
+            tmp++;
         }
     }
+    if(delTransitionList.size() > 0)
+        emit(deleteTransition_finished(delTransitionList));
     if(ui->Events_list->rowCount() == 0)
         ui->deleteEvent_button->setEnabled(false);
 }
@@ -877,7 +910,8 @@ void MainWindow::deleteTransition_finished(QList<int> deleteList)
                 ui->Transitions_list->removeRow(tmp);
                 break;
             }
-            tmp++;
+            else
+                tmp++;
         }
     }
     if(ui->Transitions_list->rowCount() == 0)
@@ -936,19 +970,24 @@ void MainWindow::on_Events_list_cellClicked(int row, int column)
 
 void MainWindow::on_deleteState_button_clicked()
 {
+    if(ui->States_list->currentItem() == NULL)
+        ui->States_list->setCurrentCell(0,1);
     int id = ui->States_list->item(ui->States_list->currentRow(),0)->text().toInt();
     deleteState_finished(QList<int>({id}));
-
 }
 
 void MainWindow::on_deleteEvent_button_clicked()
 {
+    if(ui->Events_list->currentItem() == NULL)
+        ui->Events_list->setCurrentCell(0,1);
     int id = ui->Events_list->item(ui->Events_list->currentRow(),0)->text().toInt();
     deleteEvent_finished(QList<int>({id}));
 }
 
 void MainWindow::on_deleteTransition_button_clicked()
 {
+    if(ui->Transitions_list->currentItem() == NULL)
+        ui->Transitions_list->setCurrentCell(0,1);
     int id = ui->Transitions_list->item(ui->Transitions_list->currentRow(),0)->text().toInt();
     deleteTransition_finished(QList<int>({id}));
 }
@@ -956,7 +995,9 @@ void MainWindow::on_deleteTransition_button_clicked()
 /*TO DO*/
 void MainWindow::on_actionAutomatonDelete_triggered()
 {
-
+    Delete_automaton_dialog dialog(*automata.get_automatons(), this);
+    connect(&dialog, SIGNAL(delete_automaton(QList<int>)), this, SLOT(deleteAutomaton_finished(QList<int>)));
+    dialog.exec();
 }
 
 void MainWindow::deleteAutomaton_finished(QList<int> deleteList)
@@ -986,13 +1027,21 @@ void MainWindow::deleteAutomaton_finished(QList<int> deleteList)
     }
     else
     {
+        ui->addEvent_button->setEnabled(false);
+        ui->addState_button->setEnabled(false);
+        ui->addTransition_button->setEnabled(false);
         ui->deleteAutomaton_button->setEnabled(false);
+        ui->deleteEvent_button->setEnabled(false);
+        ui->deleteState_button->setEnabled(false);
+        ui->deleteTransition_button->setEnabled(false);
         emit(on_Automatons_list_itemSelectionChanged());
     }
 }
 
 void MainWindow::on_deleteAutomaton_button_clicked()
 {
+    if(ui->Automatons_list->currentItem() == NULL)
+        ui->Automatons_list->setCurrentCell(0,1);
     int id = ui->Automatons_list->item(ui->Automatons_list->currentRow(),0)->text().toInt();
     deleteAutomaton_finished(QList<int>({id}));
 }
