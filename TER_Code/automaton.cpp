@@ -150,7 +150,6 @@ void Automaton::toSupremica(QXmlStreamWriter *stream)
     stream->writeEndElement();
 }
 
-/*TO DO*/
 void Automaton::toSedma(QTextStream *stream)
 {
     QString line;
@@ -188,7 +187,7 @@ void Automaton::fromSedma(int id, QString name, QString arg)
     this->name = fInfo.baseName();
     this->id = id;
 
-    QStringList lines = arg.split("\r\n");
+    QStringList lines = arg.split(QRegExp("(\\n\\r)|(\\n)|(\\r)"));
     QStringList line;
     for(QString s : lines)
     {
@@ -223,7 +222,7 @@ void Automaton::fromSedma(int id, QString name, QString arg)
             }
         }
     }
-    if(vecEvent.size() == 0)
+    if(vecEvent.size() == 0 && transitionList.size() > 0)
     {
         eventList.insert(idEvent,Event(idEvent, "a", true, true));
         incrEvent();

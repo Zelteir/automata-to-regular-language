@@ -1,5 +1,8 @@
 #include "automata.hpp"
 
+#include <QFileDialog>
+#include <QFileInfo>
+
 /*
  * Importe une liste d'automaton (automata/module) depuis un fichier XML standard généré par Supremica (version 200909171605)
 */
@@ -78,7 +81,6 @@ Automaton *Automata::get_automaton_at(int i)
     return &(this->automatonList[i]);
 }
 
-/*TO DO*/
 bool Automata::fromSedma(QString fileName)
 {
     QFile file(fileName);
@@ -99,13 +101,16 @@ bool Automata::fromSedma(QString fileName)
     return true;
 }
 
-/*TO DO*/
 void Automata::toSedma(QString file_name)
 {
     QTextStream stream;
+    QFile file;
+    QString dir;
+    QFileInfo fInfo;
+    QString tmpPath;
     if(!file_name.isEmpty())
     {
-        QFile file(file_name);
+        file.setFileName(file_name);
         if(!file.open(QIODevice::WriteOnly)){
             QMessageBox::information(nullptr, "Unable to open the file!",file.errorString());
             return;
@@ -113,5 +118,35 @@ void Automata::toSedma(QString file_name)
         stream.setDevice(&file);
         automatonList[0].toSedma(&stream);
         file.close();
+    }
+    if(automatonList.size() > 1)
+    {
+
+        if(!file_name.isEmpty())
+        {
+            fInfo.setFile(file_name);
+            dir = "" + fInfo.path() + "\\";
+        }
+        else
+        {
+            dir = "" + QFileDialog::getExistingDirectory(nullptr, "Select Directory", "", QFileDialog::ShowDirsOnly | QFileDialog::DontResolveSymlinks) + "\\";
+        }
+        for(Automaton a : automatonList)
+        {
+            stream.flush();
+            if(!file_name.isEmpty() && a.getId() == 0)
+            {
+                continue;
+            }
+            tmpPath = "" + dir + a.getName() + ".automata";
+            file.setFileName(tmpPath);
+            if(!file.open(QIODevice::WriteOnly)){
+                QMessageBox::information(nullptr, "Unable to open the file!",file.errorString());
+                return;
+            }
+            stream.setDevice(&file);
+            a.toSedma(&stream);
+            file.close();
+        }
     }
 }
