@@ -22,7 +22,6 @@ public:
     ~MainWindow();
 
 private slots:
-    void on_actionOpen_Import_triggered();
 
     void on_Automatons_list_itemSelectionChanged();
 
@@ -87,6 +86,14 @@ private slots:
     void deleteAutomaton_finished(QList<int> deleteList);
 
     void on_deleteAutomaton_button_clicked();
+
+    void on_actionExportSupremica_triggered();
+
+    void on_actionExportSedma_triggered();
+
+    void on_actionImportSupremica_triggered();
+
+    void on_actionImportSedma_triggered();
 
 private:
     Ui::MainWindow *ui;

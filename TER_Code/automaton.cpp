@@ -1,5 +1,6 @@
 #include "automaton.hpp"
 #include <QDebug>
+#include <QFileInfo>
 
 Event::Event(int idEvent, QDomElement element)
 {
@@ -68,7 +69,7 @@ void State::toSupremica(QXmlStreamWriter *stream)
 
 Transition::Transition(int idTransition, QDomElement element)
 {
-   /* int source;
+    /* int source;
     int dest;
     int event;*/
 
@@ -150,15 +151,83 @@ void Automaton::toSupremica(QXmlStreamWriter *stream)
 }
 
 /*TO DO*/
-void Automaton::toSedma(QXmlStreamWriter *stream)
+void Automaton::toSedma(QTextStream *stream)
 {
-
+    QString line;
+    for(State s : stateList)
+    {
+        line = "s 0 0 ";
+        line += s.getName();
+        line += " {} black ";
+        if(s.getInitial() && s.getAccepting())
+            line += "-iM";
+        else if(s.getInitial())
+            line+= "-i";
+        else if(s.getAccepting())
+            line += "-M";
+        *stream << line << endl;
+    }
+    for(Transition t : transitionList)
+    {
+        line = "e ";
+        line += stateList[t.getSource()].getName();
+        line += " ";
+        line += stateList[t.getDest()].getName();
+        line += " {";
+        line += eventList[t.getEvent()].getLabel();
+        line += "} black";
+        *stream << line << endl;
+    }
 }
 
-/*TO DO*/
-void Automaton::fromSedma(QString)
+void Automaton::fromSedma(int id, QString name, QString arg)
 {
+    QFileInfo fInfo(name);
+    QMap<QString, int> vecState, vecEvent;
 
+    this->name = fInfo.baseName();
+    this->id = id;
+
+    QStringList lines = arg.split("\r\n");
+    QStringList line;
+    for(QString s : lines)
+    {
+        if(!s.isEmpty())
+        {
+            line = s.split(' ');
+            if(line[0] == "s")
+            {
+                vecState.insert(line[3], idState);
+                stateList.insert(idState, State(idState,line[3],(line[6] == "-i" || line[6] == "-iM"),(line[6] == "-M" || line[6] == "-iM")));
+                incrState();
+            }
+            else
+            {
+                line[3].remove('{');
+                line[3].remove('}');
+                if(!line[3].isEmpty())
+                {
+                    if(!vecEvent.contains(line[3]))
+                    {
+                        vecEvent.insert(line[3], idEvent);
+                        eventList.insert(idEvent, Event(idEvent, line[3], true, true));
+                        incrEvent();
+                    }
+                    transitionList.insert(idTransition, Transition(idTransition,vecState.value(line[1]), vecState.value(line[2]), vecEvent.value(line[3])));
+                }
+                else
+                {
+                    transitionList.insert(idTransition, Transition(idTransition,vecState.value(line[1]), vecState.value(line[2]), 0));
+                }
+                incrTransition();
+            }
+        }
+    }
+    if(vecEvent.size() == 0)
+    {
+        eventList.insert(idEvent,Event(idEvent, "a", true, true));
+        incrEvent();
+    }
 }
 
 QString SetterException::getMsg()

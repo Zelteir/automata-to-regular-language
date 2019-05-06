@@ -91,7 +91,7 @@ class Automaton{
         int idEvent = 0;
         int idState = 0;
         QString name;
-        QString type;
+        QString type = "Specification";
         QMap<int, Event> eventList;
         QMap<int, State> stateList;
         QMap<int, Transition> transitionList;
@@ -121,8 +121,8 @@ class Automaton{
         void incrTransition() {idTransition++;}
         void incrEvent() {idEvent++;}
         void incrState() {idState++;}
-        void toSedma(QXmlStreamWriter *stream);
-        void fromSedma(QString);
+        void toSedma(QTextStream *stream);
+        void fromSedma(int, QString, QString);
 };
 
 #endif // AUTOMATON_HPP

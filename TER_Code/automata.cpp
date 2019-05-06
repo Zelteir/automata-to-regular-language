@@ -7,7 +7,7 @@ bool Automata::fromSupremica(QString fileName)
 {
     QFile file(fileName);
     if(!file.open(QIODevice::ReadOnly)){
-        QMessageBox::information(NULL, "Unable to open the file!",file.errorString());
+        QMessageBox::information(nullptr, "Unable to open the file!",file.errorString());
         return false;
     }
 
@@ -24,9 +24,12 @@ bool Automata::fromSupremica(QString fileName)
     if(!doc.setContent(encodedFileContent, &error, &line, &column))
     {
         fullError.append("Error: ").append(error).append(" in line " ).append(QString::number(line)).append(" column ").append(QString::number(column));
-        QMessageBox::information(NULL, "Unable to parse file!", fullError);
+        QMessageBox::information(nullptr, "Unable to parse file!", fullError);
         return false;
     }
+
+    this->type = SUPREMICA;
+    this->filePath = fileName;
 
     resetId();
 
@@ -81,12 +84,14 @@ bool Automata::fromSedma(QString fileName)
     QFile file(fileName);
     QString line;
     if(!file.open(QIODevice::ReadOnly)){
-        QMessageBox::information(NULL, "Unable to open the file!",file.errorString());
+        QMessageBox::information(nullptr, "Unable to open the file!",file.errorString());
         return false;
     }
+    this->type = SEDMA;
+    this->filePath = fileName;
 
     Automaton a;
-    a.fromSedma(QString(file.readAll()));
+    a.fromSedma(idAutomaton, fileName, QString(file.readAll()));
     automatonList.clear();
     automatonList.insert(idAutomaton, a);
     idAutomatonIncr();
@@ -95,7 +100,18 @@ bool Automata::fromSedma(QString fileName)
 }
 
 /*TO DO*/
-void Automata::toSedma(QXmlStreamWriter *stream)
+void Automata::toSedma(QString file_name)
 {
-
+    QTextStream stream;
+    if(!file_name.isEmpty())
+    {
+        QFile file(file_name);
+        if(!file.open(QIODevice::WriteOnly)){
+            QMessageBox::information(nullptr, "Unable to open the file!",file.errorString());
+            return;
+        }
+        stream.setDevice(&file);
+        automatonList[0].toSedma(&stream);
+        file.close();
+    }
 }

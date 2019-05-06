@@ -44,25 +44,6 @@ MainWindow::~MainWindow()
 }
 
 /*
- * Open/import a file containing an automaton
- * TO DO
- * Call Type_choice window to choose what kind of file to import
- * bypassed for now : only Supremica XML files accepted
-*/
-void MainWindow::on_actionOpen_Import_triggered()
-{
-    /*Type_choice window_choice;
-    window_choice.show();*/
-    QString file_name = QFileDialog::getOpenFileName(this, tr("Open automaton file"), "", tr("XML file (*.xml);;All Files (*)"));
-    if (file_name.isEmpty())
-        return;
-    if (automata.fromSupremica(file_name))
-    {
-        this->toggle_interface(true);
-    }
-}
-
-/*
  * Toggle the interface to user
 */
 void MainWindow::toggle_interface(bool b)
@@ -99,6 +80,7 @@ void MainWindow::toggle_interface(bool b)
     ui->actionAutomatonDelete->setEnabled(b);
     ui->addAutomaton_button->setEnabled(b);
     ui->deleteAutomaton_button->setEnabled(b);
+    ui->menuExport->setEnabled(b);
     /*
      * TO DO
      * Other things to toggle
@@ -741,22 +723,28 @@ void MainWindow::createTransition_finished(Transition t)
         ui->deleteTransition_button->setEnabled(true);
 }
 
+/*
+    TO DO
+*/
 void MainWindow::on_actionSaveAutomaton_triggered()
 {
-    QString file_name = QFileDialog::getSaveFileName(this, tr("Select XML file"), "", tr("XML file (*.xml);;All Files (*)"));
-    QFile file(file_name);
-    if(!file.open(QIODevice::WriteOnly)){
-        QMessageBox::information(this, "Unable to open the file!",file.errorString());
-        return;
+    switch (automata.getType())
+    {
+    case NONE :
+    {
+        break;
     }
-    QXmlStreamWriter *stream = new QXmlStreamWriter(&file);
-    stream->setAutoFormatting(true);
-    stream->writeStartDocument();
-    automata.toSupremica(stream);
-    stream->writeEndDocument();
-    file.close();
-    delete stream;
-    QMessageBox::information(this, tr("Save sucessful"),"Automaton saved sucessfuly.");
+    case SUPREMICA:
+    {
+        emit(on_actionExportSupremica_triggered());
+        break;
+    }
+    case SEDMA:
+    {
+        emit(on_actionExportSedma_triggered());
+        break;
+    }
+    }
 }
 
 void MainWindow::on_actionSaveRL_triggered()
@@ -992,7 +980,6 @@ void MainWindow::on_deleteTransition_button_clicked()
     deleteTransition_finished(QList<int>({id}));
 }
 
-/*TO DO*/
 void MainWindow::on_actionAutomatonDelete_triggered()
 {
     Delete_automaton_dialog dialog(*automata.get_automatons(), this);
@@ -1040,8 +1027,77 @@ void MainWindow::deleteAutomaton_finished(QList<int> deleteList)
 
 void MainWindow::on_deleteAutomaton_button_clicked()
 {
-    if(ui->Automatons_list->currentItem() == NULL)
+    if(ui->Automatons_list->currentItem() == nullptr)
         ui->Automatons_list->setCurrentCell(0,1);
     int id = ui->Automatons_list->item(ui->Automatons_list->currentRow(),0)->text().toInt();
     deleteAutomaton_finished(QList<int>({id}));
+}
+
+void MainWindow::on_actionExportSupremica_triggered()
+{
+    QString file_name;
+    if(automata.getFilePath().isEmpty() || automata.getType() != SUPREMICA)
+    {
+        file_name = QFileDialog::getSaveFileName(this, tr("Select XML file"), "", tr("XML file (*.xml);;All Files (*)"));
+        automata.setFilePath(file_name);
+        automata.setType(SUPREMICA);
+    }
+    else
+        file_name = automata.getFilePath();
+    QFile file(file_name);
+    if(!file.open(QIODevice::WriteOnly)){
+        QMessageBox::information(this, "Unable to open the file!",file.errorString());
+        return;
+    }
+    QXmlStreamWriter *stream = new QXmlStreamWriter(&file);
+    stream->setAutoFormatting(true);
+    stream->writeStartDocument();
+    automata.toSupremica(stream);
+    stream->writeEndDocument();
+    file.close();
+    delete stream;
+    QMessageBox::information(this, tr("Save sucessful"),"Automaton saved sucessfuly.");
+}
+
+void MainWindow::on_actionExportSedma_triggered()
+{
+    QString file_name = "";
+    if((automata.getFilePath().isEmpty() || automata.getType() != SEDMA) && automata.get_automatons()->size() == 1)
+    {
+        file_name = QFileDialog::getSaveFileName(this, tr("Select automata file"), "", tr("Automata file (*.automata);;All Files (*)"));
+        automata.setFilePath(file_name);
+        automata.setType(SEDMA);
+    }
+    else if(!automata.getFilePath().isEmpty() && automata.getType() == SEDMA)
+        file_name = automata.getFilePath();
+    automata.toSedma(file_name);
+    QMessageBox::information(this, tr("Save sucessful"),"Automaton saved sucessfuly.");
+}
+
+/*
+ * Open/import a file containing a Supremica automaton
+*/
+void MainWindow::on_actionImportSupremica_triggered()
+{
+    QString file_name = QFileDialog::getOpenFileName(this, tr("Open XML file"), "", tr("XML file (*.xml);;All Files (*)"));
+    if (file_name.isEmpty())
+        return;
+    if (automata.fromSupremica(file_name))
+    {
+        this->toggle_interface(true);
+    }
+}
+
+/*
+ * Open/import a file containing a SEDMA automaton
+*/
+void MainWindow::on_actionImportSedma_triggered()
+{
+    QString file_name = QFileDialog::getOpenFileName(this, tr("Open automata file"), "", tr("Automata file (*.automata);;All Files (*)"));
+    if (file_name.isEmpty())
+        return;
+    if (automata.fromSedma(file_name))
+    {
+        this->toggle_interface(true);
+    }
 }
