@@ -14,6 +14,7 @@
 #include "delete_state_dialog.hpp"
 #include "delete_event_dialog.hpp"
 #include "delete_automaton_dialog.hpp"
+#include "help_dialog.hpp"
 
 MainWindow::MainWindow(QWidget *parent) :
     QMainWindow(parent),
@@ -1105,7 +1106,6 @@ void MainWindow::on_actionImportSedma_triggered()
 
 void MainWindow::on_actionHelp_triggered()
 {
-    Delete_event_dialog dialog(*currentAutomaton->getEventList(), this);
-    connect(&dialog, SIGNAL(delete_event(QList<int>)), this, SLOT(deleteEvent_finished(QList<int>)));
+    Help_dialog dialog(this);
     dialog.exec();
 }
