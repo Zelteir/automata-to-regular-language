@@ -28,7 +28,7 @@
         <item>
          <widget class="QLabel" name="label_2">
           <property name="text">
-           <string>Automatons</string>
+           <string>Automata</string>
           </property>
           <property name="alignment">
            <set>Qt::AlignCenter</set>
