@@ -17,6 +17,9 @@ Create_event_dialog::~Create_event_dialog()
     delete ui;
 }
 
+/*
+ * Recieve signal when accept is clicked. Check values and send created event to MainWindow via a signal
+*/
 void Create_event_dialog::Create_event_dialog_accept_clicked()
 {
     if(ui->edit_name->text().isEmpty())

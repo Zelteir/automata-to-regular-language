@@ -1,6 +1,5 @@
 #include "mainwindow.hpp"
 #include "ui_mainwindow.h"
-#include "type_choice.hpp"
 #include <QFileDialog>
 #include <QDebug>
 #include <QSignalBlocker>

@@ -36,7 +36,6 @@ SOURCES += \
     automata.cpp \
     automaton.cpp \
     table_widget_checkbox_item.cpp \
-    type_choice.cpp \
     translator.cpp \
     create_state_dialog.cpp \
     create_event_dialog.cpp \
@@ -53,7 +52,6 @@ HEADERS += \
     automata.hpp \
     automaton.hpp \
     table_widget_checkbox_item.hpp \
-    type_choice.hpp \
     translator.hpp \
     create_state_dialog.hpp \
     create_event_dialog.hpp \
@@ -67,7 +65,6 @@ FORMS += \
     delete_transition_dialog.ui \
     help_dialog.ui \
         mainwindow.ui \
-    type_choice.ui \
     create_state_dialog.ui \
     create_event_dialog.ui \
     create_transition_dialog.ui

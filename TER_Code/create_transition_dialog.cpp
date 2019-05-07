@@ -16,8 +16,8 @@ Create_transition_dialog::Create_transition_dialog(int idTransition, QMap<int, E
         this->eventNameList.append(e.getLabel());
     for(State s : stateList)
         this->stateNameList.append(s.getName());
-    stateCompleter = new QCompleter(stateNameList,this);
-    eventCompleter = new QCompleter(eventNameList,this);
+    stateCompleter = new QCompleter(stateNameList,this);    //autocompleter for states
+    eventCompleter = new QCompleter(eventNameList,this);    //autocompleter for events
     eventCompleter->setCaseSensitivity(Qt::CaseSensitive);
     stateCompleter->setCaseSensitivity(Qt::CaseSensitive);
     ui->edit_source->setCompleter(stateCompleter);
@@ -32,6 +32,9 @@ Create_transition_dialog::~Create_transition_dialog()
     delete ui;
 }
 
+/*
+ * Recieve signal when accept is clicked. Check values and send created transitions to MainWindow via a signal
+*/
 void Create_transition_dialog::Create_transition_dialog_accept_clicked()
 {
     State idSource;
@@ -60,7 +63,7 @@ void Create_transition_dialog::Create_transition_dialog_accept_clicked()
 
     /*check if transition already exist*/
     Transition t;
-    for(Event tmpEvent : eventList)
+    for(Event tmpEvent : eventList) //find event ID
     {
         if(ui->edit_event->text() == tmpEvent.getLabel())
         {
@@ -69,7 +72,7 @@ void Create_transition_dialog::Create_transition_dialog_accept_clicked()
             break;
         }
     }
-    for(State tmpState : stateList)
+    for(State tmpState : stateList) //find destination state ID
     {
         if(ui->edit_dest->text() == tmpState.getName())
         {
@@ -78,7 +81,7 @@ void Create_transition_dialog::Create_transition_dialog_accept_clicked()
             break;
         }
     }
-    for(State tmpState : stateList)
+    for(State tmpState : stateList) //find source state ID
     {
         if(ui->edit_source->text() == tmpState.getName())
         {

@@ -8,7 +8,7 @@ Delete_event_dialog::Delete_event_dialog(QMap<int, Event> eventList, QWidget *pa
 {
     ui->setupUi(this);
     int pos;
-    for(Event e : eventList)
+    for(Event e : eventList)    //fill interface with events
     {
         pos = ui->event_list->rowCount();
         ui->event_list->insertRow(pos);
@@ -28,6 +28,9 @@ Delete_event_dialog::~Delete_event_dialog()
     delete ui;
 }
 
+/*
+ * Detect selection of whole cell instead of just checkbox
+*/
 void Delete_event_dialog::on_event_list_cellClicked(int row, int column)
 {
     bool state;
@@ -38,6 +41,9 @@ void Delete_event_dialog::on_event_list_cellClicked(int row, int column)
     }
 }
 
+/*
+ * Recieve signal when accept is clicked. Create list of all selected automata and send it to MainWindow via signal
+*/
 void Delete_event_dialog::on_buttonBox_accepted()
 {
     QList<int> deleteList;

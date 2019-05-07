@@ -17,6 +17,9 @@ Create_state_dialog::~Create_state_dialog()
     delete ui;
 }
 
+/*
+ * Recieve signal when accept is clicked. Check values and send created state to MainWindow via a signal
+*/
 void Create_state_dialog::Create_state_dialog_accept_clicked()
 {
     if(ui->edit_name->text().isEmpty())

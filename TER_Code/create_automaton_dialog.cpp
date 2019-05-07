@@ -15,6 +15,10 @@ Create_automaton_dialog::~Create_automaton_dialog()
     delete ui;
 }
 
+
+/*
+ * Recieve signal when accept is clicked. Check values and send created automaton to MainWindow via a signal
+*/
 void Create_automaton_dialog::on_buttonBox_accepted()
 {
     if(ui->nameEdit->text().isEmpty())

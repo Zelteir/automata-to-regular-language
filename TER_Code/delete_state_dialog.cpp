@@ -8,7 +8,7 @@ Delete_state_dialog::Delete_state_dialog(QMap<int, State> stateList, QWidget *pa
 {
     ui->setupUi(this);
     int pos;
-    for(State s : stateList)
+    for(State s : stateList)    //fill interface with states
     {
         pos = ui->state_list->rowCount();
         ui->state_list->insertRow(pos);
@@ -28,6 +28,9 @@ Delete_state_dialog::~Delete_state_dialog()
     delete ui;
 }
 
+/*
+ * Detect selection of whole cell instead of just checkbox
+*/
 void Delete_state_dialog::on_state_list_cellClicked(int row, int column)
 {
     bool state;
@@ -38,6 +41,9 @@ void Delete_state_dialog::on_state_list_cellClicked(int row, int column)
     }
 }
 
+/*
+ * Recieve signal when accept is clicked. Create list of all selected states and send it to MainWindow via signal
+*/
 void Delete_state_dialog::on_buttonBox_accepted()
 {
     QList<int> deleteList;

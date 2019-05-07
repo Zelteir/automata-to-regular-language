@@ -149,6 +149,10 @@ Automaton::Automaton(int id,QString name) :
     type = QString("Specification");    //for Supremica
 }
 
+/*
+ * Export function to supremica file. Calling 'toSupremica' functions of every event, state and transition
+ * writing inside the stream argument passed to the functions.
+*/
 void Automaton::toSupremica(QXmlStreamWriter *stream)
 {
     stream->writeStartElement("Automaton");
@@ -169,14 +173,18 @@ void Automaton::toSupremica(QXmlStreamWriter *stream)
     stream->writeEndElement();
 }
 
+/*
+ * Export function to SEDMA file. SEDMA files do not separated event and transitions so they have to be written together.
+ * '0's and 'black's are default values necessary for compatibility
+*/
 void Automaton::toSedma(QTextStream *stream)
 {
     QString line;
     for(State s : stateList)
     {
-        line = "s 0 0 ";
+        line = "s 0 0 ";    //state coordX coordY
         line += s.getName();
-        line += " {} black ";
+        line += " {} black ";   //state_attribute   state_color
         if(s.getInitial() && s.getAccepting())
             line += "-iM";
         else if(s.getInitial())
@@ -198,6 +206,11 @@ void Automaton::toSedma(QTextStream *stream)
     }
 }
 
+/*
+ * Import function from a SEDMA file. The read file is the 'arg' QString
+ * SEDMA's transition doesn't require an event, if one doesn't have an event, it is defaulted to event zero
+ * if no event is detected a default one is created.
+*/
 void Automaton::fromSedma(int id, QString name, QString arg)
 {
     QFileInfo fInfo(name);
@@ -213,9 +226,9 @@ void Automaton::fromSedma(int id, QString name, QString arg)
         if(!s.isEmpty())
         {
             line = s.split(' ');
-            if(line[0] == "s")
+            if(line[0] == "s")  //state
             {
-                vecState.insert(line[3], idState);
+                vecState.insert(line[3], idState);  //keep name and ID for transition creation
                 stateList.insert(idState, State(idState,line[3],(line[6] == "-i" || line[6] == "-iM"),(line[6] == "-M" || line[6] == "-iM")));
                 incrState();
             }
@@ -227,7 +240,7 @@ void Automaton::fromSedma(int id, QString name, QString arg)
                 {
                     if(!vecEvent.contains(line[3]))
                     {
-                        vecEvent.insert(line[3], idEvent);
+                        vecEvent.insert(line[3], idEvent);  //keep name and ID for transition creation and size verification
                         eventList.insert(idEvent, Event(idEvent, line[3], true, true));
                         incrEvent();
                     }
@@ -241,7 +254,7 @@ void Automaton::fromSedma(int id, QString name, QString arg)
             }
         }
     }
-    if(vecEvent.size() == 0 && transitionList.size() > 0)
+    if(vecEvent.size() == 0 && transitionList.size() > 0)   //if no event created
     {
         eventList.insert(idEvent,Event(idEvent, "a", true, true));
         incrEvent();

@@ -8,7 +8,7 @@ Delete_transition_dialog::Delete_transition_dialog(QMap<int, Event> eventList, Q
 {
     ui->setupUi(this);
     int pos;
-    for(Transition t : transitionList)
+    for(Transition t : transitionList)  //fill interface with trnsitions
     {
         pos = ui->transitions_list->rowCount();
         ui->transitions_list->insertRow(pos);
@@ -32,6 +32,22 @@ Delete_transition_dialog::~Delete_transition_dialog()
     delete ui;
 }
 
+/*
+ * Detect selection of whole cell instead of just checkbox
+*/
+void Delete_transition_dialog::on_transitions_list_cellClicked(int row, int column)
+{
+    bool state;
+    if(column == 4)
+    {
+        state = ui->transitions_list->item(row,column)->checkState();
+        ui->transitions_list->item(row,column)->setCheckState((state)?Qt::Unchecked:Qt::Checked);
+    }
+}
+
+/*
+ * Recieve signal when accept is clicked. Create list of all selected transitions and send it to MainWindow via signal
+*/
 void Delete_transition_dialog::on_buttonBox_accepted()
 {
     QList<int> deleteList;
@@ -42,14 +58,4 @@ void Delete_transition_dialog::on_buttonBox_accepted()
     }
     emit(delete_transition(deleteList));
     emit(accept());
-}
-
-void Delete_transition_dialog::on_transitions_list_cellClicked(int row, int column)
-{
-    bool state;
-    if(column == 4)
-    {
-        state = ui->transitions_list->item(row,column)->checkState();
-        ui->transitions_list->item(row,column)->setCheckState((state)?Qt::Unchecked:Qt::Checked);
-    }
 }

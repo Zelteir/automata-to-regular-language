@@ -9,7 +9,7 @@ Delete_automaton_dialog::Delete_automaton_dialog(QMap<int, Automaton> automatonL
     ui->setupUi(this);
     int pos;
 
-    for(Automaton a : automatonList)
+    for(Automaton a : automatonList)    //fill interface with automata
     {
         pos = ui->automaton_list->rowCount();
         ui->automaton_list->insertRow(pos);
@@ -29,6 +29,9 @@ Delete_automaton_dialog::~Delete_automaton_dialog()
     delete ui;
 }
 
+/*
+ * Detect selection of whole cell instead of just checkbox
+*/
 void Delete_automaton_dialog::on_automaton_list_cellClicked(int row, int column)
 {
     bool state;
@@ -39,6 +42,9 @@ void Delete_automaton_dialog::on_automaton_list_cellClicked(int row, int column)
     }
 }
 
+/*
+ * Recieve signal when accept is clicked. Create list of all selected automata and send it to MainWindow via signal
+*/
 void Delete_automaton_dialog::on_buttonBox_accepted()
 {
     QList<int> deleteList;
