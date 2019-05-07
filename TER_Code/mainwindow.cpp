@@ -35,6 +35,7 @@ MainWindow::MainWindow(QWidget *parent) :
     ui->actionBrzozowski_V2->setActionGroup(method);
     ui->actionReverse_Brzozowski->setActionGroup(method);
     method->setExclusive(true);
+    ui->menuBar->addAction(ui->actionHelp);
 }
 
 MainWindow::~MainWindow()
@@ -1100,4 +1101,11 @@ void MainWindow::on_actionImportSedma_triggered()
     {
         this->toggle_interface(true);
     }
+}
+
+void MainWindow::on_actionHelp_triggered()
+{
+    Delete_event_dialog dialog(*currentAutomaton->getEventList(), this);
+    connect(&dialog, SIGNAL(delete_event(QList<int>)), this, SLOT(deleteEvent_finished(QList<int>)));
+    dialog.exec();
 }

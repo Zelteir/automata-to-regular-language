@@ -2,6 +2,9 @@
 #include <QDebug>
 #include <QFileInfo>
 
+/*
+ * Event constructor for Supremica input
+*/
 Event::Event(int idEvent, QDomElement element)
 {
     /*int id;
@@ -22,6 +25,9 @@ void Event::setLabel(QString l)
     this->label = l;
 }
 
+/*
+ * Write the Event information inside the stream for Supremica XML
+*/
 void Event::toSupremica(QXmlStreamWriter *stream)
 {
     //<Event id="3" label="f" controllable="false" observable="false"/>
@@ -35,6 +41,9 @@ void Event::toSupremica(QXmlStreamWriter *stream)
     stream->writeEndElement();
 }
 
+/*
+ * State constructor for Supremica input
+*/
 State::State(int idState, QDomElement element)
 {
     /*int id;
@@ -55,6 +64,9 @@ void State::setName(QString n)
     this->name = n;
 }
 
+/*
+ * Write the State information inside the stream for Supremica XML
+*/
 void State::toSupremica(QXmlStreamWriter *stream)
 {
     stream->writeStartElement("State");
@@ -67,6 +79,9 @@ void State::toSupremica(QXmlStreamWriter *stream)
     stream->writeEndElement();
 }
 
+/*
+ * Write the Transition information inside the stream for Supremica XML
+*/
 Transition::Transition(int idTransition, QDomElement element)
 {
     /* int source;
@@ -81,12 +96,12 @@ Transition::Transition(int idTransition, QDomElement element)
 
 bool Transition::operator==(const Transition &rhs)
 {
-    /*if(this->source == rhs.source && this->dest == rhs.dest && this->event == rhs.event)
-        return true;
-    return false;*/
     return (this->source == rhs.source && this->dest == rhs.dest && this->event == rhs.event)? true : false;
 }
 
+/*
+ * Write the Transition information inside the stream for Supremica XML
+*/
 void Transition::toSupremica(QXmlStreamWriter *stream)
 {
     stream->writeStartElement("Transition");
@@ -96,6 +111,10 @@ void Transition::toSupremica(QXmlStreamWriter *stream)
     stream->writeEndElement();
 }
 
+/*
+ * Import informations from a QDomNode extracted from Supremica XML file and create elements according to these informations
+ * Call constructors using QDomElement from Event, State and Transition
+*/
 void Automaton::fromSupremica(int id, QDomNode node)
 {
     this->id = id;
@@ -127,7 +146,7 @@ Automaton::Automaton(int id,QString name) :
     id(id),
     name(name)
 {
-    type = QString("Specification");
+    type = QString("Specification");    //for Supremica
 }
 
 void Automaton::toSupremica(QXmlStreamWriter *stream)

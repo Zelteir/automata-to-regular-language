@@ -30,6 +30,7 @@ SOURCES += \
     delete_event_dialog.cpp \
     delete_state_dialog.cpp \
     delete_transition_dialog.cpp \
+    help_dialog.cpp \
         main.cpp \
         mainwindow.cpp \
     automata.cpp \
@@ -47,6 +48,7 @@ HEADERS += \
     delete_event_dialog.hpp \
     delete_state_dialog.hpp \
     delete_transition_dialog.hpp \
+    help_dialog.hpp \
         mainwindow.hpp \
     automata.hpp \
     automaton.hpp \
@@ -63,6 +65,7 @@ FORMS += \
     delete_event_dialog.ui \
     delete_state_dialog.ui \
     delete_transition_dialog.ui \
+    help_dialog.ui \
         mainwindow.ui \
     type_choice.ui \
     create_state_dialog.ui \

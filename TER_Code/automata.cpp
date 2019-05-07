@@ -56,6 +56,9 @@ bool Automata::fromSupremica(QString fileName)
     return true;
 }
 
+/*
+ * Export current automata to a Supremica-compatible XML file
+ */
 void Automata::toSupremica(QXmlStreamWriter *stream)
 {
     stream->writeStartElement("Automata");
@@ -81,6 +84,11 @@ Automaton *Automata::get_automaton_at(int i)
     return &(this->automatonList[i]);
 }
 
+
+/*
+ * Import an automaton from a '.automata' file created by SEDMA
+ * Since those files contains only one automaton, no loop is necessary to scan the file
+*/
 bool Automata::fromSedma(QString fileName)
 {
     QFile file(fileName);
@@ -101,6 +109,11 @@ bool Automata::fromSedma(QString fileName)
     return true;
 }
 
+/*
+ * Export the current automaton to a SEDMA-compatible '.automata' file
+ * Since '.automata' files can only contain one automaton, if there is more in the current automata
+ * we need to create a new file for each of them
+*/
 void Automata::toSedma(QString file_name)
 {
     QTextStream stream;
@@ -108,7 +121,7 @@ void Automata::toSedma(QString file_name)
     QString dir;
     QFileInfo fInfo;
     QString tmpPath;
-    if(!file_name.isEmpty())
+    if(!file_name.isEmpty())    //if the automata is from a SEDMA file or there is only one automaton we save the first automaton in it
     {
         file.setFileName(file_name);
         if(!file.open(QIODevice::WriteOnly)){
@@ -119,22 +132,22 @@ void Automata::toSedma(QString file_name)
         automatonList[0].toSedma(&stream);
         file.close();
     }
-    if(automatonList.size() > 1)
+    if(automatonList.size() > 1)    //if there is more than one automaton, need to create separate files
     {
 
-        if(!file_name.isEmpty())
+        if(!file_name.isEmpty())    //if the automata if from a SEDMA file, take it's path to save the new files in the same folder
         {
             fInfo.setFile(file_name);
             dir = "" + fInfo.path() + "\\";
         }
-        else
+        else    //otherwise ask for a folder
         {
             dir = "" + QFileDialog::getExistingDirectory(nullptr, "Select Directory", "", QFileDialog::ShowDirsOnly | QFileDialog::DontResolveSymlinks) + "\\";
         }
         for(Automaton a : automatonList)
         {
             stream.flush();
-            if(!file_name.isEmpty() && a.getId() == 0)
+            if(!file_name.isEmpty() && a.getId() == 0)  //this automaton is already saved
             {
                 continue;
             }
