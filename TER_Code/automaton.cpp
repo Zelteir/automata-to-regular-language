@@ -174,14 +174,18 @@ void Automaton::toSedma(QTextStream *stream)
     }
 }
 
+/*
+ * Import informations from a QDomNode extracted from DESUMA XML file and create elements according to these informations
+ * Call default constructor for Event, State and Transition
+ * need workaround with vecState and vecEvent since DESUMA file use name rather than ID
+*/
 void Automaton::fromDesuma(int id, QDomNode node)
 {
     QMap<QString, int> vecState, vecEvent;
     this->id = id;
-    name = node.attributes().namedItem("name").nodeValue();
 
     QDomElement element;
-    for(element = node.firstChildElement("event");!element.isNull();element = element.nextSiblingElement())
+    for(element = node.firstChildElement("event");!element.isNull();element = element.nextSiblingElement("event"))
     {
         vecEvent.insert(element.attribute("name"), idEvent);
         eventList.insert(idEvent, Event(idEvent,
@@ -190,7 +194,7 @@ void Automaton::fromDesuma(int id, QDomNode node)
                                         element.attribute("controlable","true")==QString("true")));
         idEvent++;
     }
-    for(element = node.firstChildElement("state");!element.isNull();element = element.nextSiblingElement())
+    for(element = node.firstChildElement("state");!element.isNull();element = element.nextSiblingElement("state"))
     {
         vecState.insert(element.attribute("name"), idState);
         stateList.insert(idState, State(idState,
@@ -199,7 +203,7 @@ void Automaton::fromDesuma(int id, QDomNode node)
                                         element.attribute("marked","false")==QString("true")));
         idState++;
     }
-    for(element = node.firstChildElement("transition");!element.isNull();element = element.nextSiblingElement())
+    for(element = node.firstChildElement("transition");!element.isNull();element = element.nextSiblingElement("transition"))
     {
         transitionList.insert(idTransition, Transition(idTransition,
                                                        vecState.value(element.attribute("from","")),

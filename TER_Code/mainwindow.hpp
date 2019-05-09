@@ -97,6 +97,10 @@ private slots:
 
     void on_actionHelp_triggered();
 
+    void on_actionImportDESUMA_triggered();
+
+    void on_actionExportDESUMA_triggered();
+
 private:
     Ui::MainWindow *ui;
     Automata automata;

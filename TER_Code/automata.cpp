@@ -196,16 +196,14 @@ bool Automata::fromDesuma(QString fileName)
     resetId();
     QFileInfo fInfo(fileName);
 
-    QDomElement node = doc.firstChildElement();
-    name = fInfo.baseName();
-
     //Creation of an automaton list
     QDomNodeList list=doc.elementsByTagName("XmlAutomaton");
 
     //Creation of an automaton object for each automaton
     automatonList.clear();
     Automaton a;
-    a.fromSupremica(idAutomaton, list.item(0));
+    a.fromDesuma(idAutomaton, list.item(0));
+    a.setName(fInfo.baseName());
     automatonList.insert(idAutomaton, a);
     idAutomatonIncr();
     return true;

@@ -1222,3 +1222,21 @@ void MainWindow::on_actionHelp_triggered()
     Help_dialog dialog(this);
     dialog.exec();
 }
+
+/*TO DO*/
+void MainWindow::on_actionImportDESUMA_triggered()
+{
+    QString file_name = QFileDialog::getOpenFileName(this, tr("Open XML file"), "", tr("XML file (*.xml);;All Files (*)"));
+    if (file_name.isEmpty())
+        return;
+    if (automata.fromDesuma(file_name))
+    {
+        this->toggle_interface(true);
+    }
+}
+
+/*TO DO*/
+void MainWindow::on_actionExportDESUMA_triggered()
+{
+
+}

@@ -462,6 +462,7 @@
      </property>
      <addaction name="actionImportSupremica"/>
      <addaction name="actionImportSedma"/>
+     <addaction name="actionImportDESUMA"/>
     </widget>
     <widget class="QMenu" name="menuExport">
      <property name="enabled">
@@ -472,6 +473,7 @@
      </property>
      <addaction name="actionExportSupremica"/>
      <addaction name="actionExportSedma"/>
+     <addaction name="actionExportDESUMA"/>
     </widget>
     <addaction name="actionNew"/>
     <addaction name="menuOpen_Import"/>
@@ -781,6 +783,19 @@
   <action name="actionHelp">
    <property name="text">
     <string>Help</string>
+   </property>
+  </action>
+  <action name="actionImportDESUMA">
+   <property name="text">
+    <string>DESUMA</string>
+   </property>
+  </action>
+  <action name="actionExportDESUMA">
+   <property name="enabled">
+    <bool>true</bool>
+   </property>
+   <property name="text">
+    <string>DESUMA</string>
    </property>
   </action>
  </widget>
