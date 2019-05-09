@@ -165,13 +165,57 @@ void Automata::toSedma(QString file_name)
 }
 
 /*TO DO*/
-bool Automata::fromDesuma(QString)
+bool Automata::fromDesuma(QString fileName)
 {
+    QFile file(fileName);
+    if(!file.open(QIODevice::ReadOnly)){
+        QMessageBox::information(nullptr, "Unable to open the file!",file.errorString());
+        return false;
+    }
 
+    //Le fichier sera lu et son contenu sera dans le QByteArray
+    QByteArray encodedFileContent = file.readAll();
+    file.close();
+
+    QString error;
+    QString fullError = "";
+    int line, column;
+
+    //Convertit le QByteArray en QDomDocument avec vérification de la validité du document
+    QDomDocument doc;
+    if(!doc.setContent(encodedFileContent, &error, &line, &column))
+    {
+        fullError.append("Error: ").append(error).append(" in line " ).append(QString::number(line)).append(" column ").append(QString::number(column));
+        QMessageBox::information(nullptr, "Unable to parse file!", fullError);
+        return false;
+    }
+
+    this->type = DESUMA;
+    this->filePath = fileName;
+
+    resetId();
+    QFileInfo fInfo(fileName);
+
+    QDomElement node = doc.firstChildElement();
+    name = fInfo.baseName();
+
+    //Creation of an automaton list
+    QDomNodeList list=doc.elementsByTagName("XmlAutomaton");
+
+    //Creation of an automaton object for each automaton
+    automatonList.clear();
+    Automaton a;
+    a.fromSupremica(idAutomaton, list.item(0));
+    automatonList.insert(idAutomaton, a);
+    idAutomatonIncr();
+    return true;
 }
 
 /*TO DO*/
-void Automata::toDesuma(QXmlStreamWriter *)
+void Automata::toDesuma(QXmlStreamWriter *stream)
 {
-
+    stream->writeStartElement("XmlAutomaton");
+    for(Automaton a : automatonList)
+        a.toDesuma(stream);
+    stream->writeEndElement();
 }

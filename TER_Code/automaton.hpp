@@ -26,7 +26,6 @@ class Event{
         bool controlable; //true==controlable
    public:
         Event(){id = -1; label = ""; observable = true; controlable = true;}
-        //Event(int idEvent, QDomElement);
         Event(int idEvent, QString label,bool observable,bool controlable) : id(idEvent),label(label),observable(observable),controlable(controlable){}
 
         int getId() {return id;}
@@ -68,7 +67,6 @@ class Transition{
         int event;
     public:
         Transition() {id = -1; source = -1; dest = -1; event = -1;}
-        //Transition(int idTransition, QDomElement);
         Transition(int idTransition, int source,int dest,int event) : id(idTransition),source(source),dest(dest),event(event){}
 
         int getSource() {return source;}
@@ -96,7 +94,7 @@ class Automaton{
         QString generatedLanguage;
 
     public:
-        void fromSupremica(int, QDomNode);
+
         Automaton(int, QString);
         Automaton() {id = 0; name = "";}
         int getId() {return id;}
@@ -109,7 +107,6 @@ class Automaton{
         State getState(int i){return stateList.value(i);}
         Event getEvent(int i){return eventList.value(i);}
         Transition getTransition(int i){return transitionList.value(i);}
-        void toSupremica(QXmlStreamWriter *stream);
         QString getGeneratedLanguage() {return generatedLanguage;}
         void setGeneratedLanguage(QString language) {generatedLanguage = language;}
         int getIdTransition() {return idTransition;}
@@ -118,8 +115,12 @@ class Automaton{
         void incrTransition() {idTransition++;}
         void incrEvent() {idEvent++;}
         void incrState() {idState++;}
-        void toSedma(QTextStream *stream);
+        void fromSupremica(int, QDomNode);
+        void toSupremica(QXmlStreamWriter *stream);
         void fromSedma(int, QString, QString);
+        void toSedma(QTextStream *stream);
+        void fromDesuma(int, QDomNode);
+        void toDesuma(QXmlStreamWriter *stream);
 };
 
 #endif // AUTOMATON_HPP

@@ -174,6 +174,47 @@ void Automaton::toSedma(QTextStream *stream)
     }
 }
 
+void Automaton::fromDesuma(int id, QDomNode node)
+{
+    QMap<QString, int> vecState, vecEvent;
+    this->id = id;
+    name = node.attributes().namedItem("name").nodeValue();
+
+    QDomElement element;
+    for(element = node.firstChildElement("event");!element.isNull();element = element.nextSiblingElement())
+    {
+        vecEvent.insert(element.attribute("name"), idEvent);
+        eventList.insert(idEvent, Event(idEvent,
+                                        element.attribute("name",""),
+                                        element.attribute("observable","true")==QString("true"),
+                                        element.attribute("controlable","true")==QString("true")));
+        idEvent++;
+    }
+    for(element = node.firstChildElement("state");!element.isNull();element = element.nextSiblingElement())
+    {
+        vecState.insert(element.attribute("name"), idState);
+        stateList.insert(idState, State(idState,
+                                        element.attribute("name",""),
+                                        element.attribute("initial","false")==QString("true"),
+                                        element.attribute("marked","false")==QString("true")));
+        idState++;
+    }
+    for(element = node.firstChildElement("transition");!element.isNull();element = element.nextSiblingElement())
+    {
+        transitionList.insert(idTransition, Transition(idTransition,
+                                                       vecState.value(element.attribute("from","")),
+                                                       vecState.value(element.attribute("to","")),
+                                                       vecEvent.value(element.attribute("name",""))));
+        idTransition++;
+    }
+}
+
+/* TO DO*/
+void Automaton::toDesuma(QXmlStreamWriter *stream)
+{
+
+}
+
 /*
  * Import function from a SEDMA file. The read file is the 'arg' QString
  * SEDMA's transition doesn't require an event, if one doesn't have an event, it is defaulted to event zero
@@ -198,7 +239,7 @@ void Automaton::fromSedma(int id, QString name, QString arg)
             {
                 vecState.insert(line[3], idState);  //keep name and ID for transition creation
                 stateList.insert(idState, State(idState,line[3],(line[6] == "-i" || line[6] == "-iM"),(line[6] == "-M" || line[6] == "-iM")));
-                incrState();
+                idState++;
             }
             else
             {
@@ -210,7 +251,7 @@ void Automaton::fromSedma(int id, QString name, QString arg)
                     {
                         vecEvent.insert(line[3], idEvent);  //keep name and ID for transition creation and size verification
                         eventList.insert(idEvent, Event(idEvent, line[3], true, true));
-                        incrEvent();
+                        idEvent++;
                     }
                     transitionList.insert(idTransition, Transition(idTransition,vecState.value(line[1]), vecState.value(line[2]), vecEvent.value(line[3])));
                 }
@@ -218,14 +259,14 @@ void Automaton::fromSedma(int id, QString name, QString arg)
                 {
                     transitionList.insert(idTransition, Transition(idTransition,vecState.value(line[1]), vecState.value(line[2]), 0));
                 }
-                incrTransition();
+                idTransition++;
             }
         }
     }
     if(vecEvent.size() == 0 && transitionList.size() > 0)   //if no event created
     {
         eventList.insert(idEvent,Event(idEvent, "a", true, true));
-        incrEvent();
+        idEvent++;
     }
 }
 
