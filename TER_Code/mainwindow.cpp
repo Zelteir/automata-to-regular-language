@@ -20,7 +20,7 @@ MainWindow::MainWindow(QWidget *parent) :
     ui(new Ui::MainWindow)
 {
     ui->setupUi(this);
-    ui->Automatons_list->hideColumn(0);
+    ui->Automatons_list->hideColumn(0); //hide ID column
     ui->Automatons_list->horizontalHeader()->setSectionResizeMode(1, QHeaderView::Stretch );
     ui->Events_list->horizontalHeader()->setSectionResizeMode(1, QHeaderView::Stretch );
     ui->Events_list->hideColumn(0);
@@ -30,7 +30,7 @@ MainWindow::MainWindow(QWidget *parent) :
     ui->Transitions_list->horizontalHeader()->setSectionResizeMode(2, QHeaderView::Stretch );
     ui->Transitions_list->horizontalHeader()->setSectionResizeMode(3, QHeaderView::Stretch );
     ui->Transitions_list->hideColumn(0);
-    method = new QActionGroup(this);
+    method = new QActionGroup(this);    //exclusive
     ui->actionBrzozowski->setActionGroup(method);
     ui->actionBrzozowski_V2->setActionGroup(method);
     ui->actionReverse_Brzozowski->setActionGroup(method);
@@ -298,6 +298,10 @@ void MainWindow::on_Automatons_list_itemSelectionChanged()
     }
 }
 
+/*
+ * Call selected conversion method for selected automaton
+ * Ensure valid attributes for automaton (at least one accepting state & exactly one initial state)
+*/
 void MainWindow::generateLanguage(Automaton *a)
 {
     int nb_init = 0;
@@ -326,7 +330,7 @@ void MainWindow::generateLanguage(Automaton *a)
     }
     QMap<int, Event> backEventList;
     backEventList = *a->getEventList();
-    if(ui->actionAvoid_language_ambiguity->isChecked())
+    if(ui->actionAvoid_language_ambiguity->isChecked()) //place '.' directly inside automaton
     {
         QMap<int, Event> tmpEventList;
         for(Event e : *a->getEventList())
@@ -350,7 +354,7 @@ void MainWindow::generateLanguage(Automaton *a)
         translator.reverseBrzozowski(*a, ui->Ignore_Unobservable_check->isChecked(), ui->Ignore_Uncontrolable_check->isChecked());
     }
 
-    if(ui->actionAvoid_language_ambiguity->isChecked())
+    if(ui->actionAvoid_language_ambiguity->isChecked()) //delete inappropriate or misplaced '.' from avoid ambiguity
     {
         int i = 0;
         QString tmpString = translator.getRegex();
@@ -385,11 +389,10 @@ void MainWindow::on_Generate_Button_clicked()
 }
 
 /*
- * clear interface and disable it
- * */
+ * clear interface and disable it when current file is closed
+*/
 void MainWindow::on_actionClose_triggered()
 {
-
     toggle_interface(false);
     clear_interface();
     clear_automaton_list();
@@ -399,6 +402,11 @@ void MainWindow::on_actionClose_triggered()
     ui->actionSaveRL->setEnabled(false);
 }
 
+/*
+ * whenever user modify the name of an automaton
+ * ensure name isn't already in use
+ * modify the name in the memory
+*/
 void MainWindow::on_Automatons_list_itemChanged(QTableWidgetItem *item)
 {
     QSignalBlocker automatons_blocker(ui->Automatons_list);
@@ -420,7 +428,9 @@ void MainWindow::on_Automatons_list_itemChanged(QTableWidgetItem *item)
 
 
 /*
- * whenever the user change an element in the state list, modification on the automaton
+ * whenever the user change an element in the state list
+ * ensure the name isn't alredy in use
+ * modification on the automaton
 */
 void MainWindow::on_States_list_itemChanged(QTableWidgetItem *item)
 {
@@ -481,7 +491,9 @@ void MainWindow::on_States_list_itemChanged(QTableWidgetItem *item)
 }
 
 /*
- * whenever the user change an element in the event list, modification on the automaton
+ * whenever the user change an element in the event list
+ * ensure the name isn't already in use
+ * modification on the automaton
 */
 void MainWindow::on_Events_list_itemChanged(QTableWidgetItem *item)
 {
@@ -538,7 +550,9 @@ void MainWindow::on_Events_list_itemChanged(QTableWidgetItem *item)
 }
 
 /*
- * whenever the user lmodify an element in the transition list, modification of the automaton
+ * whenever the user modify an element in the transition list,
+ * ensure the transition doesn't already exist & modified element exist
+ * modification of the automaton
  */
 void MainWindow::on_Transitions_list_itemChanged(QTableWidgetItem *item)
 {
@@ -643,6 +657,10 @@ void MainWindow::on_Transitions_list_itemChanged(QTableWidgetItem *item)
     transition_blocker.unblock();
 }
 
+/*
+ * slot for 'create automaton' button
+ * display create automaton dialog
+*/
 void MainWindow::on_actionAutomatonCreate_triggered()
 {
     Create_automaton_dialog dialog(automata.getIdAutomaton(), *automata.get_automatons(), this);
@@ -650,6 +668,9 @@ void MainWindow::on_actionAutomatonCreate_triggered()
     dialog.exec();
 }
 
+/*
+ * Insert new automaton in automaton group and add it to display
+*/
 void MainWindow::createAutomaton_finished(Automaton a)
 {
     QSignalBlocker automaton_blocker(ui->Automatons_list);
@@ -659,12 +680,13 @@ void MainWindow::createAutomaton_finished(Automaton a)
     ui->Automatons_list->setItem(ui->Automatons_list->rowCount() - 1, 0, new QTableWidgetItem(QString::number(a.getId())));
     ui->Automatons_list->setItem(ui->Automatons_list->rowCount() - 1, 1, new QTableWidgetItem(a.getName()));
     automaton_blocker.unblock();
-    if(ui->Automatons_list->rowCount() == 1)
+    if(ui->Automatons_list->rowCount() == 1)    //if only automaton, display it
         ui->Automatons_list->setCurrentCell(0,1);
 }
 
 /*
- * whenever the user create a state
+ * slot for 'create state' button
+ * display create state dialog
  */
 void MainWindow::on_actionStateCreate_triggered()
 {
@@ -674,7 +696,7 @@ void MainWindow::on_actionStateCreate_triggered()
 }
 
 /*
- * add the created state into the list and interface
+ * Insert new state in current automaton and update display
  */
 void MainWindow::createState_finished(State s)
 {
@@ -683,10 +705,14 @@ void MainWindow::createState_finished(State s)
     currentAutomaton->incrState();
     add_state_to_list(s);
     states_blocker.unblock();
-    if(ui->States_list->rowCount() == 1)
+    if(ui->States_list->rowCount() == 1)    //if first state, allow deletion
         ui->deleteState_button->setEnabled(true);
 }
 
+/*
+ * slot for 'create event' button
+ * display create event dialog
+*/
 void MainWindow::on_actionEventCreate_triggered()
 {
     Create_event_dialog dialog(currentAutomaton->getIdEvent(), *currentAutomaton->getEventList(),*currentAutomaton->getStateList(), this);
@@ -694,6 +720,9 @@ void MainWindow::on_actionEventCreate_triggered()
     dialog.exec();
 }
 
+/*
+ * Insert new event in current automaton and update display
+*/
 void MainWindow::createEvent_finished(Event e)
 {
     QSignalBlocker events_blocker(ui->Events_list);
@@ -701,10 +730,14 @@ void MainWindow::createEvent_finished(Event e)
     currentAutomaton->incrEvent();
     add_event_to_list(e);
     events_blocker.unblock();
-    if(ui->Events_list->rowCount() == 1)
+    if(ui->Events_list->rowCount() == 1)    //if first event allow deletion
         ui->deleteEvent_button->setEnabled(true);
 }
 
+/*
+ * slot for 'create transition' button
+ * display create transition dialog
+*/
 void MainWindow::on_actionTransitionCreate_triggered()
 {
     Create_transition_dialog *dialog = new Create_transition_dialog(currentAutomaton->getIdTransition(),*currentAutomaton->getEventList(),*currentAutomaton->getStateList(),*currentAutomaton->getTransitionList(), this);
@@ -713,6 +746,9 @@ void MainWindow::on_actionTransitionCreate_triggered()
     delete dialog;
 }
 
+/*
+ * Insert new transition in current automaton and update display
+*/
 void MainWindow::createTransition_finished(Transition t)
 {
     QSignalBlocker transition_blocker(ui->Transitions_list);
@@ -720,12 +756,14 @@ void MainWindow::createTransition_finished(Transition t)
     currentAutomaton->incrTransition();
     add_transition_to_list(t);
     transition_blocker.unblock();
-    if(ui->Transitions_list->rowCount() == 1)
+    if(ui->Transitions_list->rowCount() == 1)   //if first transition allow deletion
         ui->deleteTransition_button->setEnabled(true);
 }
 
+/*TO DO*/
 /*
-    TO DO
+ * slot for 'save automaton' button
+ * call registered type save via signal
 */
 void MainWindow::on_actionSaveAutomaton_triggered()
 {
@@ -748,6 +786,11 @@ void MainWindow::on_actionSaveAutomaton_triggered()
     }
 }
 
+/*
+ * slot for 'save RL' (regular language)
+ * save the generated regular language in a designated text file
+ * will replace any content if the file already exist
+*/
 void MainWindow::on_actionSaveRL_triggered()
 {
     QString file_name = QFileDialog::getSaveFileName(this, tr("Save regular language"), "", tr("Text Files (*.txt);;All Files (*)"));
@@ -768,6 +811,11 @@ void MainWindow::on_actionSaveRL_triggered()
     QMessageBox::information(this, tr("Save sucessful"),"Regular expression saved sucessfuly.");
 }
 
+/*
+ * slot for 'generate all languages'
+ * will generate and save in a single file regular language for all automata in current group
+ * if an automaton is invalid its name will appear in the file with no language
+*/
 void MainWindow::on_actionGenerate_all_languages_triggered()
 {
     QString file_name = QFileDialog::getSaveFileName(this, tr("Save regular language"), "", tr("Text Files (*.txt);;All Files (*)"));
@@ -792,6 +840,10 @@ void MainWindow::on_actionGenerate_all_languages_triggered()
     QMessageBox::information(this, tr("Save sucessful"),"All regular expressions saved sucessfuly.");
 }
 
+/*
+ * slot for 'delete state' button
+ * display delete state dialog
+*/
 void MainWindow::on_actionStateDelete_triggered()
 {
     Delete_state_dialog dialog(*currentAutomaton->getStateList(), this);
@@ -799,6 +851,10 @@ void MainWindow::on_actionStateDelete_triggered()
     dialog.exec();
 }
 
+/*
+ * delete states selected by user and all transitions using it
+ * update display and automaton
+*/
 void MainWindow::deleteState_finished(QList<int> deleteList)
 {
     int tmp;
@@ -834,6 +890,10 @@ void MainWindow::deleteState_finished(QList<int> deleteList)
         ui->deleteState_button->setEnabled(false);
 }
 
+/*
+ * slot for 'delete event' button
+ * display delete event dialog
+*/
 void MainWindow::on_actionEventDelete_triggered()
 {
     Delete_event_dialog dialog(*currentAutomaton->getEventList(), this);
@@ -841,6 +901,10 @@ void MainWindow::on_actionEventDelete_triggered()
     dialog.exec();
 }
 
+/*
+ * delete events selected by user and all transitions using it
+ * update display and automaton
+*/
 void MainWindow::deleteEvent_finished(QList<int> deleteList)
 {
     int tmp;
@@ -876,7 +940,10 @@ void MainWindow::deleteEvent_finished(QList<int> deleteList)
         ui->deleteEvent_button->setEnabled(false);
 }
 
-/*Calls the delete_transition_dialog*/
+/*
+ * slot for 'delete transition' button
+ * display delete event dialog
+*/
 void MainWindow::on_actionTransitionDelete_triggered()
 {
     Delete_transition_dialog dialog(*currentAutomaton->getEventList(), *currentAutomaton->getStateList(), *currentAutomaton->getTransitionList(), this);
@@ -884,7 +951,10 @@ void MainWindow::on_actionTransitionDelete_triggered()
     dialog.exec();
 }
 
-/*Delete the transitions selected by user*/
+/*
+ * delete transitons selected by user
+ * update display and automaton
+*/
 void MainWindow::deleteTransition_finished(QList<int> deleteList)
 {
     int tmp;
@@ -907,6 +977,9 @@ void MainWindow::deleteTransition_finished(QList<int> deleteList)
         ui->deleteTransition_button->setEnabled(false);
 }
 
+/*
+ * Detect selection of whole cell instead of just checkbox
+*/
 void MainWindow::on_States_list_cellClicked(int row, int column)
 {
     int id;
@@ -932,6 +1005,9 @@ void MainWindow::on_States_list_cellClicked(int row, int column)
     }
 }
 
+/*
+ * Detect selection of whole cell instead of just checkbox
+*/
 void MainWindow::on_Events_list_cellClicked(int row, int column)
 {
     int id;
@@ -957,6 +1033,10 @@ void MainWindow::on_Events_list_cellClicked(int row, int column)
     }
 }
 
+/*
+ * slot for delete state button under the list
+ * will call 'delete_state_finished' with only the currently selected state
+*/
 void MainWindow::on_deleteState_button_clicked()
 {
     if(ui->States_list->currentItem() == nullptr)
@@ -965,6 +1045,10 @@ void MainWindow::on_deleteState_button_clicked()
     deleteState_finished(QList<int>({id}));
 }
 
+/*
+ * slot for delete event button under the list
+ * will call 'delete_event_finished' with only the currently selected event
+*/
 void MainWindow::on_deleteEvent_button_clicked()
 {
     if(ui->Events_list->currentItem() == nullptr)
@@ -973,6 +1057,10 @@ void MainWindow::on_deleteEvent_button_clicked()
     deleteEvent_finished(QList<int>({id}));
 }
 
+/*
+ * slot for delete transition button under the list
+ * will call 'delete_transition_finished' with only the currently selected transition
+*/
 void MainWindow::on_deleteTransition_button_clicked()
 {
     if(ui->Transitions_list->currentItem() == nullptr)
@@ -981,6 +1069,10 @@ void MainWindow::on_deleteTransition_button_clicked()
     deleteTransition_finished(QList<int>({id}));
 }
 
+/*
+ * slot for 'delete transition' button
+ * display delete event dialog
+*/
 void MainWindow::on_actionAutomatonDelete_triggered()
 {
     Delete_automaton_dialog dialog(*automata.get_automatons(), this);
@@ -988,6 +1080,10 @@ void MainWindow::on_actionAutomatonDelete_triggered()
     dialog.exec();
 }
 
+/*
+ * delete automata selected by user
+ * update display and automaton group
+*/
 void MainWindow::deleteAutomaton_finished(QList<int> deleteList)
 {
     int tmp;
@@ -1026,6 +1122,10 @@ void MainWindow::deleteAutomaton_finished(QList<int> deleteList)
     }
 }
 
+/*
+ * slot for delete transition button under the list
+ * will call 'delete_automaton_finished' with only the currently selected automaton
+*/
 void MainWindow::on_deleteAutomaton_button_clicked()
 {
     if(ui->Automatons_list->currentItem() == nullptr)
@@ -1034,10 +1134,13 @@ void MainWindow::on_deleteAutomaton_button_clicked()
     deleteAutomaton_finished(QList<int>({id}));
 }
 
+/*
+ * slot for 'export supremica' button
+*/
 void MainWindow::on_actionExportSupremica_triggered()
 {
     QString file_name;
-    if(automata.getFilePath().isEmpty() || automata.getType() != SUPREMICA)
+    if(automata.getFilePath().isEmpty() || automata.getType() != SUPREMICA) //if automata not from supremica file ask for new file
     {
         file_name = QFileDialog::getSaveFileName(this, tr("Select XML file"), "", tr("XML file (*.xml);;All Files (*)"));
         automata.setFilePath(file_name);
@@ -1060,23 +1163,26 @@ void MainWindow::on_actionExportSupremica_triggered()
     QMessageBox::information(this, tr("Save sucessful"),"Automaton saved sucessfuly.");
 }
 
+/*
+ * slot for 'export SEDMA' button
+*/
 void MainWindow::on_actionExportSedma_triggered()
 {
     QString file_name = "";
-    if((automata.getFilePath().isEmpty() || automata.getType() != SEDMA) && automata.get_automatons()->size() == 1)
+    if((automata.getFilePath().isEmpty() || automata.getType() != SEDMA) && automata.get_automatons()->size() == 1) //if automata not from SEDMA file ask for new fill, only if only one automaton in group
     {
         file_name = QFileDialog::getSaveFileName(this, tr("Select automata file"), "", tr("Automata file (*.automata);;All Files (*)"));
         automata.setFilePath(file_name);
         automata.setType(SEDMA);
     }
-    else if(!automata.getFilePath().isEmpty() && automata.getType() == SEDMA)
+    else if(!automata.getFilePath().isEmpty() && automata.getType() == SEDMA)   //if automata from SEDMA file set it as default file
         file_name = automata.getFilePath();
-    automata.toSedma(file_name);
+    automata.toSedma(file_name);    //if multiple automata and not from a SEDMA file, toSedma() will ask for a folder
     QMessageBox::information(this, tr("Save sucessful"),"Automaton saved sucessfuly.");
 }
 
 /*
- * Open/import a file containing a Supremica automaton
+ * Open/import a file containing a Supremica automaton, load it into memory and enable interface
 */
 void MainWindow::on_actionImportSupremica_triggered()
 {
@@ -1090,7 +1196,7 @@ void MainWindow::on_actionImportSupremica_triggered()
 }
 
 /*
- * Open/import a file containing a SEDMA automaton
+ * Open/import a file containing a SEDMA automaton, load it into memory and enable interface
 */
 void MainWindow::on_actionImportSedma_triggered()
 {
@@ -1103,6 +1209,10 @@ void MainWindow::on_actionImportSedma_triggered()
     }
 }
 
+/*
+ * slot for 'help' button
+ * display the help dialog
+*/
 void MainWindow::on_actionHelp_triggered()
 {
     Help_dialog dialog(this);
