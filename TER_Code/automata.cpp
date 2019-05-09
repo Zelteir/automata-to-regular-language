@@ -163,3 +163,15 @@ void Automata::toSedma(QString file_name)
         }
     }
 }
+
+/*TO DO*/
+bool Automata::fromDesuma(QString)
+{
+
+}
+
+/*TO DO*/
+void Automata::toDesuma(QXmlStreamWriter *)
+{
+
+}

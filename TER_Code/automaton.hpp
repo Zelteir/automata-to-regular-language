@@ -26,7 +26,7 @@ class Event{
         bool controlable; //true==controlable
    public:
         Event(){id = -1; label = ""; observable = true; controlable = true;}
-        Event(int idEvent, QDomElement);
+        //Event(int idEvent, QDomElement);
         Event(int idEvent, QString label,bool observable,bool controlable) : id(idEvent),label(label),observable(observable),controlable(controlable){}
 
         int getId() {return id;}
@@ -48,8 +48,7 @@ class State{
 
     public:
         State(){id = -1; name = ""; initial = false; accepting = false;}
-        State(int idState, QDomElement);
-        State(int idState, QString name,bool initial,bool accepting) : id(idState),name(name),initial(initial),accepting(accepting){}
+        State(int idState, QString name, bool initial,bool accepting) : id(idState),name(name),initial(initial),accepting(accepting){}
 
         int getId() {return id;}
         QString getName() {return name;}
@@ -69,7 +68,7 @@ class Transition{
         int event;
     public:
         Transition() {id = -1; source = -1; dest = -1; event = -1;}
-        Transition(int idTransition, QDomElement);
+        //Transition(int idTransition, QDomElement);
         Transition(int idTransition, int source,int dest,int event) : id(idTransition),source(source),dest(dest),event(event){}
 
         int getSource() {return source;}
@@ -91,7 +90,6 @@ class Automaton{
         int idEvent = 0;
         int idState = 0;
         QString name;
-        QString type = "Specification";
         QMap<int, Event> eventList;
         QMap<int, State> stateList;
         QMap<int, Transition> transitionList;
@@ -104,7 +102,6 @@ class Automaton{
         int getId() {return id;}
         QString getName() {return name;}
         void setName(QString s) {name = s;}
-        QString getType() {return type;}
         QMap<int, Event> *getEventList(){return &eventList;}
         QMap<int, State> *getStateList(){return &stateList;}
         QMap<int, Transition> *getTransitionList(){return &transitionList;}

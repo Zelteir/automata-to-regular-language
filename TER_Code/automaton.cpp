@@ -2,23 +2,6 @@
 #include <QDebug>
 #include <QFileInfo>
 
-/*
- * Event constructor for Supremica input
-*/
-Event::Event(int idEvent, QDomElement element)
-{
-    /*int id;
-    QString label;
-    bool observable;
-    bool controlable;*/
-
-    id = idEvent;
-    label = element.attribute("label","");
-    observable = element.attribute("observable","true")==QString("true");
-    controlable = element.attribute("controlable","true")==QString("true");
-
-}
-
 void Event::setLabel(QString l)
 {
     if(l.isEmpty())throw SetterException("Name cannot be empty.");
@@ -39,23 +22,6 @@ void Event::toSupremica(QXmlStreamWriter *stream)
     if(!this->observable)
         stream->writeAttribute("observable", "false");
     stream->writeEndElement();
-}
-
-/*
- * State constructor for Supremica input
-*/
-State::State(int idState, QDomElement element)
-{
-    /*int id;
-    QString name;
-    bool initial;
-    bool accepting;*/
-
-    id = idState;
-    name = element.attribute("name","");
-    initial = element.attribute("initial","false")==QString("true");
-    accepting = element.attribute("accepting","false")==QString("true");
-
 }
 
 void State::setName(QString n)
@@ -82,17 +48,14 @@ void State::toSupremica(QXmlStreamWriter *stream)
 /*
  * Write the Transition information inside the stream for Supremica XML
 */
-Transition::Transition(int idTransition, QDomElement element)
+/*Transition::Transition(int idTransition, QDomElement element)
 {
-    /* int source;
-    int dest;
-    int event;*/
 
     id = idTransition;
     source = element.attribute("source","-1").toInt();
     dest = element.attribute("dest","-1").toInt();
     event = element.attribute("event","-1").toInt();
-}
+}*/
 
 bool Transition::operator==(const Transition &rhs)
 {
@@ -119,25 +82,33 @@ void Automaton::fromSupremica(int id, QDomNode node)
 {
     this->id = id;
     name = node.attributes().namedItem("name").nodeValue();
-    type = node.attributes().namedItem("type").nodeValue();
 
     QDomElement element;
     QDomElement childElement = node.firstChildElement("Events");
     for(element = childElement.firstChildElement("Event");!element.isNull();element = element.nextSiblingElement())
     {
-        eventList.insert(idEvent, Event(idEvent, element));
+        eventList.insert(idEvent, Event(idEvent,
+                                        element.attribute("label",""),
+                                        element.attribute("observable","true")==QString("true"),
+                                        element.attribute("controlable","true")==QString("true")));
         idEvent++;
     }
     childElement = node.firstChildElement("States");
     for(element = childElement.firstChildElement("State");!element.isNull();element = element.nextSiblingElement())
     {
-        stateList.insert(idState, State(idState, element));
+        stateList.insert(idState, State(idState,
+                                        element.attribute("name",""),
+                                        element.attribute("initial","false")==QString("true"),
+                                        element.attribute("accepting","false")==QString("true")));
         idState++;
     }
     childElement = node.firstChildElement("Transitions");
     for(element = childElement.firstChildElement("Transition");!element.isNull();element = element.nextSiblingElement())
     {
-        transitionList.insert(idTransition, Transition(idTransition, element));
+        transitionList.insert(idTransition, Transition(idTransition,
+                                                       element.attribute("source","-1").toInt(),
+                                                       element.attribute("dest","-1").toInt(),
+                                                       element.attribute("event","-1").toInt()));
         idTransition++;
     }
 }
@@ -145,9 +116,7 @@ void Automaton::fromSupremica(int id, QDomNode node)
 Automaton::Automaton(int id,QString name) :
     id(id),
     name(name)
-{
-    type = QString("Specification");    //for Supremica
-}
+{}
 
 /*
  * Export function to supremica file. Calling 'toSupremica' functions of every event, state and transition
@@ -157,7 +126,6 @@ void Automaton::toSupremica(QXmlStreamWriter *stream)
 {
     stream->writeStartElement("Automaton");
     stream->writeAttribute("name", this->name);
-    stream->writeAttribute("type", this->type);
     stream->writeStartElement("Events");
     for(Event e : eventList)
         e.toSupremica(stream);

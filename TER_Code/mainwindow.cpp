@@ -783,6 +783,10 @@ void MainWindow::on_actionSaveAutomaton_triggered()
         emit(on_actionExportSedma_triggered());
         break;
     }
+    case DESUMA:
+    {
+        break;
+    }
     }
 }
 
