@@ -213,10 +213,38 @@ void Automaton::fromDesuma(int id, QDomNode node)
     }
 }
 
-/* TO DO*/
+/*
+ * Export function to DESUMA file.
+ * DESUMA files use name rather then ID so access to lists are necessary.
+*/
 void Automaton::toDesuma(QXmlStreamWriter *stream)
 {
-
+    stream->writeStartElement("XmlAutomaton");
+    for(State s : stateList)
+    {
+        stream->writeStartElement("state");
+        stream->writeAttribute("name", s.getName());
+        stream->writeAttribute("initial",(s.getInitial())?"true":"false");
+        stream->writeAttribute("marked",(s.getAccepting())?"true":"false");
+        stream->writeEndElement();
+    }
+    for(Transition t : transitionList)
+    {
+        stream->writeStartElement("transition");
+        stream->writeAttribute("from", stateList[t.getSource()].getName());
+        stream->writeAttribute("to", stateList[t.getDest()].getName());
+        stream->writeAttribute("name", eventList[t.getEvent()].getLabel());
+        stream->writeEndElement();
+    }
+    for(Event e : eventList)
+    {
+        stream->writeStartElement("event");
+        stream->writeAttribute("name", e.getLabel());
+        stream->writeAttribute("controllable",(e.getControlable())?"true":"false");
+        stream->writeAttribute("observable",(e.getObservable())?"true":"false");
+        stream->writeEndElement();
+    }
+    stream->writeEndElement();
 }
 
 /*

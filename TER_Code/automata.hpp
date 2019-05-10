@@ -29,7 +29,7 @@ class Automata{
         bool fromSedma(QString fileName);
         void toSedma(QString file_name);
         bool fromDesuma(QString);
-        void toDesuma(QXmlStreamWriter *);
+        void toDesuma(QString);
         void resetId() {idAutomaton = 0;}
         enum file_type getType() {return type;}
         void setType(enum file_type arg) {type = arg;}

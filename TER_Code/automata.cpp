@@ -164,7 +164,10 @@ void Automata::toSedma(QString file_name)
     }
 }
 
-/*TO DO*/
+/*
+ * Import an automaton from a XML file created by DESUMA
+ * Since those files contains only one automaton, no loop is necessary to scan the file
+*/
 bool Automata::fromDesuma(QString fileName)
 {
     QFile file(fileName);
@@ -209,11 +212,62 @@ bool Automata::fromDesuma(QString fileName)
     return true;
 }
 
-/*TO DO*/
-void Automata::toDesuma(QXmlStreamWriter *stream)
+/*
+ * Export the current automaton to a DESUMA-compatible XML file
+ * Since DESUMA files can only contain one automaton, if there is more in the current automata
+ * we need to create a new file for each of them
+*/
+void Automata::toDesuma(QString file_name)
 {
-    stream->writeStartElement("XmlAutomaton");
-    for(Automaton a : automatonList)
-        a.toDesuma(stream);
-    stream->writeEndElement();
+    QFile file;
+    QString dir;
+    QFileInfo fInfo;
+    QString tmpPath;
+    QXmlStreamWriter *stream = new QXmlStreamWriter;
+    stream->setAutoFormatting(true);
+    if(!file_name.isEmpty())    //if the automata is from a SEDMA file or there is only one automaton we save the first automaton in it
+    {
+        file.setFileName(file_name);
+        if(!file.open(QIODevice::WriteOnly)){
+            QMessageBox::information(nullptr, "Unable to open the file!",file.errorString());
+            return;
+        }
+        stream->setDevice(&file);
+        stream->writeStartDocument();
+        automatonList[0].toDesuma(stream);
+        stream->writeEndDocument();
+        file.close();
+    }
+    if(automatonList.size() > 1)    //if there is more than one automaton, need to create separate files
+    {
+
+        if(!file_name.isEmpty())    //if the automata if from a SEDMA file, take it's path to save the new files in the same folder
+        {
+            fInfo.setFile(file_name);
+            dir = "" + fInfo.path() + "\\";
+        }
+        else    //otherwise ask for a folder
+        {
+            dir = "" + QFileDialog::getExistingDirectory(nullptr, "Select Directory", "", QFileDialog::ShowDirsOnly | QFileDialog::DontResolveSymlinks) + "\\";
+        }
+        for(Automaton a : automatonList)
+        {
+            if(!file_name.isEmpty() && a.getId() == 0)  //this automaton is already saved
+            {
+                continue;
+            }
+            tmpPath = "" + dir + a.getName() + ".xml";
+            file.setFileName(tmpPath);
+            if(!file.open(QIODevice::WriteOnly)){
+                QMessageBox::information(nullptr, "Unable to open the file!",file.errorString());
+                return;
+            }
+            stream->setDevice(&file);
+            stream->writeStartDocument();
+            a.toDesuma(stream);
+            stream->writeEndDocument();
+            file.close();
+        }
+    }
+    delete stream;
 }

@@ -785,6 +785,7 @@ void MainWindow::on_actionSaveAutomaton_triggered()
     }
     case DESUMA:
     {
+        emit(on_actionExportDESUMA_triggered());
         break;
     }
     }
@@ -1223,7 +1224,9 @@ void MainWindow::on_actionHelp_triggered()
     dialog.exec();
 }
 
-/*TO DO*/
+/*
+ * Open/import a file containing a DESUMA automaton, load it into memory and enable interface
+*/
 void MainWindow::on_actionImportDESUMA_triggered()
 {
     QString file_name = QFileDialog::getOpenFileName(this, tr("Open XML file"), "", tr("XML file (*.xml);;All Files (*)"));
@@ -1235,8 +1238,20 @@ void MainWindow::on_actionImportDESUMA_triggered()
     }
 }
 
-/*TO DO*/
+/*
+ * slot for 'export DESUMA' button
+*/
 void MainWindow::on_actionExportDESUMA_triggered()
 {
-
+    QString file_name = "";
+    if((automata.getFilePath().isEmpty() || automata.getType() != DESUMA) && automata.get_automatons()->size() == 1) //if automata not from DESUMA file ask for new fill, only if only one automaton in group
+    {
+        file_name = QFileDialog::getSaveFileName(this, tr("Select XML file"), "", tr("XML file (*.xml);;All Files (*)"));
+        automata.setFilePath(file_name);
+        automata.setType(DESUMA);
+    }
+    else if(!automata.getFilePath().isEmpty() && automata.getType() == DESUMA)   //if automata from DESUMA file set it as default file
+        file_name = automata.getFilePath();
+    automata.toDesuma(file_name);
+    QMessageBox::information(this, tr("Save sucessful"),"Automaton saved sucessfuly.");
 }
