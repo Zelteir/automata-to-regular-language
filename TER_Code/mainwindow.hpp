@@ -101,6 +101,10 @@ private slots:
 
     void on_actionExportDESUMA_triggered();
 
+    void on_actionSave_automatons_as_triggered();
+
+    void on_actionSaveRL_as_triggered();
+
 private:
     Ui::MainWindow *ui;
     Automata automata;

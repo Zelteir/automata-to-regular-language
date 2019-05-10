@@ -18,6 +18,7 @@ class Automata{
         int idAutomaton = 0;
         enum file_type type = NONE;
         QString filePath;
+        QString rlFilePath;
 
     public:
         int getIdAutomaton() {return idAutomaton;}
@@ -35,6 +36,8 @@ class Automata{
         void setType(enum file_type arg) {type = arg;}
         QString getFilePath() {return filePath;}
         void setFilePath(QString fileName) {filePath = fileName;}
+        QString getRlFilePath() {return rlFilePath;}
+        void setRlFilePath(QString arg) {rlFilePath = arg;}
 };
 
 #endif // AUTOMATA_HPP

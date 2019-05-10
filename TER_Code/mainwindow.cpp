@@ -82,6 +82,7 @@ void MainWindow::toggle_interface(bool b)
     ui->addAutomaton_button->setEnabled(b);
     ui->deleteAutomaton_button->setEnabled(b);
     ui->menuExport->setEnabled(b);
+    ui->actionSave_automatons_as->setEnabled(b);
     /*
      * TO DO
      * Other things to toggle
@@ -291,9 +292,15 @@ void MainWindow::on_Automatons_list_itemSelectionChanged()
     else {
         currentAutomaton = automata.get_automaton_at(ui->Automatons_list->item(ui->Automatons_list->currentRow(), 0)->text().toInt());
         if(currentAutomaton->getGeneratedLanguage().isEmpty())
+        {
             ui->actionSaveRL->setEnabled(false);
+            ui->actionSaveRL_as->setEnabled(false);
+        }
         else
+        {
             ui->actionSaveRL->setEnabled(true);
+            ui->actionSaveRL_as->setEnabled(true);
+        }
         fill_interface();
     }
 }
@@ -386,6 +393,7 @@ void MainWindow::on_Generate_Button_clicked()
     generateLanguage(currentAutomaton);
     ui->Generated_Regular_Language->setPlainText(currentAutomaton->getGeneratedLanguage());
     ui->actionSaveRL->setEnabled(true);
+    ui->actionSaveRL_as->setEnabled(true);
 }
 
 /*
@@ -400,6 +408,7 @@ void MainWindow::on_actionClose_triggered()
     ui->Events_list->setRowCount(0);
     ui->Transitions_list->setRowCount(0);
     ui->actionSaveRL->setEnabled(false);
+    ui->actionSaveRL_as->setEnabled(false);
 }
 
 /*
@@ -798,9 +807,17 @@ void MainWindow::on_actionSaveAutomaton_triggered()
 */
 void MainWindow::on_actionSaveRL_triggered()
 {
-    QString file_name = QFileDialog::getSaveFileName(this, tr("Save regular language"), "", tr("Text Files (*.txt);;All Files (*)"));
-    if (file_name.isEmpty())
-        return;
+    QString file_name;
+    if(automata.getRlFilePath().isEmpty())
+    {
+        file_name = QFileDialog::getSaveFileName(this, tr("Save regular language"), "", tr("Text Files (*.txt);;All Files (*)"));
+        if (file_name.isEmpty())
+            return;
+        automata.setRlFilePath(file_name);
+    }
+    else {
+        file_name = automata.getRlFilePath();
+    }
     QFile file(file_name);
     if (!file.open(QIODevice::WriteOnly)) {
         QMessageBox::information(this, tr("Unable to open file"),
@@ -1254,4 +1271,16 @@ void MainWindow::on_actionExportDESUMA_triggered()
         file_name = automata.getFilePath();
     automata.toDesuma(file_name);
     QMessageBox::information(this, tr("Save sucessful"),"Automaton saved sucessfuly.");
+}
+
+void MainWindow::on_actionSave_automatons_as_triggered()
+{
+    automata.setFilePath("");
+    emit(on_actionSaveAutomaton_triggered());
+}
+
+void MainWindow::on_actionSaveRL_as_triggered()
+{
+    automata.setRlFilePath("");
+    emit(on_actionSaveRL_triggered());
 }
