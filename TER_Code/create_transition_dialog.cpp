@@ -13,7 +13,7 @@ Create_transition_dialog::Create_transition_dialog(int idTransition, QMap<int, E
     ui->setupUi(this);
     QObject::connect(ui->buttonBox, SIGNAL(accepted()), this, SLOT(Create_transition_dialog_accept_clicked()));
     for(Event e : eventList)
-        this->eventNameList.append(e.getLabel());
+        this->eventNameList.append(e.getName());
     for(State s : stateList)
         this->stateNameList.append(s.getName());
     stateCompleter = new QCompleter(stateNameList,this);    //autocompleter for states
@@ -65,7 +65,7 @@ void Create_transition_dialog::Create_transition_dialog_accept_clicked()
     Transition t;
     for(Event tmpEvent : eventList) //find event ID
     {
-        if(ui->edit_event->text() == tmpEvent.getLabel())
+        if(ui->edit_event->text() == tmpEvent.getName())
         {
             idEvent = tmpEvent;
             t.setEvent(idEvent.getId());

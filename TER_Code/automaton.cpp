@@ -2,10 +2,10 @@
 #include <QDebug>
 #include <QFileInfo>
 
-void Event::setLabel(QString l)
+void Attribute::setName(QString arg)
 {
-    if(l.isEmpty())throw SetterException("Name cannot be empty.");
-    this->label = l;
+    if(arg.isEmpty())throw SetterException("Name cannot be empty.");
+    this->name = arg;
 }
 
 /*
@@ -16,18 +16,12 @@ void Event::toSupremica(QXmlStreamWriter *stream)
     //<Event id="3" label="f" controllable="false" observable="false"/>
     stream->writeStartElement("Event");
     stream->writeAttribute("id", QString::number(this->id));
-    stream->writeAttribute("label", this->label);
+    stream->writeAttribute("label", this->name);
     if(!this->controlable)
         stream->writeAttribute("controllable", "false");
     if(!this->observable)
         stream->writeAttribute("observable", "false");
     stream->writeEndElement();
-}
-
-void State::setName(QString n)
-{
-    if(n.isEmpty())throw SetterException("Name cannot be empty.");
-    this->name = n;
 }
 
 /*
@@ -168,7 +162,7 @@ void Automaton::toSedma(QTextStream *stream)
         line += " ";
         line += stateList[t.getDest()].getName();
         line += " {";
-        line += eventList[t.getEvent()].getLabel();
+        line += eventList[t.getEvent()].getName();
         line += "} black";
         *stream << line << endl;
     }
@@ -233,13 +227,13 @@ void Automaton::toDesuma(QXmlStreamWriter *stream)
         stream->writeStartElement("transition");
         stream->writeAttribute("from", stateList[t.getSource()].getName());
         stream->writeAttribute("to", stateList[t.getDest()].getName());
-        stream->writeAttribute("name", eventList[t.getEvent()].getLabel());
+        stream->writeAttribute("name", eventList[t.getEvent()].getName());
         stream->writeEndElement();
     }
     for(Event e : eventList)
     {
         stream->writeStartElement("event");
-        stream->writeAttribute("name", e.getLabel());
+        stream->writeAttribute("name", e.getName());
         stream->writeAttribute("controllable",(e.getControlable())?"true":"false");
         stream->writeAttribute("observable",(e.getObservable())?"true":"false");
         stream->writeEndElement();

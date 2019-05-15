@@ -14,7 +14,7 @@ Delete_event_dialog::Delete_event_dialog(QMap<int, Event> eventList, QWidget *pa
         ui->event_list->insertRow(pos);
 
         ui->event_list->setItem(pos,0, new QTableWidgetItem(QString::number(e.getId())));
-        ui->event_list->setItem(pos,1, new QTableWidgetItem(e.getLabel()));
+        ui->event_list->setItem(pos,1, new QTableWidgetItem(e.getName()));
         ui->event_list->setItem(pos,2,new Table_Widget_Checkbox_Item(""));
         ui->event_list->item(pos,2)->setFlags(ui->event_list->item(pos,2)->flags() & (~Qt::ItemIsEditable) & (~Qt::ItemIsUserCheckable));
         ui->event_list->item(pos,2)->setCheckState(Qt::Unchecked);

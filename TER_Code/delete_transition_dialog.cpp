@@ -16,7 +16,7 @@ Delete_transition_dialog::Delete_transition_dialog(QMap<int, Event> eventList, Q
         ui->transitions_list->setItem(pos,0, new QTableWidgetItem(QString::number(t.getId())));
         ui->transitions_list->setItem(pos,1, new QTableWidgetItem(stateList.find(t.getSource()).value().getName()));
         ui->transitions_list->setItem(pos,2, new QTableWidgetItem(stateList.find(t.getDest()).value().getName()));
-        ui->transitions_list->setItem(pos,3, new QTableWidgetItem(eventList.find(t.getEvent()).value().getLabel()));
+        ui->transitions_list->setItem(pos,3, new QTableWidgetItem(eventList.find(t.getEvent()).value().getName()));
         ui->transitions_list->setItem(pos,4,new Table_Widget_Checkbox_Item(""));
         ui->transitions_list->item(pos,4)->setFlags(ui->transitions_list->item(pos,4)->flags() & (~Qt::ItemIsEditable) & (~Qt::ItemIsUserCheckable));
         ui->transitions_list->item(pos,4)->setCheckState(Qt::Unchecked);

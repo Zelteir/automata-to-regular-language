@@ -34,6 +34,7 @@ MainWindow::MainWindow(QWidget *parent) :
     ui->actionBrzozowski->setActionGroup(method);
     ui->actionBrzozowski_V2->setActionGroup(method);
     ui->actionReverse_Brzozowski->setActionGroup(method);
+    ui->actionTransitive_closure->setActionGroup(method);
     method->setExclusive(true);
     ui->menuBar->addAction(ui->actionHelp);
 }
@@ -132,7 +133,7 @@ void MainWindow::add_event_to_list(Event e)
     ui->Events_list->insertRow(pos);
     //add Id and label
     ui->Events_list->setItem(pos,0,new QTableWidgetItem(QString::number(e.getId())));
-    ui->Events_list->setItem(pos,1,new QTableWidgetItem(e.getLabel()));
+    ui->Events_list->setItem(pos,1,new QTableWidgetItem(e.getName()));
     ui->Events_list->item(pos,1)->setTextAlignment(Qt::AlignHCenter);
     //access boolean value and set checkbox state accordingly, flags prevent edition of checkbox text
     ui->Events_list->setItem(pos,2,new Table_Widget_Checkbox_Item(""));
@@ -168,7 +169,7 @@ void MainWindow::add_transition_to_list(Transition t)
     ui->Transitions_list->setItem(pos,0, new QTableWidgetItem(QString::number(t.getId())));
     ui->Transitions_list->setItem(pos,1, new QTableWidgetItem(currentAutomaton->getState(t.getSource()).getName()));
     ui->Transitions_list->setItem(pos,2, new QTableWidgetItem(currentAutomaton->getState(t.getDest()).getName()));
-    ui->Transitions_list->setItem(pos,3, new QTableWidgetItem(currentAutomaton->getEvent(t.getEvent()).getLabel()));
+    ui->Transitions_list->setItem(pos,3, new QTableWidgetItem(currentAutomaton->getEvent(t.getEvent()).getName()));
 }
 
 /*
@@ -342,7 +343,7 @@ void MainWindow::generateLanguage(Automaton *a)
         QMap<int, Event> tmpEventList;
         for(Event e : *a->getEventList())
         {
-            e.setLabel(e.getLabel()+".");
+            e.setName(e.getName()+".");
             //tmpEventList.append(e);
             tmpEventList.insert(e.getId(),e);
         }
@@ -359,6 +360,10 @@ void MainWindow::generateLanguage(Automaton *a)
     else if(ui->actionReverse_Brzozowski->isChecked())
     {
         translator.reverseBrzozowski(*a, ui->Ignore_Unobservable_check->isChecked(), ui->Ignore_Uncontrolable_check->isChecked());
+    }
+    else if(ui->actionTransitive_closure->isChecked())
+    {
+        translator.transitive_Closure(*a, ui->Ignore_Unobservable_check->isChecked(), ui->Ignore_Uncontrolable_check->isChecked());
     }
 
     if(ui->actionAvoid_language_ambiguity->isChecked()) //delete inappropriate or misplaced '.' from avoid ambiguity
@@ -509,7 +514,7 @@ void MainWindow::on_Events_list_itemChanged(QTableWidgetItem *item)
     QSignalBlocker events_blocker(ui->Events_list);
     QSignalBlocker transition_blocker(ui->Transitions_list);
     Event e = currentAutomaton->getEvent(ui->Events_list->item(item->row(),0)->text().toInt());
-    QString old = e.getLabel();
+    QString old = e.getName();
     if (item->column() == 1) {
     //if the label was changed
     //check if the name isn't already in use  as state or event
@@ -537,12 +542,12 @@ void MainWindow::on_Events_list_itemChanged(QTableWidgetItem *item)
         }
         //set label
         try {
-            e.setLabel(item->text());
+            e.setName(item->text());
             currentAutomaton->getEventList()->insert(e.getId(),e);
         } catch (SetterException &ex) {
             QMessageBox::information(this, tr("Error"),
             ex.getMsg());
-            item->setText(currentAutomaton->getEvent(e.getId()).getLabel());
+            item->setText(currentAutomaton->getEvent(e.getId()).getName());
             return;
         }
         //modify transition using the old name
@@ -646,7 +651,7 @@ void MainWindow::on_Transitions_list_itemChanged(QTableWidgetItem *item)
         {
             QMessageBox::information(this, tr("Error"),
             QString("This event does not exist."));
-            item->setText(currentAutomaton->getEvent(currentAutomaton->getTransition(t.getId()).getEvent()).getLabel());
+            item->setText(currentAutomaton->getEvent(currentAutomaton->getTransition(t.getId()).getEvent()).getName());
             return;
         }
         t.setEvent(e);
@@ -656,7 +661,7 @@ void MainWindow::on_Transitions_list_itemChanged(QTableWidgetItem *item)
             {
                 QMessageBox::information(this, tr("Error"),
                 QString("This transition already exist."));
-                item->setText(currentAutomaton->getEvent(currentAutomaton->getTransition(t.getId()).getEvent()).getLabel());
+                item->setText(currentAutomaton->getEvent(currentAutomaton->getTransition(t.getId()).getEvent()).getName());
                 return;
             }
         }
@@ -1273,12 +1278,20 @@ void MainWindow::on_actionExportDESUMA_triggered()
     QMessageBox::information(this, tr("Save sucessful"),"Automaton saved sucessfuly.");
 }
 
+/*
+ * slot for 'save automata as...'
+ * empty path in memory and call save function
+*/
 void MainWindow::on_actionSave_automatons_as_triggered()
 {
     automata.setFilePath("");
     emit(on_actionSaveAutomaton_triggered());
 }
 
+/*
+ * slot for 'save regular language as...'
+ * empty path in memory and call save function
+*/
 void MainWindow::on_actionSaveRL_as_triggered()
 {
     automata.setRlFilePath("");

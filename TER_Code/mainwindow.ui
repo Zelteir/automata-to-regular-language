@@ -531,6 +531,7 @@
      <addaction name="actionBrzozowski"/>
      <addaction name="actionBrzozowski_V2"/>
      <addaction name="actionReverse_Brzozowski"/>
+     <addaction name="actionTransitive_closure"/>
     </widget>
     <addaction name="actionGenerate_all_languages"/>
     <addaction name="actionAvoid_language_ambiguity"/>
@@ -796,6 +797,14 @@
    </property>
    <property name="text">
     <string>DESUMA</string>
+   </property>
+  </action>
+  <action name="actionTransitive_closure">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <property name="text">
+    <string>Transitive closure</string>
    </property>
   </action>
  </widget>

@@ -29,7 +29,7 @@ void Create_state_dialog::Create_state_dialog_accept_clicked()
     }
     for(Event tmpEvent : eventList)
     {
-        if(ui->edit_name->text() == tmpEvent.getLabel())
+        if(ui->edit_name->text() == tmpEvent.getName())
         {
             ui->label_alert->setText(QString("Name already in use."));
             return;

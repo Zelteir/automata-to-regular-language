@@ -18,6 +18,7 @@ class Translator
         void reverseBrzozowski(Automaton, bool, bool);
         void brzozowskiMethodV2(Automaton, bool, bool);
         void reduction(Automaton);
+        void transitive_Closure(Automaton, bool, bool);
 };
 
 #endif // TRANSLATOR_HPP

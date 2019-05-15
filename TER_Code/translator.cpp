@@ -85,14 +85,14 @@ void Translator::brzozowskiMethod(Automaton automaton, bool ignoreUnobservable, 
             {
                 //Transition Unique (si aucune transition n'existe pour le moment avec cette clé)
                 if(!expressionList[t.getDest()].contains(t.getSource()))
-                    expressionList[t.getDest()].insert(t.getSource(), automaton.getEvent(t.getEvent()).getLabel());
+                    expressionList[t.getDest()].insert(t.getSource(), automaton.getEvent(t.getEvent()).getName());
                 else
                 {
                     //Transition Multiple (si la clé existe déjà, nous rajoutons le nouveau mot dans l'expression. Les parenthèses seront rajoutées après toute la lecture.)
                     tmp = (expressionList[t.getDest()]).take(t.getSource());
                     if(tmp != "")   //Dans le cas où la transition vide existait, nous n'ajoutons PAS le +, car il y aura une transition visible dans ce cas et nous ne souhaitons pas de + inutilement
                         tmp.append("+");
-                    tmp.append(automaton.getEvent(t.getEvent()).getLabel());
+                    tmp.append(automaton.getEvent(t.getEvent()).getName());
                     (expressionList[t.getDest()]).insert(t.getSource(), tmp);
                 }
             }
@@ -113,19 +113,6 @@ void Translator::brzozowskiMethod(Automaton automaton, bool ignoreUnobservable, 
             }
         }
     }
-
-    /*//Etape 1.2 : Verification du contenu (à supprimer quand le code sera opérationnel)
-    qDebug() << "Verification de l'initialisation";
-    for(i = 0; i < automatonStatesNumber; i++)
-    {
-        qDebug() << "Etat " << i;
-        foreach(k, expressionList[i].keys())
-        {
-            QList<QString> expressions = expressionList[i].values(k);
-            for(j = 0; j<expressions.count(); j++)
-                qDebug() << "cle : " << k << " expression : " << expressions[j];
-        }
-    }*/
 
     //Etape 2 : solving
     //Etape 2.1 : suppression des états non-finaux (identique à 2.2)
@@ -216,27 +203,6 @@ void Translator::brzozowskiMethod(Automaton automaton, bool ignoreUnobservable, 
             }
 
             traitement[i] = true;
-
-
-            /*//Etape 2.1.1 : Verification du contenu (a effacer une fois fini)
-            qDebug() << "Verification de la modification a l'etape 2.1 en s'occupant de l'etat " << i;
-            for(j = 0; j < automatonStatesNumber; j++)
-            {
-                for(k=0;k<=automatonStatesNumber;k++)
-                    traitementTempo[k] = false;
-
-                qDebug() << "Etat " << j;
-                foreach(k, expressionList[j].keys())
-                {
-                    if(traitementTempo[k+1] == false)
-                    {
-                        expressionsTempo1 = (expressionList[j]).values(k);
-                        for(l = 0; l < expressionsTempo1.count(); l++)
-                            qDebug() << "cle : " << k << " expression : " << expressionsTempo1[l];
-                    }
-                    traitementTempo[k+1] = true;
-                }
-            }*/
         }
     }
 
@@ -328,27 +294,6 @@ void Translator::brzozowskiMethod(Automaton automaton, bool ignoreUnobservable, 
             }
 
             traitement[i] = true;
-
-
-            /*//Etape 2.2.1 : Verification du contenu (a effacer une fois fini)
-            qDebug() << "Verification de la modification a l'etape 2.2 en s'occupant de l'etat " << i;
-            for(j = 0; j < automatonStatesNumber; j++)
-            {
-                for(k=0;k<=automatonStatesNumber;k++)
-                    traitementTempo[k] = false;
-
-                qDebug() << "Etat " << j;
-                foreach(k, expressionList[j].keys())
-                {
-                    if(traitementTempo[k+1] == false)
-                    {
-                        expressionsTempo1 = (expressionList[j]).values(k);
-                        for(l = 0; l < expressionsTempo1.count(); l++)
-                            qDebug() << "cle : " << k << " expression : " << expressionsTempo1[l];
-                    }
-                    traitementTempo[k+1] = true;
-                }
-            }*/
         }
     }
 
@@ -379,26 +324,6 @@ void Translator::brzozowskiMethod(Automaton automaton, bool ignoreUnobservable, 
                     }
                 }
             }
-
-            //Etape 3.1 : Verification du contenu (a effacer une fois fini)
-            /*qDebug() << "Verification de la modification a l'etape 3 en s'occupant de l'etat " << i;
-            for(j = 0; j < automatonStatesNumber; j++)
-            {
-                for(k=0;k<=automatonStatesNumber;k++)
-                    traitementTempo[k] = false;
-
-                qDebug() << "Etat " << j;
-                foreach(k, expressionList[j].keys())
-                {
-                    if(traitementTempo[k+1] == false)
-                    {
-                        expressionsTempo1 = (expressionList[j]).values(k);
-                        for(l = 0; l < expressionsTempo1.count(); l++)
-                            qDebug() << "cle : " << k << " expression : " << expressionsTempo1[l];
-                    }
-                    traitementTempo[k+1] = true;
-                }
-            }*/
         }
     }
 
@@ -535,7 +460,7 @@ void Translator::reverseBrzozowski(Automaton automaton, bool ignoreUnobservable,
                     if((ignoreUncontrolable == true && automaton.getEvent(i).getControlable() == false) || (ignoreUnobservable  == true && automaton.getEvent(i).getObservable() == false))
                         traitementMultiMap.insert(j, "");
                     else
-                        traitementMultiMap.insert(j, automaton.getEvent(i).getLabel());
+                        traitementMultiMap.insert(j, automaton.getEvent(i).getName());
                     //Une fois la transition ajoutée, nous remettons la MultiMap dans la Map
                     mapStatesSetsTransitionsList.insert(compteurMap, traitementMultiMap);
                 }
@@ -581,7 +506,7 @@ void Translator::reverseBrzozowski(Automaton automaton, bool ignoreUnobservable,
                                 else
                                     expression.remove(")");
                                 expression.append("+");
-                                expression.append(automaton.getEvent(i).getLabel());
+                                expression.append(automaton.getEvent(i).getName());
                                 expression.append(")");
                             }
                         }
@@ -821,7 +746,7 @@ void Translator::brzozowskiMethodV2(Automaton automaton, bool ignoreUnobservable
     for(i = 0; i < automaton.getIdEvent(); i++)
     {
         if(automaton.getEventList()->contains(i))
-            arrayEventPtr.insert(i, std::make_shared<QString>(automaton.getEvent(i).getLabel()));
+            arrayEventPtr.insert(i, std::make_shared<QString>(automaton.getEvent(i).getName()));
     }
 
     //Etape 1 : Initialisation des expressions et du traitement à faux
@@ -1229,3 +1154,99 @@ void Translator::reduction(Automaton)
 
 }
 
+void Translator::transitive_Closure(Automaton automaton, bool ignoreUnobservable, bool ignoreUncontrolable)
+{
+    int size = automaton.getStateList()->last().getId()+2;
+    QVector<QVector<QVector<QString>>> map(size);
+    QString finalExpr = "", tmp;
+    int initState = 0;
+
+#pragma omp parallel
+    {
+#pragma omp for schedule(static)
+        for(int i = 0; i < size; i++)
+        {
+            map[i].resize(size);
+            for(int j = 0; j < size; j++)
+            {
+                map[i][j].resize(size);
+                if(i == j)
+                    map[i][j][0] = "$";
+            }
+        }
+    }
+
+    for(Transition t : *automaton.getTransitionList())
+    {
+        if(!((automaton.getEvent(t.getEvent()).getObservable() == false && ignoreUnobservable==true) || (automaton.getEvent(t.getEvent()).getControlable() == false && ignoreUncontrolable==true)))
+        {
+            if(map[t.getSource()+1][t.getDest()+1][0].isEmpty())
+                map[t.getSource()+1][t.getDest()+1][0] = "";
+            else
+                map[t.getSource()+1][t.getDest()+1][0] += "+";
+            map[t.getSource()+1][t.getDest()+1][0] += automaton.getEvent(t.getEvent()).getName();
+        }
+    }
+    /*TO DO remplacer 3e dimention par back matrice*/
+    for(int k = 1; k < size; k++)
+    {
+#pragma omp parallel private(tmp)
+        {
+#pragma omp for collapse(2) schedule(static)
+            for(int i = 1; i < size; i++)
+            {
+                for(int j = 1; j < size; j++)
+                {
+                    tmp = map[i][k][k-1] + star(map[k][k][k-1]) + map[k][j][k-1];
+                    if(!map[i][j][k-1].isEmpty())
+                    {
+                        if(!tmp.isEmpty())
+                        {
+                            map[i][j][k] = "" +
+                                    ((map[i][j][k-1].size() > 1)?"(" + map[i][j][k-1] + ")+" :map[i][j][k-1] + "+") +
+                                    tmp;
+                        }
+                        else
+                            map[i][j][k] = "" + map[i][j][k-1];
+                    }
+                    else
+                        map[i][j][k] = "" + tmp;
+                }
+            }
+        }
+    }
+    for(State s : *automaton.getStateList())
+    {
+        if(s.getInitial())
+        {
+            initState = s.getId()+1;
+            break;
+        }
+    }
+    for(State s : *automaton.getStateList())
+    {
+        if(s.getInitial() && s.getAccepting())
+        {
+            if(!finalExpr.isEmpty())
+            {
+                finalExpr.prepend("+");
+                finalExpr.prepend("$");
+                finalExpr.append("+");
+                finalExpr.append(map[initState][s.getId() + 1][size-1]);
+            }
+            else
+            {
+                finalExpr.prepend("+");
+                finalExpr.prepend("$");
+                finalExpr.append(map[initState][s.getId() + 1][size-1]);
+            }
+        }
+        else if (s.getAccepting())
+        {
+            if(!finalExpr.isEmpty())
+                finalExpr.append("+");
+            finalExpr.append(map[initState][s.getId() + 1][size-1]);
+        }
+    }
+    regex = finalExpr;
+}

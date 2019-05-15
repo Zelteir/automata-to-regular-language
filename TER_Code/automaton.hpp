@@ -7,6 +7,22 @@
 #include <QException>
 #include <QXmlStreamWriter>
 
+enum attribute_type{ATTRIBUTE, EVENT, STATE, TRANSITION};
+
+class Attribute{
+protected:
+    int id;
+    QString name;
+    enum attribute_type type = ATTRIBUTE;
+    Attribute(){id = -1;name = ""; type = ATTRIBUTE;}
+    Attribute(int id, QString name, enum attribute_type type) : id(id), name(name), type(type){}
+
+public :
+    int getId() {return id;}
+    QString getName() {return name;}
+    void setName(QString s);
+};
+
 class SetterException : public QException
 {
     public:
@@ -18,61 +34,49 @@ class SetterException : public QException
         QString msg;
 };
 
-class Event{
+class Event : public Attribute{
     private:
-        int id;
-        QString label;
         bool observable; //true==observable
         bool controlable; //true==controlable
    public:
-        Event(){id = -1; label = ""; observable = true; controlable = true;}
-        Event(int idEvent, QString label,bool observable,bool controlable) : id(idEvent),label(label),observable(observable),controlable(controlable){}
+        Event(){id = -1; name = ""; observable = true; controlable = true;}
+        Event(int idEvent, QString name,bool observable,bool controlable) : Attribute(idEvent, name, EVENT),observable(observable),controlable(controlable){}
 
-        int getId() {return id;}
-        QString getLabel() {return label;}
         bool getObservable() {return observable;}
         bool getControlable(){return controlable;}
         void setObservable(bool b) {observable = b;}
         void setControlable(bool b) {controlable = b;}
-        void setLabel(QString);
         void toSupremica(QXmlStreamWriter *stream);
 };
 
-class State{
+class State : public Attribute{
     private:
-        int id;
-        QString name;
         bool initial;
         bool accepting;
 
     public:
         State(){id = -1; name = ""; initial = false; accepting = false;}
-        State(int idState, QString name, bool initial,bool accepting) : id(idState),name(name),initial(initial),accepting(accepting){}
+        State(int idState, QString name, bool initial,bool accepting) : Attribute(idState, name, STATE),initial(initial),accepting(accepting){}
 
-        int getId() {return id;}
-        QString getName() {return name;}
         bool getInitial() {return initial;}
         bool getAccepting() {return accepting;}
-        void setName(QString);
         void setInitial(bool b) {initial = b;}
         void setAccepting(bool b) {accepting = b;}
         void toSupremica(QXmlStreamWriter *stream);
 };
 
-class Transition{
+class Transition: public Attribute{
     private:
-        int id;
         int source;
         int dest;
         int event;
     public:
         Transition() {id = -1; source = -1; dest = -1; event = -1;}
-        Transition(int idTransition, int source,int dest,int event) : id(idTransition),source(source),dest(dest),event(event){}
+        Transition(int idTransition, int source,int dest,int event) : Attribute(idTransition,"", TRANSITION),source(source),dest(dest),event(event){}
 
         int getSource() {return source;}
         int getDest() {return dest;}
         int getEvent() {return event;}
-        int getId() {return id;}
         void setSource(int s) {source = s;}
         void setDest(int d) {dest = d;}
         void setEvent(int e) {event = e;}

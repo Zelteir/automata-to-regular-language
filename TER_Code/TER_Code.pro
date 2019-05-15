@@ -6,6 +6,9 @@
 
 QT       += core gui xml
 
+QMAKE_CXXFLAGS += -fopenmp
+LIBS += -fopenmp
+
 greaterThan(QT_MAJOR_VERSION, 4): QT += widgets
 
 TARGET = TER_Code
