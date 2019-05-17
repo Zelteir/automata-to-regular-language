@@ -811,19 +811,6 @@ void Translator::brzozowskiMethodV2(Automaton automaton, bool ignoreUnobservable
         }
     }
 
-//    //Etape 1.2 : Verification du contenu (à supprimer quand le code sera opérationnel)
-//    qDebug() << "Verification de l'initialisation";
-//    for(i = 0; i < automatonStatesNumber; i++)
-//    {
-//        qDebug() << "Etat " << i;
-//        foreach(k, expressionList[i].keys())
-//        {
-//            QList<QString> expressions = expressionList[i].values(k);
-//            for(j = 0; j<expressions.count(); j++)
-//                qDebug() << "cle : " << k << " expression : " << expressions[j];
-//        }
-//    }
-
     //Etape 2 : solving
     //Etape 2.1 : suppression des états non-finaux (identique à 2.2)
     for (i = 0; i < automatonStatesNumber; i++)
@@ -912,27 +899,6 @@ void Translator::brzozowskiMethodV2(Automaton automaton, bool ignoreUnobservable
             }
 
             traitement[i] = true;
-
-
-//            //Etape 2.1.1 : Verification du contenu (a effacer une fois fini)
-//            qDebug() << "Verification de la modification a l'etape 2.1 en s'occupant de l'etat " << i;
-//            for(j = 0; j < automatonStatesNumber; j++)
-//            {
-//                for(k=0;k<=automatonStatesNumber;k++)
-//                    traitementTempo[k] = false;
-
-//                qDebug() << "Etat " << j;
-//                foreach(k, expressionList[j].keys())
-//                {
-//                    if(traitementTempo[k+1] == false)
-//                    {
-//                        expressionsTempo1 = (expressionList[j]).values(k);
-//                        for(l = 0; l < expressionsTempo1.count(); l++)
-//                            qDebug() << "cle : " << k << " expression : " << expressionsTempo1[l];
-//                    }
-//                    traitementTempo[k+1] = true;
-//                }
-//            }
         }
     }
 
@@ -1024,27 +990,6 @@ void Translator::brzozowskiMethodV2(Automaton automaton, bool ignoreUnobservable
             }
 
             traitement[i] = true;
-
-
-            //Etape 2.2.1 : Verification du contenu (a effacer une fois fini)
-//            qDebug() << "Verification de la modification a l'etape 2.2 en s'occupant de l'etat " << i;
-//            for(j = 0; j < automatonStatesNumber; j++)
-//            {
-//                for(k=0;k<=automatonStatesNumber;k++)
-//                    traitementTempo[k] = false;
-
-//                qDebug() << "Etat " << j;
-//                foreach(k, expressionList[j].keys())
-//                {
-//                    if(traitementTempo[k+1] == false)
-//                    {
-//                        expressionsTempo1 = (expressionList[j]).values(k);
-//                        for(l = 0; l < expressionsTempo1.count(); l++)
-//                            qDebug() << "cle : " << k << " expression : " << expressionsTempo1[l];
-//                    }
-//                    traitementTempo[k+1] = true;
-//                }
-//            }
         }
     }
 
@@ -1075,26 +1020,6 @@ void Translator::brzozowskiMethodV2(Automaton automaton, bool ignoreUnobservable
                     }
                 }
             }
-
-            //Etape 3.1 : Verification du contenu (a effacer une fois fini)
-            //qDebug() << "Verification de la modification a l'etape 3 en s'occupant de l'etat " << i;
-            //for(j = 0; j < automatonStatesNumber; j++)
-            //{
-            //    for(k=0;k<=automatonStatesNumber;k++)
-            //        traitementTempo[k] = false;
-            //
-            //    qDebug() << "Etat " << j;
-            //    foreach(k, expressionList[j].keys())
-            //    {
-            //        if(traitementTempo[k+1] == false)
-            //        {
-            //            expressionsTempo1 = (expressionList[j]).values(k);
-            //            for(l = 0; l < expressionsTempo1.count(); l++)
-            //                qDebug() << "cle : " << k << " expression : " << expressionsTempo1[l];
-            //        }
-            //        traitementTempo[k+1] = true;
-            //   }
-            //}
         }
     }
 
@@ -1188,6 +1113,7 @@ void Translator::transitive_Closure(Automaton automaton, bool ignoreUnobservable
         }
     }
     /*TO DO remplacer 3e dimention par back matrice*/
+    //R[i,j,k] = R[i,j,k-1] + R[i,k,k-1] . (R[k,k,k-1])* . R[k,j,k-1]
     for(int k = 1; k < size; k++)
     {
 #pragma omp parallel private(tmp)

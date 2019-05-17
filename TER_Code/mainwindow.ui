@@ -78,8 +78,8 @@
              <string/>
             </property>
             <property name="icon">
-             <iconset>
-              <normaloff>../iconfinder_icon-plus-round_211877.png</normaloff>../iconfinder_icon-plus-round_211877.png</iconset>
+             <iconset resource="ressources.qrc">
+              <normaloff>:/icons/iconfinder_icon-plus-round_211877.png</normaloff>:/icons/iconfinder_icon-plus-round_211877.png</iconset>
             </property>
            </widget>
           </item>
@@ -92,8 +92,8 @@
              <string/>
             </property>
             <property name="icon">
-             <iconset>
-              <normaloff>../iconfinder_icon-minus-round_211863.png</normaloff>../iconfinder_icon-minus-round_211863.png</iconset>
+             <iconset resource="ressources.qrc">
+              <normaloff>:/icons/iconfinder_icon-minus-round_211863.png</normaloff>:/icons/iconfinder_icon-minus-round_211863.png</iconset>
             </property>
            </widget>
           </item>
@@ -186,8 +186,8 @@
                <string/>
               </property>
               <property name="icon">
-               <iconset>
-                <normaloff>../iconfinder_icon-plus-round_211877.png</normaloff>../iconfinder_icon-plus-round_211877.png</iconset>
+               <iconset resource="ressources.qrc">
+                <normaloff>:/icons/iconfinder_icon-plus-round_211877.png</normaloff>:/icons/iconfinder_icon-plus-round_211877.png</iconset>
               </property>
              </widget>
             </item>
@@ -200,8 +200,8 @@
                <string/>
               </property>
               <property name="icon">
-               <iconset>
-                <normaloff>../iconfinder_icon-minus-round_211863.png</normaloff>../iconfinder_icon-minus-round_211863.png</iconset>
+               <iconset resource="ressources.qrc">
+                <normaloff>:/icons/iconfinder_icon-minus-round_211863.png</normaloff>:/icons/iconfinder_icon-minus-round_211863.png</iconset>
               </property>
              </widget>
             </item>
@@ -274,8 +274,8 @@
                <string/>
               </property>
               <property name="icon">
-               <iconset>
-                <normaloff>../iconfinder_icon-plus-round_211877.png</normaloff>../iconfinder_icon-plus-round_211877.png</iconset>
+               <iconset resource="ressources.qrc">
+                <normaloff>:/icons/iconfinder_icon-plus-round_211877.png</normaloff>:/icons/iconfinder_icon-plus-round_211877.png</iconset>
               </property>
              </widget>
             </item>
@@ -288,8 +288,8 @@
                <string/>
               </property>
               <property name="icon">
-               <iconset>
-                <normaloff>../iconfinder_icon-minus-round_211863.png</normaloff>../iconfinder_icon-minus-round_211863.png</iconset>
+               <iconset resource="ressources.qrc">
+                <normaloff>:/icons/iconfinder_icon-minus-round_211863.png</normaloff>:/icons/iconfinder_icon-minus-round_211863.png</iconset>
               </property>
              </widget>
             </item>
@@ -356,8 +356,8 @@
                <string/>
               </property>
               <property name="icon">
-               <iconset>
-                <normaloff>../iconfinder_icon-plus-round_211877.png</normaloff>../iconfinder_icon-plus-round_211877.png</iconset>
+               <iconset resource="ressources.qrc">
+                <normaloff>:/icons/iconfinder_icon-plus-round_211877.png</normaloff>:/icons/iconfinder_icon-plus-round_211877.png</iconset>
               </property>
              </widget>
             </item>
@@ -370,8 +370,8 @@
                <string/>
               </property>
               <property name="icon">
-               <iconset>
-                <normaloff>../iconfinder_icon-minus-round_211863.png</normaloff>../iconfinder_icon-minus-round_211863.png</iconset>
+               <iconset resource="ressources.qrc">
+                <normaloff>:/icons/iconfinder_icon-minus-round_211863.png</normaloff>:/icons/iconfinder_icon-minus-round_211863.png</iconset>
               </property>
              </widget>
             </item>
@@ -809,7 +809,9 @@
   </action>
  </widget>
  <layoutdefault spacing="6" margin="11"/>
- <resources/>
+ <resources>
+  <include location="ressources.qrc"/>
+ </resources>
  <connections>
   <connection>
    <sender>actionExit</sender>

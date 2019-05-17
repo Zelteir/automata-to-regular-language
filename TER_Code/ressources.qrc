@@ -1,0 +1,6 @@
+<RCC>
+    <qresource prefix="/icons">
+        <file>iconfinder_icon-plus-round_211877.png</file>
+        <file>iconfinder_icon-minus-round_211863.png</file>
+    </qresource>
+</RCC>
