@@ -30,13 +30,19 @@ MainWindow::MainWindow(QWidget *parent) :
     ui->Transitions_list->horizontalHeader()->setSectionResizeMode(2, QHeaderView::Stretch );
     ui->Transitions_list->horizontalHeader()->setSectionResizeMode(3, QHeaderView::Stretch );
     ui->Transitions_list->hideColumn(0);
-    method = new QActionGroup(this);    //exclusive
+    method = new QActionGroup(this);    //exclusive options
     ui->actionBrzozowski->setActionGroup(method);
     ui->actionBrzozowski_V2->setActionGroup(method);
     ui->actionReverse_Brzozowski->setActionGroup(method);
     ui->actionTransitive_closure->setActionGroup(method);
     method->setExclusive(true);
     ui->menuBar->addAction(ui->actionHelp);
+
+    undoAction = undoStack->createUndoAction(this, tr("&Undo"));
+    undoAction->setShortcuts(QKeySequence::Undo);
+
+    redoAction = undoStack->createRedoAction(this, tr("&Redo"));
+    redoAction->setShortcuts(QKeySequence::Redo);
 }
 
 MainWindow::~MainWindow()

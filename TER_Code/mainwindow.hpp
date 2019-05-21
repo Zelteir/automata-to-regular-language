@@ -5,6 +5,7 @@
 #include <QMainWindow>
 #include <QTableWidgetItem>
 #include <QActionGroup>
+#include <QUndoStack>
 #include "automata.hpp"
 #include "translator.hpp"
 #include "table_widget_checkbox_item.hpp"
@@ -111,6 +112,9 @@ private:
     Translator translator;
     Automaton *currentAutomaton;
     QActionGroup *method;
+    QAction *undoAction;
+    QAction *redoAction;
+    QUndoStack *undoStack;
     void toggle_interface(bool b);
     void fill_interface();
     void fill_automaton_list();

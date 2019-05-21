@@ -39,17 +39,6 @@ void State::toSupremica(QXmlStreamWriter *stream)
     stream->writeEndElement();
 }
 
-/*
- * Write the Transition information inside the stream for Supremica XML
-*/
-/*Transition::Transition(int idTransition, QDomElement element)
-{
-
-    id = idTransition;
-    source = element.attribute("source","-1").toInt();
-    dest = element.attribute("dest","-1").toInt();
-    event = element.attribute("event","-1").toInt();
-}*/
 
 bool Transition::operator==(const Transition &rhs)
 {
