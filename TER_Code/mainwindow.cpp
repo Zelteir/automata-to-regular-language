@@ -14,6 +14,7 @@
 #include "delete_event_dialog.hpp"
 #include "delete_automaton_dialog.hpp"
 #include "help_dialog.hpp"
+#include "commands.hpp"
 
 MainWindow::MainWindow(QWidget *parent) :
     QMainWindow(parent),
@@ -38,11 +39,17 @@ MainWindow::MainWindow(QWidget *parent) :
     method->setExclusive(true);
     ui->menuBar->addAction(ui->actionHelp);
 
+    undoStack = new QUndoStack(this);
     undoAction = undoStack->createUndoAction(this, tr("&Undo"));
     undoAction->setShortcuts(QKeySequence::Undo);
 
     redoAction = undoStack->createRedoAction(this, tr("&Redo"));
     redoAction->setShortcuts(QKeySequence::Redo);
+
+    ui->menuBar->addAction(undoAction);
+    //undoAction->setVisible(false);
+    ui->menuBar->addAction(redoAction);
+    //redoAction->setVisible(false);
 }
 
 MainWindow::~MainWindow()
@@ -103,31 +110,34 @@ void MainWindow::toggle_interface(bool b)
 */
 void MainWindow::add_state_to_list(State s)
 {
+    QSignalBlocker states_blocker(ui->States_list);
     int pos = ui->States_list->rowCount();
     ui->States_list->insertRow(pos);
+    ui->States_list->setCurrentCell(pos,0);
     //add id and name
-    ui->States_list->setItem(pos,0,new QTableWidgetItem(QString::number(s.getId())));
-    ui->States_list->setItem(pos,1,new QTableWidgetItem(s.getName()));
-    ui->States_list->item(pos,1)->setTextAlignment(Qt::AlignHCenter);
+    ui->States_list->setItem(ui->States_list->currentRow(),0,new QTableWidgetItem(QString::number(s.getId())));
+    ui->States_list->setItem(ui->States_list->currentRow(),1,new QTableWidgetItem(s.getName()));
+    ui->States_list->item(ui->States_list->currentRow(),1)->setTextAlignment(Qt::AlignHCenter);
     //access boolean value and set checkbox state accordingly, flags prevent edition of checkbox text
-    ui->States_list->setItem(pos,2,new Table_Widget_Checkbox_Item(""));
+    ui->States_list->setItem(ui->States_list->currentRow(),2,new Table_Widget_Checkbox_Item(""));
     if(s.getInitial())
     {
-        ui->States_list->item(pos,2)->setCheckState(Qt::Checked);
+        ui->States_list->item(ui->States_list->currentRow(),2)->setCheckState(Qt::Checked);
     }
     else {
-        ui->States_list->item(pos,2)->setCheckState(Qt::Unchecked);
+        ui->States_list->item(ui->States_list->currentRow(),2)->setCheckState(Qt::Unchecked);
     }
-    ui->States_list->item(pos,2)->setFlags(ui->States_list->item(pos,2)->flags() & (~Qt::ItemIsEditable) & (~Qt::ItemIsUserCheckable));
-    ui->States_list->setItem(pos,3,new Table_Widget_Checkbox_Item(""));
+    ui->States_list->item(ui->States_list->currentRow(),2)->setFlags(ui->States_list->item(ui->States_list->currentRow(),2)->flags() & (~Qt::ItemIsEditable) & (~Qt::ItemIsUserCheckable));
+    ui->States_list->setItem(ui->States_list->currentRow(),3,new Table_Widget_Checkbox_Item(""));
     if(s.getAccepting())
     {
-        ui->States_list->item(pos,3)->setCheckState(Qt::Checked);
+        ui->States_list->item(ui->States_list->currentRow(),3)->setCheckState(Qt::Checked);
     }
     else {
-        ui->States_list->item(pos,3)->setCheckState(Qt::Unchecked);
+        ui->States_list->item(ui->States_list->currentRow(),3)->setCheckState(Qt::Unchecked);
     }
-    ui->States_list->item(pos,3)->setFlags(ui->States_list->item(pos,3)->flags() & (~Qt::ItemIsEditable) & (~Qt::ItemIsUserCheckable));
+    ui->States_list->item(ui->States_list->currentRow(),3)->setFlags(ui->States_list->item(ui->States_list->currentRow(),3)->flags() & (~Qt::ItemIsEditable) & (~Qt::ItemIsUserCheckable));
+    states_blocker.unblock();
 }
 
 /*
@@ -137,31 +147,32 @@ void MainWindow::add_event_to_list(Event e)
 {
     int pos = ui->Events_list->rowCount();
     ui->Events_list->insertRow(pos);
+    ui->Events_list->setCurrentCell(pos,0);
     //add Id and label
-    ui->Events_list->setItem(pos,0,new QTableWidgetItem(QString::number(e.getId())));
-    ui->Events_list->setItem(pos,1,new QTableWidgetItem(e.getName()));
-    ui->Events_list->item(pos,1)->setTextAlignment(Qt::AlignHCenter);
+    ui->Events_list->setItem(ui->Events_list->currentRow(),0,new QTableWidgetItem(QString::number(e.getId())));
+    ui->Events_list->setItem(ui->Events_list->currentRow(),1,new QTableWidgetItem(e.getName()));
+    ui->Events_list->item(ui->Events_list->currentRow(),1)->setTextAlignment(Qt::AlignHCenter);
     //access boolean value and set checkbox state accordingly, flags prevent edition of checkbox text
-    ui->Events_list->setItem(pos,2,new Table_Widget_Checkbox_Item(""));
+    ui->Events_list->setItem(ui->Events_list->currentRow(),2,new Table_Widget_Checkbox_Item(""));
     if(!e.getObservable())
     {
-        ui->Events_list->item(pos,2)->setCheckState(Qt::Checked);
+        ui->Events_list->item(ui->Events_list->currentRow(),2)->setCheckState(Qt::Checked);
     }
     else
     {
-        ui->Events_list->item(pos,2)->setCheckState(Qt::Unchecked);
+        ui->Events_list->item(ui->Events_list->currentRow(),2)->setCheckState(Qt::Unchecked);
     }
-    ui->Events_list->item(pos,2)->setFlags(ui->Events_list->item(pos,2)->flags() & (~Qt::ItemIsEditable) & (~Qt::ItemIsUserCheckable));
-    ui->Events_list->setItem(pos,3,new Table_Widget_Checkbox_Item(""));
+    ui->Events_list->item(ui->Events_list->currentRow(),2)->setFlags(ui->Events_list->item(ui->Events_list->currentRow(),2)->flags() & (~Qt::ItemIsEditable) & (~Qt::ItemIsUserCheckable));
+    ui->Events_list->setItem(ui->Events_list->currentRow(),3,new Table_Widget_Checkbox_Item(""));
     if(!e.getControlable())
     {
-        ui->Events_list->item(pos,3)->setCheckState(Qt::Checked);
+        ui->Events_list->item(ui->Events_list->currentRow(),3)->setCheckState(Qt::Checked);
     }
     else
     {
-        ui->Events_list->item(pos,3)->setCheckState(Qt::Unchecked);
+        ui->Events_list->item(ui->Events_list->currentRow(),3)->setCheckState(Qt::Unchecked);
     }
-    ui->Events_list->item(pos,3)->setFlags(ui->Events_list->item(pos,3)->flags() & (~Qt::ItemIsEditable) & (~Qt::ItemIsUserCheckable));
+    ui->Events_list->item(ui->Events_list->currentRow(),3)->setFlags(ui->Events_list->item(ui->Events_list->currentRow(),3)->flags() & (~Qt::ItemIsEditable) & (~Qt::ItemIsUserCheckable));
 }
 
 /*
@@ -171,11 +182,12 @@ void MainWindow::add_transition_to_list(Transition t)
 {
     int pos = ui->Transitions_list->rowCount();
     ui->Transitions_list->insertRow(pos);
+    ui->Transitions_list->setCurrentCell(pos,0);
 
-    ui->Transitions_list->setItem(pos,0, new QTableWidgetItem(QString::number(t.getId())));
-    ui->Transitions_list->setItem(pos,1, new QTableWidgetItem(currentAutomaton->getState(t.getSource()).getName()));
-    ui->Transitions_list->setItem(pos,2, new QTableWidgetItem(currentAutomaton->getState(t.getDest()).getName()));
-    ui->Transitions_list->setItem(pos,3, new QTableWidgetItem(currentAutomaton->getEvent(t.getEvent()).getName()));
+    ui->Transitions_list->setItem(ui->Transitions_list->currentRow(),0, new QTableWidgetItem(QString::number(t.getId())));
+    ui->Transitions_list->setItem(ui->Transitions_list->currentRow(),1, new QTableWidgetItem(currentAutomaton->getState(t.getSource()).getName()));
+    ui->Transitions_list->setItem(ui->Transitions_list->currentRow(),2, new QTableWidgetItem(currentAutomaton->getState(t.getDest()).getName()));
+    ui->Transitions_list->setItem(ui->Transitions_list->currentRow(),3, new QTableWidgetItem(currentAutomaton->getEvent(t.getEvent()).getName()));
 }
 
 /*
@@ -320,6 +332,7 @@ void MainWindow::generateLanguage(Automaton *a)
 {
     int nb_init = 0;
     bool accept = false;
+    QElapsedTimer timer;
     //contain exactly one initial state
     //contain at least one eccepting state
     for(State s : *a->getStateList())
@@ -357,7 +370,9 @@ void MainWindow::generateLanguage(Automaton *a)
     }
     if(ui->actionBrzozowski->isChecked())
     {
+        timer.start();
         translator.brzozowskiMethod(*a, ui->Ignore_Unobservable_check->isChecked(), ui->Ignore_Uncontrolable_check->isChecked());
+        qDebug() << "The conversion took" << timer.elapsed() << "milliseconds";
     }
     else if(ui->actionBrzozowski_V2->isChecked())
     {
@@ -455,8 +470,9 @@ void MainWindow::on_Automatons_list_itemChanged(QTableWidgetItem *item)
 void MainWindow::on_States_list_itemChanged(QTableWidgetItem *item)
 {
     QSignalBlocker states_blocker(ui->States_list);
-    QSignalBlocker transition_blocker(ui->Transitions_list);
     State s = currentAutomaton->getState(ui->States_list->item(item->row(),0)->text().toInt());
+    State newS = s;
+
     QString old = s.getName();
     if (item->column() == 1) {
         //if the modifiaction was on the name
@@ -468,7 +484,6 @@ void MainWindow::on_States_list_itemChanged(QTableWidgetItem *item)
                                          QString("This name is already in use."));
                 item->setText(old);
                 states_blocker.unblock();
-                transition_blocker.unblock();
                 return;
             }
         }
@@ -479,36 +494,52 @@ void MainWindow::on_States_list_itemChanged(QTableWidgetItem *item)
                                          QString("This name is already in use."));
                 item->setText(old);
                 states_blocker.unblock();
-                transition_blocker.unblock();
                 return;
             }
         }
-        try {
-            //set the name
-            s.setName(item->text());
-            currentAutomaton->getStateList()->insert(s.getId(),s);
-        } catch (SetterException &ex) {
-            QMessageBox::information(this, tr("Error"),
-                                     ex.getMsg());
-            item->setText(currentAutomaton->getState(s.getId()).getName());
-            return;
-        }
-        //modify all transition using the old name
-        for(int i = 0; i < ui->Transitions_list->rowCount();i++)
-        {
-            if(ui->Transitions_list->item(i,1)->text() == old)
-            {
-                ui->Transitions_list->item(i,1)->setText(item->text());
-            }
-            if(ui->Transitions_list->item(i,2)->text() == old)
-            {
-                ui->Transitions_list->item(i,2)->setText(item->text());
-            }
-        }
     }
-    transition_blocker.unblock();
+
     states_blocker.unblock();
+
+    if(item->column() == 1)
+        newS.setName(ui->States_list->item(item->row(),1)->text());
+    else if(item->column() == 2)
+        newS.setInitial(!s.getInitial());
+    else if(item->column() == 3)
+        newS.setAccepting(!s.getAccepting());
+
+    EditCommand *editCommand = new EditCommand(s, newS, this);
+    connect(editCommand, SIGNAL(redo_editState(State)), this, SLOT(states_list_itemChanged(State)));
+    connect(editCommand, SIGNAL(undo_editState(State)), this, SLOT(states_list_itemChanged(State)));
+
+    undoStack->push(editCommand);
 }
+
+void MainWindow::states_list_itemChanged(State s)
+{
+    int pos = 0;
+    for(int i = 0; i < ui->States_list->rowCount(); i++)
+    {
+        if(ui->States_list->item(i,0)->text().toInt() == s.getId())
+            pos = i;
+    }
+    QSignalBlocker states_blocker(ui->States_list);
+    currentAutomaton->getStateList()->insert(s.getId(),s);
+    ui->States_list->item(pos,1)->setText(s.getName());
+    ui->States_list->item(pos,2)->setCheckState(s.getInitial()?Qt::Checked:Qt::Unchecked);
+    ui->States_list->item(pos,3)->setCheckState(s.getAccepting()?Qt::Checked:Qt::Unchecked);
+    states_blocker.unblock();
+    for(Transition t : *currentAutomaton->getTransitionList())
+    {
+        if(t.getSource() == s.getId()|| t.getDest() == s.getId())
+            for(int i = 0; i < ui->Transitions_list->rowCount();i++)
+            {
+                if(ui->Transitions_list->item(i,0)->text().toInt() == t.getId())
+                    emit(transitions_list_itemChanged(t));
+            }
+    }
+}
+
 
 /*
  * whenever the user change an element in the event list
@@ -518,8 +549,8 @@ void MainWindow::on_States_list_itemChanged(QTableWidgetItem *item)
 void MainWindow::on_Events_list_itemChanged(QTableWidgetItem *item)
 {
     QSignalBlocker events_blocker(ui->Events_list);
-    QSignalBlocker transition_blocker(ui->Transitions_list);
     Event e = currentAutomaton->getEvent(ui->Events_list->item(item->row(),0)->text().toInt());
+    Event newE = e;
     QString old = e.getName();
     if (item->column() == 1) {
     //if the label was changed
@@ -530,7 +561,6 @@ void MainWindow::on_Events_list_itemChanged(QTableWidgetItem *item)
                 QMessageBox::information(this, tr("Error"),
                 QString("This name is already in use."));
                 item->setText(old);
-                transition_blocker.unblock();
                 events_blocker.unblock();
                 return;
             }
@@ -541,32 +571,51 @@ void MainWindow::on_Events_list_itemChanged(QTableWidgetItem *item)
                 QMessageBox::information(this, tr("Error"),
                 QString("This name is already in use."));
                 item->setText(old);
-                transition_blocker.unblock();
                 events_blocker.unblock();
                 return;
             }
         }
-        //set label
-        try {
-            e.setName(item->text());
-            currentAutomaton->getEventList()->insert(e.getId(),e);
-        } catch (SetterException &ex) {
-            QMessageBox::information(this, tr("Error"),
-            ex.getMsg());
-            item->setText(currentAutomaton->getEvent(e.getId()).getName());
-            return;
-        }
-        //modify transition using the old name
-        for(int i = 0; i < ui->Transitions_list->rowCount();i++)
-        {
-            if(ui->Transitions_list->item(i,3)->text() == old)
-            {
-                ui->Transitions_list->item(i,3)->setText(item->text());
-            }
-        }
     }
-    transition_blocker.unblock();
+
     events_blocker.unblock();
+
+    if(item->column() == 1)
+        newE.setName(ui->Events_list->item(item->row(),1)->text());
+    else if(item->column() == 2)
+        newE.setObservable(!e.getObservable());
+    else if(item->column() == 3)
+        newE.setControlable(!e.getControlable());
+
+    EditCommand *editCommand = new EditCommand(e, newE, this);
+    connect(editCommand, SIGNAL(redo_editEvent(Event)), this, SLOT(events_list_itemChanged(Event)));
+    connect(editCommand, SIGNAL(undo_editEvent(Event)), this, SLOT(events_list_itemChanged(Event)));
+
+    undoStack->push(editCommand);
+}
+
+void MainWindow::events_list_itemChanged(Event e)
+{
+    int pos = 0;
+    for(int i = 0; i < ui->Events_list->rowCount(); i++)
+    {
+        if(ui->Events_list->item(i,0)->text().toInt() == e.getId())
+            pos = i;
+    }
+    QSignalBlocker events_blocker(ui->Events_list);
+    currentAutomaton->getEventList()->insert(e.getId(),e);
+    ui->Events_list->item(pos,1)->setText(e.getName());
+    ui->Events_list->item(pos,2)->setCheckState(e.getObservable()?Qt::Unchecked:Qt::Checked);
+    ui->Events_list->item(pos,3)->setCheckState(e.getControlable()?Qt::Unchecked:Qt::Checked);
+    events_blocker.unblock();
+    for(Transition t : *currentAutomaton->getTransitionList())
+    {
+        if(t.getEvent() == e.getId())
+            for(int i = 0; i < ui->Transitions_list->rowCount();i++)
+            {
+                if(ui->Transitions_list->item(i,0)->text().toInt() == t.getId())
+                    emit(transitions_list_itemChanged(t));
+            }
+    }
 }
 
 /*
@@ -582,6 +631,7 @@ void MainWindow::on_Transitions_list_itemChanged(QTableWidgetItem *item)
     int e = -1;
     int i = 0;
     Transition t = currentAutomaton->getTransition(ui->Transitions_list->item(item->row(),0)->text().toInt());
+    Transition newT = t;
     switch (item->column()) {
     case 1:
         //if the source was modified, check if it exist
@@ -600,10 +650,10 @@ void MainWindow::on_Transitions_list_itemChanged(QTableWidgetItem *item)
             item->setText(currentAutomaton->getState(currentAutomaton->getTransition(t.getId()).getSource()).getName());
             return;
         }
-        t.setSource(s);
+        newT.setSource(s);
         for(Transition tmp : *currentAutomaton->getTransitionList())
         {
-            if(t == tmp)
+            if(newT == tmp)
             {
                 QMessageBox::information(this, tr("Error"),
                 QString("This transition already exist."));
@@ -611,7 +661,6 @@ void MainWindow::on_Transitions_list_itemChanged(QTableWidgetItem *item)
                 return;
             }
         }
-        currentAutomaton->getTransitionList()->insert(t.getId(),t);
         break;
     case 2:
         //check if the destination was modified
@@ -630,10 +679,10 @@ void MainWindow::on_Transitions_list_itemChanged(QTableWidgetItem *item)
             item->setText(currentAutomaton->getState(currentAutomaton->getTransition(t.getId()).getDest()).getName());
             return;
         }
-        t.setDest(d);
+        newT.setDest(d);
         for(Transition tmp : *currentAutomaton->getTransitionList())
         {
-            if(t == tmp)
+            if(newT == tmp)
             {
                 QMessageBox::information(this, tr("Error"),
                 QString("This transition already exist."));
@@ -641,7 +690,6 @@ void MainWindow::on_Transitions_list_itemChanged(QTableWidgetItem *item)
                 return;
             }
         }
-        currentAutomaton->getTransitionList()->insert(t.getId(),t);
         break;
     case 3:
         //if the event was modified
@@ -660,10 +708,10 @@ void MainWindow::on_Transitions_list_itemChanged(QTableWidgetItem *item)
             item->setText(currentAutomaton->getEvent(currentAutomaton->getTransition(t.getId()).getEvent()).getName());
             return;
         }
-        t.setEvent(e);
+        newT.setEvent(e);
         for(Transition tmp : *currentAutomaton->getTransitionList())
         {
-            if(t == tmp)
+            if(newT == tmp)
             {
                 QMessageBox::information(this, tr("Error"),
                 QString("This transition already exist."));
@@ -671,9 +719,31 @@ void MainWindow::on_Transitions_list_itemChanged(QTableWidgetItem *item)
                 return;
             }
         }
-        currentAutomaton->getTransitionList()->insert(t.getId(),t);
         break;
     }
+
+    transition_blocker.unblock();
+
+    EditCommand *editCommand = new EditCommand(t, newT, this);
+    connect(editCommand, SIGNAL(redo_editTransition(Transition)), this, SLOT(transitions_list_itemChanged(Transition)));
+    connect(editCommand, SIGNAL(undo_editTransition(Transition)), this, SLOT(transitions_list_itemChanged(Transition)));
+    undoStack->push(editCommand);
+}
+
+void MainWindow::transitions_list_itemChanged(Transition t)
+{
+    qDebug() << t.getSource();
+    int pos = 0;
+    for(int i = 0; i < ui->Transitions_list->rowCount(); i++)
+    {
+        if(ui->Transitions_list->item(i,0)->text().toInt() == t.getId())
+            pos = i;
+    }
+    QSignalBlocker transition_blocker(ui->Transitions_list);
+    currentAutomaton->getTransitionList()->insert(t.getId(),t);
+    ui->Transitions_list->item(pos,1)->setText(currentAutomaton->getState(t.getSource()).getName());
+    ui->Transitions_list->item(pos,2)->setText(currentAutomaton->getState(t.getDest()).getName());
+    ui->Transitions_list->item(pos,3)->setText(currentAutomaton->getEvent(t.getEvent()).getName());
     transition_blocker.unblock();
 }
 
@@ -720,9 +790,18 @@ void MainWindow::on_actionStateCreate_triggered()
  */
 void MainWindow::createState_finished(State s)
 {
+    AddCommand *addCommand = new AddCommand(s, this);
+    connect(addCommand, SIGNAL(redo_addState(State)), this, SLOT(createState(State)));
+    connect(addCommand, SIGNAL(undo_addState(QList<int>)), this, SLOT(deleteState(QList<int>)));
+    undoStack->push(addCommand);
+}
+
+void MainWindow::createState(State s)
+{
     QSignalBlocker states_blocker(ui->States_list);
     currentAutomaton->getStateList()->insert(s.getId(),s);
-    currentAutomaton->incrState();
+    if(currentAutomaton->getIdState() == s.getId())
+        currentAutomaton->incrState();
     add_state_to_list(s);
     states_blocker.unblock();
     if(ui->States_list->rowCount() == 1)    //if first state, allow deletion
@@ -745,9 +824,18 @@ void MainWindow::on_actionEventCreate_triggered()
 */
 void MainWindow::createEvent_finished(Event e)
 {
+    AddCommand *addCommand = new AddCommand(e, this);
+    connect(addCommand, SIGNAL(redo_addEvent(Event)), this, SLOT(createEvent(Event)));
+    connect(addCommand, SIGNAL(undo_addEvent(QList<int>)), this, SLOT(deleteEvent(QList<int>)));
+    undoStack->push(addCommand);
+}
+
+void MainWindow::createEvent(Event e)
+{
     QSignalBlocker events_blocker(ui->Events_list);
     currentAutomaton->getEventList()->insert(e.getId(),e);
-    currentAutomaton->incrEvent();
+    if(currentAutomaton->getIdEvent() == e.getId())
+        currentAutomaton->incrEvent();
     add_event_to_list(e);
     events_blocker.unblock();
     if(ui->Events_list->rowCount() == 1)    //if first event allow deletion
@@ -771,16 +859,24 @@ void MainWindow::on_actionTransitionCreate_triggered()
 */
 void MainWindow::createTransition_finished(Transition t)
 {
+    AddCommand *addCommand = new AddCommand(t, this);
+    connect(addCommand, SIGNAL(redo_addTransition(Transition)), this, SLOT(createTransition(Transition)));
+    connect(addCommand, SIGNAL(undo_addTransition(QList<int>)), this, SLOT(deleteTransition(QList<int>)));
+    undoStack->push(addCommand);
+}
+
+void MainWindow::createTransition(Transition t)
+{
     QSignalBlocker transition_blocker(ui->Transitions_list);
     currentAutomaton->getTransitionList()->insert(t.getId(),t);
-    currentAutomaton->incrTransition();
+    if(currentAutomaton->getIdTransition() == t.getId())
+        currentAutomaton->incrTransition();
     add_transition_to_list(t);
     transition_blocker.unblock();
     if(ui->Transitions_list->rowCount() == 1)   //if first transition allow deletion
         ui->deleteTransition_button->setEnabled(true);
 }
 
-/*TO DO*/
 /*
  * slot for 'save automaton' button
  * call registered type save via signal
@@ -808,6 +904,9 @@ void MainWindow::on_actionSaveAutomaton_triggered()
         emit(on_actionExportDESUMA_triggered());
         break;
     }
+        /*
+         *TO DO more supported softs
+        */
     }
 }
 
@@ -890,6 +989,19 @@ void MainWindow::on_actionStateDelete_triggered()
 */
 void MainWindow::deleteState_finished(QList<int> deleteList)
 {
+    QList<State> deleteStateList;
+    for(int i : deleteList)
+        deleteStateList.append(currentAutomaton->getState(i));
+    DeleteCommand *deleteCommand = new DeleteCommand(deleteStateList, this);
+    connect(deleteCommand, SIGNAL(undo_deleteState(State)), this, SLOT(createState(State)));
+    connect(deleteCommand, SIGNAL(redo_deleteState(QList<int>)), this, SLOT(deleteState(QList<int>)));
+    undoStack->beginMacro("Delete State");
+    undoStack->push(deleteCommand);
+    undoStack->endMacro();
+}
+
+void MainWindow::deleteState(QList<int> deleteList)
+{
     int tmp;
     QString tmpString;
     QList<int> delTransitionList;
@@ -939,6 +1051,19 @@ void MainWindow::on_actionEventDelete_triggered()
  * update display and automaton
 */
 void MainWindow::deleteEvent_finished(QList<int> deleteList)
+{
+    QList<Event> deleteEventList;
+    for(int i : deleteList)
+        deleteEventList.append(currentAutomaton->getEvent(i));
+    DeleteCommand *deleteCommand = new DeleteCommand(deleteEventList, this);
+    connect(deleteCommand, SIGNAL(undo_deleteEvent(Event)), this, SLOT(createEvent(Event)));
+    connect(deleteCommand, SIGNAL(redo_deleteEvent(QList<int>)), this, SLOT(deleteEvent(QList<int>)));
+    undoStack->beginMacro("delete Event)");
+    undoStack->push(deleteCommand);
+    undoStack->endMacro();
+}
+
+void MainWindow::deleteEvent(QList<int> deleteList)
 {
     int tmp;
     QString tmpString;
@@ -990,6 +1115,17 @@ void MainWindow::on_actionTransitionDelete_triggered()
 */
 void MainWindow::deleteTransition_finished(QList<int> deleteList)
 {
+    QList<Transition> deleteTransitionList;
+    for(int i : deleteList)
+        deleteTransitionList.append(currentAutomaton->getTransition(i));
+    DeleteCommand *deleteCommand = new DeleteCommand(deleteTransitionList, this);
+    connect(deleteCommand, SIGNAL(undo_deleteTransition(Transition)), this, SLOT(createTransition(Transition)));
+    connect(deleteCommand, SIGNAL(redo_deleteTransition(QList<int>)), this, SLOT(deleteTransition(QList<int>)));
+    undoStack->push(deleteCommand);
+}
+
+void MainWindow::deleteTransition(QList<int> deleteList)
+{
     int tmp;
     for(int i : deleteList)
     {
@@ -1023,18 +1159,18 @@ void MainWindow::on_States_list_cellClicked(int row, int column)
         id = ui->States_list->item(row,0)->text().toInt();
         s = currentAutomaton->getState(id);
         state = ui->States_list->item(row,column)->checkState();
-        s.setInitial(!state);
+        //s.setInitial(!state);
         ui->States_list->item(row,column)->setCheckState((state)?Qt::Unchecked:Qt::Checked);
-        currentAutomaton->getStateList()->insert(id, s);
+        //currentAutomaton->getStateList()->insert(id, s);
     }
     else if(column == 3)
     {
         id = ui->States_list->item(row,0)->text().toInt();
         s = currentAutomaton->getState(id);
         state = ui->States_list->item(row,column)->checkState();
-        s.setAccepting(!state);
+        //s.setAccepting(!state);
         ui->States_list->item(row,column)->setCheckState((state)?Qt::Unchecked:Qt::Checked);
-        currentAutomaton->getStateList()->insert(id, s);
+        //currentAutomaton->getStateList()->insert(id, s);
     }
 }
 

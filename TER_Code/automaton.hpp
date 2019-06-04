@@ -14,12 +14,15 @@ protected:
     int id;
     QString name;
     enum attribute_type type = ATTRIBUTE;
+
     Attribute(){id = -1;name = ""; type = ATTRIBUTE;}
     Attribute(int id, QString name, enum attribute_type type) : id(id), name(name), type(type){}
 
 public :
+    Attribute(const Attribute &param):id(param.id),name(param.name), type(param.type){}
     int getId() {return id;}
     QString getName() {return name;}
+    enum attribute_type getType() {return type;}
     void setName(QString s);
 };
 
@@ -35,18 +38,19 @@ class SetterException : public QException
 };
 
 class Event : public Attribute{
-    private:
-        bool observable; //true==observable
-        bool controlable; //true==controlable
-   public:
-        Event(){id = -1; name = ""; observable = true; controlable = true;}
-        Event(int idEvent, QString name,bool observable,bool controlable) : Attribute(idEvent, name, EVENT),observable(observable),controlable(controlable){}
+private:
+    bool observable; //true==observable
+    bool controlable; //true==controlable
+public:
+    Event(){id = -1; name = ""; observable = true; controlable = true;}
+    Event(int idEvent, QString name,bool observable,bool controlable) : Attribute(idEvent, name, EVENT),observable(observable),controlable(controlable){}
+    Event(const Event &param) : Attribute(param), observable(param.observable), controlable(param.controlable){}
 
-        bool getObservable() {return observable;}
-        bool getControlable(){return controlable;}
-        void setObservable(bool b) {observable = b;}
-        void setControlable(bool b) {controlable = b;}
-        void toSupremica(QXmlStreamWriter *stream);
+    bool getObservable() {return observable;}
+    bool getControlable(){return controlable;}
+    void setObservable(bool b) {observable = b;}
+    void setControlable(bool b) {controlable = b;}
+    void toSupremica(QXmlStreamWriter *stream);
 };
 
 class State : public Attribute{
@@ -57,6 +61,7 @@ class State : public Attribute{
     public:
         State(){id = -1; name = ""; initial = false; accepting = false;}
         State(int idState, QString name, bool initial,bool accepting) : Attribute(idState, name, STATE),initial(initial),accepting(accepting){}
+        State(const State &param) : Attribute(param), initial(param.initial), accepting(param.accepting){}
 
         bool getInitial() {return initial;}
         bool getAccepting() {return accepting;}
@@ -73,6 +78,7 @@ class Transition: public Attribute{
     public:
         Transition() {id = -1; source = -1; dest = -1; event = -1;}
         Transition(int idTransition, int source,int dest,int event) : Attribute(idTransition,"", TRANSITION),source(source),dest(dest),event(event){}
+        Transition(const Transition &param) : Attribute(param), source(param.source), dest(param.dest), event(param.event){}
 
         int getSource() {return source;}
         int getDest() {return dest;}

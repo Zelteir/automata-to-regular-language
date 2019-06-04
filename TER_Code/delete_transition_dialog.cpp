@@ -54,7 +54,7 @@ void Delete_transition_dialog::on_buttonBox_accepted()
     for(int i = 0; i < ui->transitions_list->rowCount(); i++)
     {
         if(ui->transitions_list->item(i,4)->checkState())
-            deleteList.append(i);
+            deleteList.append(ui->transitions_list->item(i,0)->text().toInt());
     }
     emit(delete_transition(deleteList));
     emit(accept());

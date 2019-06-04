@@ -28,6 +28,7 @@ DEFINES += QT_DEPRECATED_WARNINGS
 CONFIG += c++14
 
 SOURCES += \
+    commands.cpp \
     create_automaton_dialog.cpp \
     delete_automaton_dialog.cpp \
     delete_event_dialog.cpp \
@@ -45,6 +46,7 @@ SOURCES += \
     create_transition_dialog.cpp
 
 HEADERS += \
+    commands.hpp \
     create_automaton_dialog.hpp \
     delete_automaton_dialog.hpp \
     delete_event_dialog.hpp \

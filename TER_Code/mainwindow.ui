@@ -603,14 +603,6 @@
     <string>Ctrl+Q</string>
    </property>
   </action>
-  <action name="actionSave_automaton_group">
-   <property name="enabled">
-    <bool>false</bool>
-   </property>
-   <property name="text">
-    <string>Save automatons</string>
-   </property>
-  </action>
   <action name="actionGenerate_all_languages">
    <property name="enabled">
     <bool>false</bool>

@@ -62,9 +62,9 @@ void Translator::brzozowskiMethod(Automaton automaton, bool ignoreUnobservable, 
         {
             if (automaton.getState(i).getInitial())
                 expressionList[i].insert(-1, "");
-            traitement.insert(i, false);
-            traitementTempo.insert(i, false);
         }
+        traitement.insert(i, false);
+        traitementTempo.insert(i, false);
     }
     traitementTempo.insert(automatonStatesNumber, false);
 
@@ -757,9 +757,9 @@ void Translator::brzozowskiMethodV2(Automaton automaton, bool ignoreUnobservable
         {
             if(automaton.getState(i).getInitial())
                 expressionList[i].insert(-1, QVector<std::shared_ptr<QString>>());
-            traitement.insert(i, false);
-            traitementTempo.insert(i, false);
         }
+        traitement.insert(i, false);
+        traitementTempo.insert(i, false);
     }
     traitementTempo.insert(automatonStatesNumber, false);
 
@@ -1082,7 +1082,8 @@ void Translator::reduction(Automaton)
 void Translator::transitive_Closure(Automaton automaton, bool ignoreUnobservable, bool ignoreUncontrolable)
 {
     int size = automaton.getStateList()->last().getId()+2;
-    QVector<QVector<QVector<QString>>> map(size);
+    QVector<QVector<QString>> map(size);
+    QVector<QVector<QString>> backMap(size);
     QString finalExpr = "", tmp;
     int initState = 0;
 
@@ -1092,11 +1093,12 @@ void Translator::transitive_Closure(Automaton automaton, bool ignoreUnobservable
         for(int i = 0; i < size; i++)
         {
             map[i].resize(size);
+            backMap[i].resize(size);
             for(int j = 0; j < size; j++)
             {
                 map[i][j].resize(size);
                 if(i == j)
-                    map[i][j][0] = "$";
+                    backMap[i][j] = "$";
             }
         }
     }
@@ -1105,11 +1107,11 @@ void Translator::transitive_Closure(Automaton automaton, bool ignoreUnobservable
     {
         if(!((automaton.getEvent(t.getEvent()).getObservable() == false && ignoreUnobservable==true) || (automaton.getEvent(t.getEvent()).getControlable() == false && ignoreUncontrolable==true)))
         {
-            if(map[t.getSource()+1][t.getDest()+1][0].isEmpty())
-                map[t.getSource()+1][t.getDest()+1][0] = "";
+            if(backMap[t.getSource()+1][t.getDest()+1].isEmpty())
+                backMap[t.getSource()+1][t.getDest()+1] = "";
             else
-                map[t.getSource()+1][t.getDest()+1][0] += "+";
-            map[t.getSource()+1][t.getDest()+1][0] += automaton.getEvent(t.getEvent()).getName();
+                backMap[t.getSource()+1][t.getDest()+1] += "+";
+            backMap[t.getSource()+1][t.getDest()+1] += automaton.getEvent(t.getEvent()).getName();
         }
     }
     /*TO DO remplacer 3e dimention par back matrice*/
@@ -1123,23 +1125,25 @@ void Translator::transitive_Closure(Automaton automaton, bool ignoreUnobservable
             {
                 for(int j = 1; j < size; j++)
                 {
-                    tmp = map[i][k][k-1] + star(map[k][k][k-1]) + map[k][j][k-1];
-                    if(!map[i][j][k-1].isEmpty())
+                    tmp = backMap[i][k] + star(backMap[k][k]) + backMap[k][j];
+                    if(!backMap[i][j].isEmpty())
                     {
                         if(!tmp.isEmpty())
                         {
-                            map[i][j][k] = "" +
-                                    ((map[i][j][k-1].size() > 1)?"(" + map[i][j][k-1] + ")+" :map[i][j][k-1] + "+") +
+                            map[i][j] = "" +
+                                    ((backMap[i][j].size() > 1)?"(" + backMap[i][j] + ")+" :backMap[i][j] + "+") +
                                     tmp;
                         }
                         else
-                            map[i][j][k] = "" + map[i][j][k-1];
+                            map[i][j] = "" + backMap[i][j];
                     }
                     else
-                        map[i][j][k] = "" + tmp;
+                        map[i][j] = "" + tmp;
                 }
             }
         }
+        if(k < size - 1)
+            backMap.swap(map);
     }
     for(State s : *automaton.getStateList())
     {
