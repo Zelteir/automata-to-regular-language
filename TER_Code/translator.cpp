@@ -1096,7 +1096,6 @@ void Translator::transitive_Closure(Automaton automaton, bool ignoreUnobservable
             backMap[i].resize(size);
             for(int j = 0; j < size; j++)
             {
-                map[i][j].resize(size);
                 if(i == j)
                     backMap[i][j] = "$";
             }
@@ -1179,4 +1178,308 @@ void Translator::transitive_Closure(Automaton automaton, bool ignoreUnobservable
         }
     }
     regex = finalExpr;
+}
+
+/*
+ * Automaton minimization by Hopcroft algorithm
+ */
+Automaton Translator::automatonMinimization(Automaton param)
+{
+    int size = param.getStateList()->last().getId()+1, it =0;
+    Automaton minimized;
+    QList<int> tmp1, tmp2, extract, accept, nonAccept;
+    QList<QList<int>> waiting, set, newSet;
+    QVector<QVector<QString>> transitionMatrix(param.getStateList()->size());
+    QList<QList<int>> splitted;
+
+    //contruct transitionMatrix
+#pragma omp parallel
+    {
+#pragma omp for schedule(static)
+        for(int i = 0; i < size; i++)
+        {
+            transitionMatrix[i].resize(size);
+        }
+    }
+    for(Transition t : *param.getTransitionList())
+    {
+        transitionMatrix[t.getSource()][t.getDest()] = param.getEvent(t.getEvent()).getName();
+    }
+
+    //construct set and waiting
+    for(State s: *param.getStateList())
+    {
+        if(s.getAccepting())
+            accept.append(s.getId());
+        else
+            nonAccept.append(s.getId());
+    }
+
+    //if no two distinct sets (accepting and non-accepting)
+    if(accept.isEmpty() || nonAccept.isEmpty())
+        return param;
+    waiting.append((accept.length() < nonAccept.length())?accept:nonAccept);
+    set.append(accept);
+    set.append(nonAccept);
+    newSet = set;
+    newSet.detach();
+
+    //main loop
+    while(waiting.length())
+    {
+        it++;
+        extract = waiting.takeFirst();
+        for(Event e : *param.getEventList())
+        {
+            for(QList<int> list : set)
+            {
+                if(list.size() > 1)
+                {
+                    splitted = split(list, extract, e, transitionMatrix);
+                    tmp1 = splitted[0];
+                    tmp2 = splitted[1];
+                    if(tmp1.size() > 0 && tmp2.size() > 0)
+                    {
+                        newSet.removeOne(list);
+                        newSet.append(tmp1);
+                        newSet.append(tmp2);
+                        if(tmp1.size()<tmp2.size())
+                            waiting.append(tmp1);
+                        else
+                            waiting.append(tmp2);
+                    }
+                }
+            }
+        }
+        if(waiting.length() == 0 && it == 1)
+            waiting.append((extract == accept)?nonAccept:accept);
+        set = newSet;
+        set.detach();
+    }
+
+    minimized = reconstruct(set,param,transitionMatrix);
+    return minimized;
+}
+
+QList<QList<int>> Translator::split(QList<int> source, QList<int> dest, Event e, QVector<QVector<QString>> transitions)
+{
+    QList<QList<int>> res;
+    QList<int> in;
+    QList<int> out;
+    bool var;
+    for(int i : source)
+    {
+        var = false;
+        for(int j : dest)
+        {
+            if(transitions[i][j] == e.getName())
+            {
+                var = true;
+                in.append(i);
+                break;
+            }
+        }
+        if(!var)
+            out.append(i);
+    }
+
+    res.append(in);
+    res.append(out);
+    return res;
+}
+
+Automaton Translator::reconstruct(QList<QList<int>> newStates, Automaton a, QVector<QVector<QString>> transitions)
+{
+    Automaton res;
+    bool accepting, initial;
+    int i, j, k, idDest = 0, idTrans = 0;
+
+    res.setEventList(*a.getEventList());
+    while (res.getIdEvent() < a.getIdEvent())
+        res.incrEvent();
+
+    //new states for the minimized automaton
+    for(i = 0; i < newStates.size();i++)
+    {
+        accepting = false;
+        initial = false;
+        for(j = 0;(!initial || !accepting) && j < newStates[i].size();j++)
+        {
+            if(a.getState(newStates[i][j]).getInitial())
+                initial = true;
+            if(a.getState(newStates[i][j]).getAccepting())
+                accepting = true;
+        }
+        res.getStateList()->insert(i, State(i,"",initial,accepting));
+        res.incrState();
+    }
+
+    //new transitions for the minimized automaton
+    for(i =0; i < newStates.size(); i++)
+    {
+        for(State l : *a.getStateList())
+        {
+            if(!transitions[newStates[i][0]][l.getId()].isEmpty())
+            {
+                idDest = -1;
+                for(j = 0; j < newStates.size(); j++)
+                {
+                    for(k = 0; k < newStates[j].size(); k++)
+                    {
+                        if(l.getId() == newStates[j][k])
+                        {
+                            idDest = j;
+                            break;
+                        }
+                    }
+                    if(idDest == j)
+                        break;
+                }
+                for(Event e: *a.getEventList())
+                {
+                    if(e.getName() == transitions[newStates[i][0]][l.getId()])
+                    {
+                        res.getTransitionList()->insert(idTrans, Transition(idTrans, i, idDest, e.getId()));
+                        idTrans++;
+                        res.incrTransition();
+                        break;
+                    }
+                }
+            }
+        }
+    }
+    return res;
+}
+
+
+/*
+ * Automaton minimization by Hopcroft algorithm (teacher's version)
+*/
+Automaton Translator::automatonMinimizationV2(Automaton param)
+{
+    int size = param.getStateList()->last().getId()+1, s;
+    Automaton minimized;
+    QList<int> B2, extract, accept, nonAccept;
+    QList<QList<int>> waiting, set, newSet;
+    QVector<QVector<QString>> transitionMatrix(param.getStateList()->size());
+    QList<QList<int>> splitted;
+    bool change = true;
+
+    //contruct transitionMatrix
+#pragma omp parallel
+    {
+#pragma omp for schedule(static)
+        for(int i = 0; i < size; i++)
+        {
+            transitionMatrix[i].resize(size);
+        }
+    }
+    for(Transition t : *param.getTransitionList())
+    {
+        transitionMatrix[t.getSource()][t.getDest()] = param.getEvent(t.getEvent()).getName();
+    }
+
+    //construct set and waiting
+    for(State s: *param.getStateList())
+    {
+        if(s.getAccepting())
+            accept.append(s.getId());
+        else
+            nonAccept.append(s.getId());
+    }
+
+    //if no two distinct sets (accepting and non-accepting)
+    if(accept.isEmpty() || nonAccept.isEmpty())
+        return param;
+    waiting.append((accept.length() < nonAccept.length())?accept:nonAccept);
+    set.append(accept);
+    set.append(nonAccept);
+
+    while(change)
+    {
+        change = false;
+        newSet.clear();
+        for(QList<int> B : set)
+        {
+            while(B.size())
+            {
+                B2.clear();
+                s = B.takeFirst();
+                B2.append(s);
+                for(int s2 : B)
+                {
+                    if(equivalent(s, s2, set, transitionMatrix))
+                    {
+                        B2.append(s2);
+                        B.removeOne(s2);
+                    }
+                }
+                newSet.append(B2);
+                if(!B.isEmpty())
+                    change = true;
+            }
+        }
+        set = newSet;
+        set.detach();
+    }
+
+    minimized = reconstruct(set,param,transitionMatrix);
+    return minimized;
+}
+
+/*
+ * Return if two states are aquivalents in a set
+ * Two states are equivalents if for all of their transitions, their destinations are in the same sets
+ * If even one transition goes to a set for which the other state have no transition to, they aren't equivalent
+*/
+bool Translator::equivalent(int a, int b, QList<QList<int>> set, QVector<QVector<QString>> transitionMatrix)
+{
+    QList<int> inA, inB;
+
+    for(QList<int> list : set)
+    {
+        if(list.contains(a))
+        {
+            for(int i = 0; i < transitionMatrix[a].size(); i++)
+            {
+                if(!transitionMatrix[a][i].isEmpty())
+                {
+                    for(int j = 0; j < set.size(); j++)
+                    {
+                        if(set[j].contains(i))
+                        {
+                            inA.append(j);
+                            break;
+                        }
+                    }
+                }
+            }
+        }
+        if(list.contains(b))
+        {
+            for(int i = 0; i < transitionMatrix[b].size(); i++)
+            {
+                if(!transitionMatrix[b][i].isEmpty())
+                {
+                    for(int j = 0; j < set.size(); j++)
+                    {
+                        if(set[j].contains(i))
+                        {
+                            inB.append(j);
+                            break;
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+    for(int k : inA)
+        if(!inB.contains(k))
+            return false;
+    for(int k : inB)
+        if(!inA.contains(k))
+            return false;
+
+    return true;
 }

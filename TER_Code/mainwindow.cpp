@@ -333,6 +333,7 @@ void MainWindow::generateLanguage(Automaton *a)
     int nb_init = 0;
     bool accept = false;
     QElapsedTimer timer;
+    Automaton tmp;
     //contain exactly one initial state
     //contain at least one eccepting state
     for(State s : *a->getStateList())
@@ -368,23 +369,31 @@ void MainWindow::generateLanguage(Automaton *a)
         }
         a->setEventList(tmpEventList);
     }
+    qDebug() << "nb states :" << a->getIdState();
+    if(!ui->Minimize_Language_check->isChecked())
+        //tmp = translator.automatonMinimization(*a);
+        tmp = *a;
+    else
+        tmp = translator.automatonMinimizationV2(*a);
+    qDebug() << "new nb states :" << tmp.getIdState();
+
     if(ui->actionBrzozowski->isChecked())
     {
         timer.start();
-        translator.brzozowskiMethod(*a, ui->Ignore_Unobservable_check->isChecked(), ui->Ignore_Uncontrolable_check->isChecked());
+        translator.brzozowskiMethod(tmp, ui->Ignore_Unobservable_check->isChecked(), ui->Ignore_Uncontrolable_check->isChecked());
         qDebug() << "The conversion took" << timer.elapsed() << "milliseconds";
     }
     else if(ui->actionBrzozowski_V2->isChecked())
     {
-        translator.brzozowskiMethodV2(*a, ui->Ignore_Unobservable_check->isChecked(), ui->Ignore_Uncontrolable_check->isChecked());
+        translator.brzozowskiMethodV2(tmp, ui->Ignore_Unobservable_check->isChecked(), ui->Ignore_Uncontrolable_check->isChecked());
     }
     else if(ui->actionReverse_Brzozowski->isChecked())
     {
-        translator.reverseBrzozowski(*a, ui->Ignore_Unobservable_check->isChecked(), ui->Ignore_Uncontrolable_check->isChecked());
+        translator.reverseBrzozowski(tmp, ui->Ignore_Unobservable_check->isChecked(), ui->Ignore_Uncontrolable_check->isChecked());
     }
     else if(ui->actionTransitive_closure->isChecked())
     {
-        translator.transitive_Closure(*a, ui->Ignore_Unobservable_check->isChecked(), ui->Ignore_Uncontrolable_check->isChecked());
+        translator.transitive_Closure(tmp, ui->Ignore_Unobservable_check->isChecked(), ui->Ignore_Uncontrolable_check->isChecked());
     }
 
     if(ui->actionAvoid_language_ambiguity->isChecked()) //delete inappropriate or misplaced '.' from avoid ambiguity
@@ -732,7 +741,6 @@ void MainWindow::on_Transitions_list_itemChanged(QTableWidgetItem *item)
 
 void MainWindow::transitions_list_itemChanged(Transition t)
 {
-    qDebug() << t.getSource();
     int pos = 0;
     for(int i = 0; i < ui->Transitions_list->rowCount(); i++)
     {
@@ -1361,6 +1369,7 @@ void MainWindow::on_actionImportSupremica_triggered()
     if (automata.fromSupremica(file_name))
     {
         this->toggle_interface(true);
+        undoStack->clear();
     }
 }
 
@@ -1375,6 +1384,7 @@ void MainWindow::on_actionImportSedma_triggered()
     if (automata.fromSedma(file_name))
     {
         this->toggle_interface(true);
+        undoStack->clear();
     }
 }
 
@@ -1399,6 +1409,7 @@ void MainWindow::on_actionImportDESUMA_triggered()
     if (automata.fromDesuma(file_name))
     {
         this->toggle_interface(true);
+        undoStack->clear();
     }
 }
 
