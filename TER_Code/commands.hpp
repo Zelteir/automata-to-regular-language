@@ -63,7 +63,7 @@ public:
     explicit DeleteCommand(QList<State> attr, MainWindow *parent, int automaton);
     explicit DeleteCommand(QList<Event> attr, MainWindow *parent, int automaton);
     explicit DeleteCommand(QList<Transition> attr, MainWindow *parent, int automaton);
-    explicit DeleteCommand(Automaton attr, MainWindow *parent);
+    explicit DeleteCommand(QList<Automaton> attr, MainWindow *parent);
 
     void undo() override;
     void redo() override;
@@ -72,7 +72,7 @@ private:
     QList<State> attrState;
     QList<Event> attrEvent;
     QList<Transition> attrTransition;
-    Automaton attrAutomaton;
+    QList<Automaton> attrAutomaton;
     int idAutomaton;
     MainWindow *parent;
     enum attribute_type type;
@@ -88,7 +88,7 @@ signals :
     void redo_deleteEvent(QList<int>, int);
     void undo_deleteEvent(Event, int);
 
-    void redo_deleteAutomaton(Automaton);
+    void redo_deleteAutomaton(QList<int>);
     void undo_deleteAutomaton(Automaton);
 
 };
@@ -129,7 +129,7 @@ signals :
     void undo_addEvent(QList<int>, int);
 
     void redo_addAutomaton(Automaton);
-    void undo_addAutomaton(Automaton);
+    void undo_addAutomaton(QList<int>);
 };
 
 //QString createCommandString(Attribute *item);

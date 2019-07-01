@@ -457,8 +457,8 @@ void MainWindow::on_actionClose_triggered()
 */
 void MainWindow::on_Automatons_list_itemChanged(QTableWidgetItem *item)
 {
-    QSignalBlocker automatons_blocker(ui->Automatons_list);
     Automaton a = *currentAutomaton;
+    Automaton oldAutomaton = a;
     QString old = a.getName();
     for (int i = 0;i < ui->Automatons_list->rowCount();i++) {
         if(ui->Automatons_list->item(i,1)->text() == item->text() && i != ui->Automatons_list->currentRow())
@@ -466,14 +466,31 @@ void MainWindow::on_Automatons_list_itemChanged(QTableWidgetItem *item)
             QMessageBox::information(this, tr("Error"),
             QString("This name is already in use."));
             item->setText(old);
-            automatons_blocker.unblock();
             return;
         }
     }
-    currentAutomaton->setName(item->text());
-    automatons_blocker.unblock();
+
+    a.setName(item->text());
+    EditCommand *editCommand = new EditCommand(oldAutomaton, a, this);
+    connect(editCommand, SIGNAL(redo_editAutomaton(Automaton)), this, SLOT(automatons_list_itemChanged(Automaton)));
+    connect(editCommand, SIGNAL(undo_editAutomaton(Automaton)), this, SLOT(automatons_list_itemChanged(Automaton)));
+
+    undoStack->push(editCommand);
 }
 
+void MainWindow::automatons_list_itemChanged(Automaton a)
+{
+    int pos = 0;
+    for(int i = 0; i < ui->Automatons_list->rowCount(); i++)
+    {
+        if(ui->States_list->item(i,0)->text().toInt() == a.getId())
+            pos = i;
+    }
+    QSignalBlocker automatons_blocker(ui->Automatons_list);
+    automata.get_automatons()->insert(a.getId(),a);
+    ui->Automatons_list->item(pos, 1)->setText(a.getName());
+    automatons_blocker.unblock();
+}
 
 /*
  * whenever the user change an element in the state list
@@ -799,9 +816,18 @@ void MainWindow::on_actionAutomatonCreate_triggered()
 */
 void MainWindow::createAutomaton_finished(Automaton a)
 {
+    AddCommand *addCommand = new AddCommand(a, this);
+    connect(addCommand, SIGNAL(redo_addAutomaton(Automaton)), this, SLOT(createAutomaton(Automaton)));
+    connect(addCommand, SIGNAL(undo_addAutomaton(QList<int>)), this, SLOT(deleteAutomaton(QList<int>)));
+    undoStack->push(addCommand);
+}
+
+void MainWindow::createAutomaton(Automaton a)
+{
     QSignalBlocker automaton_blocker(ui->Automatons_list);
     automata.get_automatons()->insert(a.getId(),a);
-    automata.idAutomatonIncr();
+    if(automata.getIdAutomaton() == a.getId())
+        automata.idAutomatonIncr();
     ui->Automatons_list->insertRow(ui->Automatons_list->rowCount());
     ui->Automatons_list->setItem(ui->Automatons_list->rowCount() - 1, 0, new QTableWidgetItem(QString::number(a.getId())));
     ui->Automatons_list->setItem(ui->Automatons_list->rowCount() - 1, 1, new QTableWidgetItem(a.getName()));
@@ -1338,6 +1364,17 @@ void MainWindow::on_actionAutomatonDelete_triggered()
  * update display and automaton group
 */
 void MainWindow::deleteAutomaton_finished(QList<int> deleteList)
+{
+    QList<Automaton> deleteAutomatonList;
+    for(int i : deleteList)
+        deleteAutomatonList.append(*automata.get_automaton_at(i));
+    DeleteCommand *deleteCommand = new DeleteCommand(deleteAutomatonList, this);
+    connect(deleteCommand, SIGNAL(undo_deleteAutomaton(Automaton)), this, SLOT(createAutomaton(Automaton)));
+    connect(deleteCommand, SIGNAL(redo_deleteAutomaton(QList<int>)), this, SLOT(deleteAutomaton(QList<int>)));
+    undoStack->push(deleteCommand);
+}
+
+void MainWindow::deleteAutomaton(QList<int> deleteList)
 {
     int tmp;
     int pos = ui->Automatons_list->currentRow();

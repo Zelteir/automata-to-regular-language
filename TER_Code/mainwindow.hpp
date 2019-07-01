@@ -32,6 +32,8 @@ private slots:
 
     void on_Automatons_list_itemChanged(QTableWidgetItem *item);
 
+    void automatons_list_itemChanged(Automaton);
+
     void on_States_list_itemChanged(QTableWidgetItem *item);
 
     void states_list_itemChanged(State, int);
@@ -123,6 +125,10 @@ private slots:
     void createTransition(Transition, int);
 
     void deleteTransition(QList<int>, int);
+
+    void createAutomaton(Automaton);
+
+    void deleteAutomaton(QList<int>);
 
 private:
     Ui::MainWindow *ui;

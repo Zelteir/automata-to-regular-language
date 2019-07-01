@@ -238,7 +238,7 @@ DeleteCommand::DeleteCommand(QList<Transition> attr, MainWindow *parent, int aut
         setText(QObject::tr("Delete"));
 }
 
-DeleteCommand::DeleteCommand(Automaton attr, MainWindow *parent):
+DeleteCommand::DeleteCommand(QList<Automaton> attr, MainWindow *parent):
     attrAutomaton(attr),
     parent(parent)
 {
@@ -269,7 +269,8 @@ void DeleteCommand::undo()
     }
     case AUTOMATON:
     {
-        emit(undo_deleteAutomaton(attrAutomaton));
+        for(Automaton a : attrAutomaton)
+            emit(undo_deleteAutomaton(a));
         break;
     }
     default:
@@ -307,7 +308,9 @@ void DeleteCommand::redo()
     }
     case AUTOMATON:
     {
-        emit(redo_deleteAutomaton(attrAutomaton));
+        for(Automaton a : attrAutomaton)
+            deleteList.append(a.getId());
+        emit(redo_deleteAutomaton(deleteList));
         break;
     }
     default:
@@ -387,6 +390,16 @@ AddCommand::AddCommand(Transition attr, MainWindow *parent, int automaton):
     setText(QObject::tr("Add"));
 }
 
+AddCommand::AddCommand(Automaton attr, MainWindow *parent):
+    attrAutomaton(attr),
+    parent(parent)
+{
+    type = AUTOMATON;
+    /*setText(QObject::tr("Add %1")
+            .arg(createCommandString(&attr)));*/
+    setText(QObject::tr("Add"));
+}
+
 void AddCommand::undo()
 {
     switch(type)
@@ -408,7 +421,7 @@ void AddCommand::undo()
     }
     case AUTOMATON:
     {
-        emit(undo_addAutomaton(attrAutomaton));
+        emit(undo_addAutomaton(QList<int>({attrAutomaton.getId()})));
         break;
     }
     default:
