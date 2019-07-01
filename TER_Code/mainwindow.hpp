@@ -34,15 +34,15 @@ private slots:
 
     void on_States_list_itemChanged(QTableWidgetItem *item);
 
-    void states_list_itemChanged(State);
+    void states_list_itemChanged(State, int);
 
     void on_Events_list_itemChanged(QTableWidgetItem *item);
 
-    void events_list_itemChanged(Event);
+    void events_list_itemChanged(Event, int);
 
     void on_Transitions_list_itemChanged(QTableWidgetItem *item);
 
-    void transitions_list_itemChanged(Transition);
+    void transitions_list_itemChanged(Transition, int);
 
     void on_actionStateCreate_triggered();
 
@@ -112,17 +112,17 @@ private slots:
 
     void on_actionSaveRL_as_triggered();
 
-    void createState(State s);
+    void createState(State, int);
 
-    void deleteState(QList<int>);
+    void deleteState(QList<int>, int);
 
-    void createEvent(Event e);
+    void createEvent(Event, int);
 
-    void deleteEvent(QList<int> deleteList);
+    void deleteEvent(QList<int>, int);
 
-    void createTransition(Transition t);
+    void createTransition(Transition, int);
 
-    void deleteTransition(QList<int> deleteList);
+    void deleteTransition(QList<int>, int);
 
 private:
     Ui::MainWindow *ui;

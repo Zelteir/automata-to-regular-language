@@ -369,17 +369,21 @@ void MainWindow::generateLanguage(Automaton *a)
         }
         a->setEventList(tmpEventList);
     }
-    qDebug() << "nb states :" << a->getIdState();
+    qDebug() << "nb states : " << a->getIdState();
     if(!ui->Minimize_Language_check->isChecked())
         //tmp = translator.automatonMinimization(*a);
         tmp = *a;
     else
+    {
+        timer.start();
         tmp = translator.automatonMinimizationV2(*a);
-    qDebug() << "new nb states :" << tmp.getIdState();
+        qDebug() << "new nb states :" << tmp.getIdState();
+        qDebug() << "The minimization took" << timer.elapsed() << "milliseconds";
+    }
 
     if(ui->actionBrzozowski->isChecked())
     {
-        timer.start();
+        timer.restart();
         translator.brzozowskiMethod(tmp, ui->Ignore_Unobservable_check->isChecked(), ui->Ignore_Uncontrolable_check->isChecked());
         qDebug() << "The conversion took" << timer.elapsed() << "milliseconds";
     }
@@ -517,16 +521,24 @@ void MainWindow::on_States_list_itemChanged(QTableWidgetItem *item)
     else if(item->column() == 3)
         newS.setAccepting(!s.getAccepting());
 
-    EditCommand *editCommand = new EditCommand(s, newS, this);
-    connect(editCommand, SIGNAL(redo_editState(State)), this, SLOT(states_list_itemChanged(State)));
-    connect(editCommand, SIGNAL(undo_editState(State)), this, SLOT(states_list_itemChanged(State)));
+    EditCommand *editCommand = new EditCommand(s, newS, this, currentAutomaton->getId());
+    connect(editCommand, SIGNAL(redo_editState(State, int)), this, SLOT(states_list_itemChanged(State, int)));
+    connect(editCommand, SIGNAL(undo_editState(State, int)), this, SLOT(states_list_itemChanged(State, int)));
 
     undoStack->push(editCommand);
 }
 
-void MainWindow::states_list_itemChanged(State s)
+void MainWindow::states_list_itemChanged(State s, int automaton)
 {
     int pos = 0;
+    if(currentAutomaton->getId() != automaton)
+    {
+        for(int j = 0; j < ui->Automatons_list->rowCount(); j++)
+        {
+            if(ui->Automatons_list->item(j,0)->text().toInt() == automaton)
+                ui->Automatons_list->setCurrentCell(j,1);
+        }
+    }
     for(int i = 0; i < ui->States_list->rowCount(); i++)
     {
         if(ui->States_list->item(i,0)->text().toInt() == s.getId())
@@ -544,7 +556,7 @@ void MainWindow::states_list_itemChanged(State s)
             for(int i = 0; i < ui->Transitions_list->rowCount();i++)
             {
                 if(ui->Transitions_list->item(i,0)->text().toInt() == t.getId())
-                    emit(transitions_list_itemChanged(t));
+                    emit(transitions_list_itemChanged(t, automaton));
             }
     }
 }
@@ -595,16 +607,24 @@ void MainWindow::on_Events_list_itemChanged(QTableWidgetItem *item)
     else if(item->column() == 3)
         newE.setControlable(!e.getControlable());
 
-    EditCommand *editCommand = new EditCommand(e, newE, this);
-    connect(editCommand, SIGNAL(redo_editEvent(Event)), this, SLOT(events_list_itemChanged(Event)));
-    connect(editCommand, SIGNAL(undo_editEvent(Event)), this, SLOT(events_list_itemChanged(Event)));
+    EditCommand *editCommand = new EditCommand(e, newE, this, currentAutomaton->getId());
+    connect(editCommand, SIGNAL(redo_editEvent(Event, int)), this, SLOT(events_list_itemChanged(Event, int)));
+    connect(editCommand, SIGNAL(undo_editEvent(Event, int)), this, SLOT(events_list_itemChanged(Event, int)));
 
     undoStack->push(editCommand);
 }
 
-void MainWindow::events_list_itemChanged(Event e)
+void MainWindow::events_list_itemChanged(Event e, int automaton)
 {
     int pos = 0;
+    if(currentAutomaton->getId() != automaton)
+    {
+        for(int j = 0; j < ui->Automatons_list->rowCount(); j++)
+        {
+            if(ui->Automatons_list->item(j,0)->text().toInt() == automaton)
+                ui->Automatons_list->setCurrentCell(j,1);
+        }
+    }
     for(int i = 0; i < ui->Events_list->rowCount(); i++)
     {
         if(ui->Events_list->item(i,0)->text().toInt() == e.getId())
@@ -622,7 +642,7 @@ void MainWindow::events_list_itemChanged(Event e)
             for(int i = 0; i < ui->Transitions_list->rowCount();i++)
             {
                 if(ui->Transitions_list->item(i,0)->text().toInt() == t.getId())
-                    emit(transitions_list_itemChanged(t));
+                    emit(transitions_list_itemChanged(t, automaton));
             }
     }
 }
@@ -733,15 +753,23 @@ void MainWindow::on_Transitions_list_itemChanged(QTableWidgetItem *item)
 
     transition_blocker.unblock();
 
-    EditCommand *editCommand = new EditCommand(t, newT, this);
-    connect(editCommand, SIGNAL(redo_editTransition(Transition)), this, SLOT(transitions_list_itemChanged(Transition)));
-    connect(editCommand, SIGNAL(undo_editTransition(Transition)), this, SLOT(transitions_list_itemChanged(Transition)));
+    EditCommand *editCommand = new EditCommand(t, newT, this, currentAutomaton->getId());
+    connect(editCommand, SIGNAL(redo_editTransition(Transition, int)), this, SLOT(transitions_list_itemChanged(Transition, int)));
+    connect(editCommand, SIGNAL(undo_editTransition(Transition, int)), this, SLOT(transitions_list_itemChanged(Transition, int)));
     undoStack->push(editCommand);
 }
 
-void MainWindow::transitions_list_itemChanged(Transition t)
+void MainWindow::transitions_list_itemChanged(Transition t, int automaton)
 {
     int pos = 0;
+    if(currentAutomaton->getId() != automaton)
+    {
+        for(int j = 0; j < ui->Automatons_list->rowCount(); j++)
+        {
+            if(ui->Automatons_list->item(j,0)->text().toInt() == automaton)
+                ui->Automatons_list->setCurrentCell(j,1);
+        }
+    }
     for(int i = 0; i < ui->Transitions_list->rowCount(); i++)
     {
         if(ui->Transitions_list->item(i,0)->text().toInt() == t.getId())
@@ -798,14 +826,22 @@ void MainWindow::on_actionStateCreate_triggered()
  */
 void MainWindow::createState_finished(State s)
 {
-    AddCommand *addCommand = new AddCommand(s, this);
-    connect(addCommand, SIGNAL(redo_addState(State)), this, SLOT(createState(State)));
-    connect(addCommand, SIGNAL(undo_addState(QList<int>)), this, SLOT(deleteState(QList<int>)));
+    AddCommand *addCommand = new AddCommand(s, this, currentAutomaton->getId());
+    connect(addCommand, SIGNAL(redo_addState(State, int)), this, SLOT(createState(State, int)));
+    connect(addCommand, SIGNAL(undo_addState(QList<int>, int)), this, SLOT(deleteState(QList<int>, int)));
     undoStack->push(addCommand);
 }
 
-void MainWindow::createState(State s)
+void MainWindow::createState(State s, int automaton)
 {
+    if(currentAutomaton->getId() != automaton)
+    {
+        for(int j = 0; j < ui->Automatons_list->rowCount(); j++)
+        {
+            if(ui->Automatons_list->item(j,0)->text().toInt() == automaton)
+                ui->Automatons_list->setCurrentCell(j,1);
+        }
+    }
     QSignalBlocker states_blocker(ui->States_list);
     currentAutomaton->getStateList()->insert(s.getId(),s);
     if(currentAutomaton->getIdState() == s.getId())
@@ -832,14 +868,22 @@ void MainWindow::on_actionEventCreate_triggered()
 */
 void MainWindow::createEvent_finished(Event e)
 {
-    AddCommand *addCommand = new AddCommand(e, this);
-    connect(addCommand, SIGNAL(redo_addEvent(Event)), this, SLOT(createEvent(Event)));
-    connect(addCommand, SIGNAL(undo_addEvent(QList<int>)), this, SLOT(deleteEvent(QList<int>)));
+    AddCommand *addCommand = new AddCommand(e, this, currentAutomaton->getId());
+    connect(addCommand, SIGNAL(redo_addEvent(Event, int)), this, SLOT(createEvent(Event, int)));
+    connect(addCommand, SIGNAL(undo_addEvent(QList<int>, int)), this, SLOT(deleteEvent(QList<int>, int)));
     undoStack->push(addCommand);
 }
 
-void MainWindow::createEvent(Event e)
+void MainWindow::createEvent(Event e, int automaton)
 {
+    if(currentAutomaton->getId() != automaton)
+    {
+        for(int j = 0; j < ui->Automatons_list->rowCount(); j++)
+        {
+            if(ui->Automatons_list->item(j,0)->text().toInt() == automaton)
+                ui->Automatons_list->setCurrentCell(j,1);
+        }
+    }
     QSignalBlocker events_blocker(ui->Events_list);
     currentAutomaton->getEventList()->insert(e.getId(),e);
     if(currentAutomaton->getIdEvent() == e.getId())
@@ -867,14 +911,22 @@ void MainWindow::on_actionTransitionCreate_triggered()
 */
 void MainWindow::createTransition_finished(Transition t)
 {
-    AddCommand *addCommand = new AddCommand(t, this);
-    connect(addCommand, SIGNAL(redo_addTransition(Transition)), this, SLOT(createTransition(Transition)));
-    connect(addCommand, SIGNAL(undo_addTransition(QList<int>)), this, SLOT(deleteTransition(QList<int>)));
+    AddCommand *addCommand = new AddCommand(t, this, currentAutomaton->getId());
+    connect(addCommand, SIGNAL(redo_addTransition(Transition, int)), this, SLOT(createTransition(Transition, int)));
+    connect(addCommand, SIGNAL(undo_addTransition(QList<int>, int)), this, SLOT(deleteTransition(QList<int>, int)));
     undoStack->push(addCommand);
 }
 
-void MainWindow::createTransition(Transition t)
+void MainWindow::createTransition(Transition t, int automaton)
 {
+    if(currentAutomaton->getId() != automaton)
+    {
+        for(int j = 0; j < ui->Automatons_list->rowCount(); j++)
+        {
+            if(ui->Automatons_list->item(j,0)->text().toInt() == automaton)
+                ui->Automatons_list->setCurrentCell(j,1);
+        }
+    }
     QSignalBlocker transition_blocker(ui->Transitions_list);
     currentAutomaton->getTransitionList()->insert(t.getId(),t);
     if(currentAutomaton->getIdTransition() == t.getId())
@@ -1000,19 +1052,27 @@ void MainWindow::deleteState_finished(QList<int> deleteList)
     QList<State> deleteStateList;
     for(int i : deleteList)
         deleteStateList.append(currentAutomaton->getState(i));
-    DeleteCommand *deleteCommand = new DeleteCommand(deleteStateList, this);
-    connect(deleteCommand, SIGNAL(undo_deleteState(State)), this, SLOT(createState(State)));
-    connect(deleteCommand, SIGNAL(redo_deleteState(QList<int>)), this, SLOT(deleteState(QList<int>)));
+    DeleteCommand *deleteCommand = new DeleteCommand(deleteStateList, this, currentAutomaton->getId());
+    connect(deleteCommand, SIGNAL(undo_deleteState(State, int)), this, SLOT(createState(State, int)));
+    connect(deleteCommand, SIGNAL(redo_deleteState(QList<int>, int)), this, SLOT(deleteState(QList<int>, int)));
     undoStack->beginMacro("Delete State");
     undoStack->push(deleteCommand);
     undoStack->endMacro();
 }
 
-void MainWindow::deleteState(QList<int> deleteList)
+void MainWindow::deleteState(QList<int> deleteList, int automaton)
 {
     int tmp;
     QString tmpString;
     QList<int> delTransitionList;
+    if(currentAutomaton->getId() != automaton)
+    {
+        for(int j = 0; j < ui->Automatons_list->rowCount(); j++)
+        {
+            if(ui->Automatons_list->item(j,0)->text().toInt() == automaton)
+                ui->Automatons_list->setCurrentCell(j,1);
+        }
+    }
     for(int i : deleteList)
     {
         currentAutomaton->getStateList()->remove(i);
@@ -1063,19 +1123,27 @@ void MainWindow::deleteEvent_finished(QList<int> deleteList)
     QList<Event> deleteEventList;
     for(int i : deleteList)
         deleteEventList.append(currentAutomaton->getEvent(i));
-    DeleteCommand *deleteCommand = new DeleteCommand(deleteEventList, this);
-    connect(deleteCommand, SIGNAL(undo_deleteEvent(Event)), this, SLOT(createEvent(Event)));
-    connect(deleteCommand, SIGNAL(redo_deleteEvent(QList<int>)), this, SLOT(deleteEvent(QList<int>)));
+    DeleteCommand *deleteCommand = new DeleteCommand(deleteEventList, this, currentAutomaton->getId());
+    connect(deleteCommand, SIGNAL(undo_deleteEvent(Event, int)), this, SLOT(createEvent(Event, int)));
+    connect(deleteCommand, SIGNAL(redo_deleteEvent(QList<int>, int)), this, SLOT(deleteEvent(QList<int>, int)));
     undoStack->beginMacro("delete Event)");
     undoStack->push(deleteCommand);
     undoStack->endMacro();
 }
 
-void MainWindow::deleteEvent(QList<int> deleteList)
+void MainWindow::deleteEvent(QList<int> deleteList, int automaton)
 {
     int tmp;
     QString tmpString;
     QList<int> delTransitionList;
+    if(currentAutomaton->getId() != automaton)
+    {
+        for(int j = 0; j < ui->Automatons_list->rowCount(); j++)
+        {
+            if(ui->Automatons_list->item(j,0)->text().toInt() == automaton)
+                ui->Automatons_list->setCurrentCell(j,1);
+        }
+    }
     for(int i : deleteList)
     {
         currentAutomaton->getEventList()->remove(i);
@@ -1126,15 +1194,23 @@ void MainWindow::deleteTransition_finished(QList<int> deleteList)
     QList<Transition> deleteTransitionList;
     for(int i : deleteList)
         deleteTransitionList.append(currentAutomaton->getTransition(i));
-    DeleteCommand *deleteCommand = new DeleteCommand(deleteTransitionList, this);
-    connect(deleteCommand, SIGNAL(undo_deleteTransition(Transition)), this, SLOT(createTransition(Transition)));
-    connect(deleteCommand, SIGNAL(redo_deleteTransition(QList<int>)), this, SLOT(deleteTransition(QList<int>)));
+    DeleteCommand *deleteCommand = new DeleteCommand(deleteTransitionList, this, currentAutomaton->getId());
+    connect(deleteCommand, SIGNAL(undo_deleteTransition(Transition, int)), this, SLOT(createTransition(Transition, int)));
+    connect(deleteCommand, SIGNAL(redo_deleteTransition(QList<int>, int)), this, SLOT(deleteTransition(QList<int>, int)));
     undoStack->push(deleteCommand);
 }
 
-void MainWindow::deleteTransition(QList<int> deleteList)
+void MainWindow::deleteTransition(QList<int> deleteList, int automaton)
 {
     int tmp;
+    if(currentAutomaton->getId() != automaton)
+    {
+        for(int j = 0; j < ui->Automatons_list->rowCount(); j++)
+        {
+            if(ui->Automatons_list->item(j,0)->text().toInt() == automaton)
+                ui->Automatons_list->setCurrentCell(j,1);
+        }
+    }
     for(int i : deleteList)
     {
         currentAutomaton->getTransitionList()->remove(i);

@@ -7,7 +7,7 @@
 #include <QException>
 #include <QXmlStreamWriter>
 
-enum attribute_type{ATTRIBUTE, EVENT, STATE, TRANSITION};
+enum attribute_type{ATTRIBUTE, EVENT, STATE, TRANSITION, AUTOMATON};
 
 class Attribute{
 protected:

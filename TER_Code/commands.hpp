@@ -15,9 +15,10 @@ class EditCommand : public QObject, public QUndoCommand
 public:
     explicit EditCommand();
     explicit EditCommand(const EditCommand &param);
-    explicit EditCommand(State oldAttr, State attr, MainWindow *parent);
-    explicit EditCommand(Event oldAttr, Event attr, MainWindow *parent);
-    explicit EditCommand(Transition oldAttr, Transition attr, MainWindow *parent);
+    explicit EditCommand(State oldAttr, State attr, MainWindow *parent, int automaton);
+    explicit EditCommand(Event oldAttr, Event attr, MainWindow *parent, int automaton);
+    explicit EditCommand(Transition oldAttr, Transition attr, MainWindow *parent, int automaton);
+    explicit EditCommand(Automaton oldAttr, Automaton attr, MainWindow *parent);
 
 
     void undo() override;
@@ -30,19 +31,25 @@ private:
     Event oldEvent;
     Transition attrTransition;
     Transition oldTransition;
+    Automaton attrAutomaton;
+    Automaton oldAutomaton;
+    int idAutomaton;
     MainWindow *parent;
     enum attribute_type type;
 
 signals :
     //two signals per type
-    void redo_editTransition(Transition);
-    void undo_editTransition(Transition);
+    void redo_editTransition(Transition, int);
+    void undo_editTransition(Transition, int);
 
-    void redo_editState(State);
-    void undo_editState(State);
+    void redo_editState(State, int);
+    void undo_editState(State, int);
 
-    void redo_editEvent(Event);
-    void undo_editEvent(Event);
+    void redo_editEvent(Event, int);
+    void undo_editEvent(Event, int);
+
+    void redo_editAutomaton(Automaton);
+    void undo_editAutomaton(Automaton);
 
 };
 
@@ -53,9 +60,10 @@ class DeleteCommand : public QObject, public QUndoCommand
 public:
     explicit DeleteCommand();
     explicit DeleteCommand(const DeleteCommand& param);
-    explicit DeleteCommand(QList<State> attr, MainWindow *parent);
-    explicit DeleteCommand(QList<Event> attr, MainWindow *parent);
-    explicit DeleteCommand(QList<Transition> attr, MainWindow *parent);
+    explicit DeleteCommand(QList<State> attr, MainWindow *parent, int automaton);
+    explicit DeleteCommand(QList<Event> attr, MainWindow *parent, int automaton);
+    explicit DeleteCommand(QList<Transition> attr, MainWindow *parent, int automaton);
+    explicit DeleteCommand(Automaton attr, MainWindow *parent);
 
     void undo() override;
     void redo() override;
@@ -64,19 +72,24 @@ private:
     QList<State> attrState;
     QList<Event> attrEvent;
     QList<Transition> attrTransition;
+    Automaton attrAutomaton;
+    int idAutomaton;
     MainWindow *parent;
     enum attribute_type type;
 
 signals :
     //two signals per type
-    void redo_deleteTransition(QList<int>);
-    void undo_deleteTransition(Transition);
+    void redo_deleteTransition(QList<int>, int);
+    void undo_deleteTransition(Transition, int);
 
-    void redo_deleteState(QList<int>);
-    void undo_deleteState(State);
+    void redo_deleteState(QList<int>, int);
+    void undo_deleteState(State, int);
 
-    void redo_deleteEvent(QList<int>);
-    void undo_deleteEvent(Event);
+    void redo_deleteEvent(QList<int>, int);
+    void undo_deleteEvent(Event, int);
+
+    void redo_deleteAutomaton(Automaton);
+    void undo_deleteAutomaton(Automaton);
 
 };
 
@@ -86,10 +99,11 @@ class AddCommand : public QObject, public QUndoCommand
 
 public:
     explicit AddCommand();
-    explicit AddCommand(State attr, MainWindow *parent);
-    explicit AddCommand(Event attr, MainWindow *parent);
-    explicit AddCommand(Transition attr, MainWindow *parent);
     explicit AddCommand(const AddCommand& param);
+    explicit AddCommand(State attr, MainWindow *parent, int automaton);
+    explicit AddCommand(Event attr, MainWindow *parent, int automaton);
+    explicit AddCommand(Transition attr, MainWindow *parent, int automaton);
+    explicit AddCommand(Automaton attr, MainWindow *parent);
 
     void undo() override;
     void redo() override;
@@ -98,22 +112,27 @@ private:
     State attrState;
     Event attrEvent;
     Transition attrTransition;
+    Automaton attrAutomaton;
+    int idAutomaton;
     MainWindow *parent;
     enum attribute_type type;
 
 signals :
     //two signals per type
-    void redo_addTransition(Transition);
-    void undo_addTransition(QList<int>);
+    void redo_addTransition(Transition, int);
+    void undo_addTransition(QList<int>, int);
 
-    void redo_addState(State);
-    void undo_addState(QList<int>);
+    void redo_addState(State, int);
+    void undo_addState(QList<int>, int);
 
-    void redo_addEvent(Event);
-    void undo_addEvent(QList<int>);
+    void redo_addEvent(Event, int);
+    void undo_addEvent(QList<int>, int);
+
+    void redo_addAutomaton(Automaton);
+    void undo_addAutomaton(Automaton);
 };
 
-QString createCommandString(Attribute *item);
+//QString createCommandString(Attribute *item);
 
 Q_DECLARE_METATYPE(AddCommand);
 Q_DECLARE_METATYPE(DeleteCommand);

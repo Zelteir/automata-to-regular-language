@@ -26,6 +26,13 @@ EditCommand::EditCommand(const EditCommand &param)
         oldTransition = param.oldTransition;
         break;
     }
+    case AUTOMATON:
+    {
+        type = AUTOMATON;
+        attrAutomaton = param.attrAutomaton;
+        oldAutomaton = param.oldAutomaton;
+        break;
+    }
     default:
     {
         break;
@@ -33,36 +40,53 @@ EditCommand::EditCommand(const EditCommand &param)
     }
 
     setText(param.text());
+    idAutomaton = param.idAutomaton;
 }
 
-EditCommand::EditCommand(State oldAttr, State attr, MainWindow *parent):
+EditCommand::EditCommand(State oldAttr, State attr, MainWindow *parent, int automaton):
     attrState(attr),
     oldState(oldAttr),
+    idAutomaton(automaton),
     parent(parent)
 {
     type = STATE;
-    setText(QObject::tr("Edit %1")
-            .arg(createCommandString(&oldAttr)));
+    /*setText(QObject::tr("Edit %1")
+            .arg(createCommandString(&oldAttr)));*/
+    setText(QObject::tr(""));
 }
 
-EditCommand::EditCommand(Event oldAttr, Event attr, MainWindow *parent):
+EditCommand::EditCommand(Event oldAttr, Event attr, MainWindow *parent, int automaton):
     attrEvent(attr),
     oldEvent(oldAttr),
+    idAutomaton(automaton),
     parent(parent)
 {
     type = EVENT;
-    setText(QObject::tr("Edit %1")
-            .arg(createCommandString(&oldAttr)));
+    /*setText(QObject::tr("Edit %1")
+            .arg(createCommandString(&oldAttr)));*/
+    setText(QObject::tr(""));
 }
 
-EditCommand::EditCommand(Transition oldAttr, Transition attr, MainWindow *parent):
+EditCommand::EditCommand(Transition oldAttr, Transition attr, MainWindow *parent, int automaton):
     attrTransition(attr),
     oldTransition(oldAttr),
+    idAutomaton(automaton),
     parent(parent)
 {
     type = TRANSITION;
-    setText(QObject::tr("Edit %1")
-            .arg(createCommandString(&oldAttr)));
+    /*setText(QObject::tr("Edit %1")
+            .arg(createCommandString(&oldAttr)));*/
+    setText(QObject::tr(""));
+}
+
+EditCommand::EditCommand(Automaton oldAttr, Automaton attr, MainWindow *parent):
+    attrAutomaton(attr),
+    oldAutomaton(oldAttr),
+    idAutomaton(attr.getId()),
+    parent(parent)
+{
+    type = AUTOMATON;
+    setText(QObject::tr(""));
 }
 
 void EditCommand::undo()
@@ -71,17 +95,22 @@ void EditCommand::undo()
     {
     case STATE:
     {
-        emit(undo_editState(oldState));
+        emit(undo_editState(oldState, idAutomaton));
         break;
     }
     case EVENT:
     {
-        emit(undo_editEvent(oldEvent));
+        emit(undo_editEvent(oldEvent, idAutomaton));
         break;
     }
     case TRANSITION:
     {
-        emit(undo_editTransition(oldTransition));
+        emit(undo_editTransition(oldTransition, idAutomaton));
+        break;
+    }
+    case AUTOMATON:
+    {
+        emit(undo_editAutomaton(oldAutomaton));
         break;
     }
     default:
@@ -97,17 +126,22 @@ void EditCommand::redo()
     {
     case STATE:
     {
-        emit(redo_editState(attrState));
+        emit(redo_editState(attrState, idAutomaton));
         break;
     }
     case EVENT:
     {
-        emit(redo_editEvent(attrEvent));
+        emit(redo_editEvent(attrEvent, idAutomaton));
         break;
     }
     case TRANSITION:
     {
-        emit(redo_editTransition(attrTransition));
+        emit(redo_editTransition(attrTransition, idAutomaton));
+        break;
+    }
+    case AUTOMATON:
+    {
+        emit(redo_editAutomaton(attrAutomaton));
         break;
     }
     default:
@@ -139,6 +173,12 @@ DeleteCommand::DeleteCommand(const DeleteCommand &param): parent(param.parent)
         attrTransition = param.attrTransition;
         break;
     }
+    case AUTOMATON:
+    {
+        type = AUTOMATON;
+        attrAutomaton = param.attrAutomaton;
+        break;
+    }
     default:
     {
         break;
@@ -146,46 +186,63 @@ DeleteCommand::DeleteCommand(const DeleteCommand &param): parent(param.parent)
     }
 
     setText(param.text());
+    idAutomaton = param.idAutomaton;
 }
 
-DeleteCommand::DeleteCommand(QList<State> attr, MainWindow *parent):
+DeleteCommand::DeleteCommand(QList<State> attr, MainWindow *parent, int automaton):
     attrState(attr),
+    idAutomaton(automaton),
     parent(parent)
 {
     type = STATE;
     if(attr.length()>1)
         for(int i = 0; i < attr.length(); i++)
-            setText(QObject::tr("Delete multiple states"));
+            //setText(QObject::tr("Delete multiple states"));
+            setText(QObject::tr(""));
     else
-        setText(QObject::tr("Delete %1")
-                .arg(createCommandString(&(attr[0]))));
+        /*setText(QObject::tr("Delete %1")
+                .arg(createCommandString(&(attr[0]))));*/
+                setText(QObject::tr("Delete"));
 }
 
-DeleteCommand::DeleteCommand(QList<Event> attr, MainWindow *parent):
+DeleteCommand::DeleteCommand(QList<Event> attr, MainWindow *parent, int automaton):
     attrEvent(attr),
+    idAutomaton(automaton),
     parent(parent)
 {
     type = EVENT;
     if(attr.length() > 1)
     for(int i = 0; i < attr.length(); i++)
-        setText(QObject::tr("Delete multiple events"));
+        //setText(QObject::tr("Delete multiple events"));
+        setText(QObject::tr(""));
     else
-        setText(QObject::tr("Delete %1")
-                .arg(createCommandString(&(attr[0]))));
+        /*setText(QObject::tr("Delete %1")
+                .arg(createCommandString(&(attr[0]))));*/
+        setText(QObject::tr("Delete"));
 
 }
 
-DeleteCommand::DeleteCommand(QList<Transition> attr, MainWindow *parent):
+DeleteCommand::DeleteCommand(QList<Transition> attr, MainWindow *parent, int automaton):
     attrTransition(attr),
+    idAutomaton(automaton),
     parent(parent)
 {
     type = TRANSITION;
     if(attr.length() > 1)
     for(int i = 0; i < attr.length(); i++)
-        setText(QObject::tr("Delete multiple transitions"));
+        //setText(QObject::tr("Delete multiple transitions"));
+        setText(QObject::tr(""));
     else
-        setText(QObject::tr("Delete %1")
-                .arg(createCommandString(&(attr[0]))));
+        /*setText(QObject::tr("Delete %1")
+                .arg(createCommandString(&(attr[0]))));*/
+        setText(QObject::tr("Delete"));
+}
+
+DeleteCommand::DeleteCommand(Automaton attr, MainWindow *parent):
+    attrAutomaton(attr),
+    parent(parent)
+{
+    type = AUTOMATON;
 }
 
 void DeleteCommand::undo()
@@ -195,19 +252,24 @@ void DeleteCommand::undo()
     case STATE:
     {
         for(State s : attrState)
-            emit(undo_deleteState(s));
+            emit(undo_deleteState(s, idAutomaton));
         break;
     }
     case EVENT:
     {
         for(Event e : attrEvent)
-            emit(undo_deleteEvent(e));
+            emit(undo_deleteEvent(e, idAutomaton));
         break;
     }
     case TRANSITION:
     {
         for(Transition t : attrTransition)
-            emit(undo_deleteTransition(t));
+            emit(undo_deleteTransition(t, idAutomaton));
+        break;
+    }
+    case AUTOMATON:
+    {
+        emit(undo_deleteAutomaton(attrAutomaton));
         break;
     }
     default:
@@ -226,21 +288,26 @@ void DeleteCommand::redo()
     {
         for(State s : attrState)
             deleteList.append(s.getId());
-        emit(redo_deleteState(deleteList));
+        emit(redo_deleteState(deleteList, idAutomaton));
         break;
     }
     case EVENT:
     {
         for(Event e : attrEvent)
             deleteList.append(e.getId());
-        emit(redo_deleteEvent(deleteList));
+        emit(redo_deleteEvent(deleteList, idAutomaton));
         break;
     }
     case TRANSITION:
     {
         for(Transition t : attrTransition)
             deleteList.append(t.getId());
-        emit(redo_deleteTransition(deleteList));
+        emit(redo_deleteTransition(deleteList, idAutomaton));
+        break;
+    }
+    case AUTOMATON:
+    {
+        emit(redo_deleteAutomaton(attrAutomaton));
         break;
     }
     default:
@@ -248,33 +315,6 @@ void DeleteCommand::redo()
         break;
     }
     }
-}
-
-AddCommand::AddCommand(State attr, MainWindow *parent):
-    attrState(attr),
-    parent(parent)
-{
-    type = STATE;
-    setText(QObject::tr("Add %1")
-            .arg(createCommandString(&attr)));
-}
-
-AddCommand::AddCommand(Event attr, MainWindow *parent):
-    attrEvent(attr),
-    parent(parent)
-{
-    type = EVENT;
-    setText(QObject::tr("Add %1")
-            .arg(createCommandString(&attr)));
-}
-
-AddCommand::AddCommand(Transition attr, MainWindow *parent):
-    attrTransition(attr),
-    parent(parent)
-{
-    type = TRANSITION;
-    setText(QObject::tr("Add %1")
-            .arg(createCommandString(&attr)));
 }
 
 AddCommand::AddCommand(const AddCommand &param): parent(param.parent)
@@ -299,12 +339,52 @@ AddCommand::AddCommand(const AddCommand &param): parent(param.parent)
         attrTransition = param.attrTransition;
         break;
     }
+    case AUTOMATON:
+    {
+        type = AUTOMATON;
+        attrAutomaton = param.attrAutomaton;
+        break;
+    }
     default:
     {
         break;
     }
     }
     setText(param.text());
+    idAutomaton = param.idAutomaton;
+}
+
+AddCommand::AddCommand(State attr, MainWindow *parent, int automaton):
+    attrState(attr),
+    idAutomaton(automaton),
+    parent(parent)
+{
+    type = STATE;
+    /*setText(QObject::tr("Add %1")
+            .arg(createCommandString(&attr)));*/
+    setText(QObject::tr("Add"));
+}
+
+AddCommand::AddCommand(Event attr, MainWindow *parent, int automaton):
+    attrEvent(attr),
+    idAutomaton(automaton),
+    parent(parent)
+{
+    type = EVENT;
+    /*setText(QObject::tr("Add %1")
+            .arg(createCommandString(&attr)));*/
+    setText(QObject::tr("Add"));
+}
+
+AddCommand::AddCommand(Transition attr, MainWindow *parent, int automaton):
+    attrTransition(attr),
+    idAutomaton(automaton),
+    parent(parent)
+{
+    type = TRANSITION;
+    /*setText(QObject::tr("Add %1")
+            .arg(createCommandString(&attr)));*/
+    setText(QObject::tr("Add"));
 }
 
 void AddCommand::undo()
@@ -313,17 +393,22 @@ void AddCommand::undo()
     {
     case STATE:
     {
-        emit(undo_addState(QList<int>({attrState.getId()})));
+        emit(undo_addState(QList<int>({attrState.getId()}), idAutomaton));
         break;
     }
     case EVENT:
     {
-        emit(undo_addEvent(QList<int>({attrEvent.getId()})));
+        emit(undo_addEvent(QList<int>({attrEvent.getId()}), idAutomaton));
         break;
     }
     case TRANSITION:
     {
-        emit(undo_addTransition(QList<int>({attrTransition.getId()})));
+        emit(undo_addTransition(QList<int>({attrTransition.getId()}), idAutomaton));
+        break;
+    }
+    case AUTOMATON:
+    {
+        emit(undo_addAutomaton(attrAutomaton));
         break;
     }
     default:
@@ -339,17 +424,22 @@ void AddCommand::redo()
     {
     case STATE:
     {
-        emit(redo_addState(attrState));
+        emit(redo_addState(attrState, idAutomaton));
         break;
     }
     case EVENT:
     {
-        emit(redo_addEvent(attrEvent));
+        emit(redo_addEvent(attrEvent, idAutomaton));
         break;
     }
     case TRANSITION:
     {
-        emit(redo_addTransition(attrTransition));
+        emit(redo_addTransition(attrTransition, idAutomaton));
+        break;
+    }
+    case AUTOMATON:
+    {
+        emit(redo_addAutomaton(attrAutomaton));
         break;
     }
     default:
@@ -359,9 +449,10 @@ void AddCommand::redo()
     }
 }
 
-QString createCommandString(Attribute *item)
+/*QString createCommandString(Attribute *item)
 {
     return QObject::tr("%1 %3")
             .arg((item->getType() == STATE)?"state":((item->getType() == EVENT)?"event":"transition"))
             .arg(item->getName());
 }
+*/

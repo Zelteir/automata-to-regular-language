@@ -252,6 +252,7 @@ void Automaton::fromSedma(int id, QString name, QString arg)
             line = s.split(' ');
             if(line[0] == "s")  //state
             {
+                line[3].remove('\"');
                 vecState.insert(line[3], idState);  //keep name and ID for transition creation
                 stateList.insert(idState, State(idState,line[3],(line[6] == "-i" || line[6] == "-iM"),(line[6] == "-M" || line[6] == "-iM")));
                 idState++;
@@ -262,12 +263,15 @@ void Automaton::fromSedma(int id, QString name, QString arg)
                 line[3].remove('}');
                 if(!line[3].isEmpty())
                 {
+                    line[3].remove('\"');
                     if(!vecEvent.contains(line[3]))
                     {
                         vecEvent.insert(line[3], idEvent);  //keep name and ID for transition creation and size verification
                         eventList.insert(idEvent, Event(idEvent, line[3], true, true));
                         idEvent++;
                     }
+                    line[1].remove('\"');
+                    line[2].remove('\"');
                     transitionList.insert(idTransition, Transition(idTransition,vecState.value(line[1]), vecState.value(line[2]), vecEvent.value(line[3])));
                 }
                 else

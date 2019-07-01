@@ -1079,6 +1079,9 @@ void Translator::reduction(Automaton)
 
 }
 
+/*
+ * Does not work
+ */
 void Translator::transitive_Closure(Automaton automaton, bool ignoreUnobservable, bool ignoreUncontrolable)
 {
     int size = automaton.getStateList()->last().getId()+2;
@@ -1182,6 +1185,8 @@ void Translator::transitive_Closure(Automaton automaton, bool ignoreUnobservable
 
 /*
  * Automaton minimization by Hopcroft algorithm
+ *
+ * Does not work
  */
 Automaton Translator::automatonMinimization(Automaton param)
 {
