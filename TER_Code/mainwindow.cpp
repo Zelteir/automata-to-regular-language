@@ -453,7 +453,7 @@ void MainWindow::on_actionClose_triggered()
 /*
  * whenever user modify the name of an automaton
  * ensure name isn't already in use
- * modify the name in the memory
+ * create command for undo/redo
 */
 void MainWindow::on_Automatons_list_itemChanged(QTableWidgetItem *item)
 {
@@ -478,6 +478,10 @@ void MainWindow::on_Automatons_list_itemChanged(QTableWidgetItem *item)
     undoStack->push(editCommand);
 }
 
+/*
+ * slot for undo/redo command
+ * modify name in memory, and update display
+*/
 void MainWindow::automatons_list_itemChanged(Automaton a)
 {
     int pos = 0;
